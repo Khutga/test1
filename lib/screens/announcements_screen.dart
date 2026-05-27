@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
 
@@ -57,111 +58,111 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          // İlanlar Listesi
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _announcements.length,
-              itemBuilder: (context, index) {
-                final item = _announcements[index];
-                final isSystem = item['type'] == 'system';
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isSystem ? Colors.blue.withOpacity(0.1) : AppColors.primaryPurple.withOpacity(0.1),
-                    border: Border.all(color: isSystem ? Colors.blue.withOpacity(0.3) : AppColors.primaryPurple.withOpacity(0.3)),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            item['sender'],
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isSystem ? Colors.blue : AppColors.primaryPurple),
-                          ),
-                          Text(item['time'], style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(item['text'], style: const TextStyle(fontSize: 14, color: Colors.white)),
-                      if (item['cost'] != null)
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Container(
-                            margin: const EdgeInsets.only(top: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(color: AppColors.primaryPurple.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
-                            child: const Text("Sponsorlu Elan", style: TextStyle(fontSize: 9, color: AppColors.primaryPurple)),
-                          ),
-                        )
-                    ],
-                  ),
-                );
-              },
+      body: MainBackground(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _announcements.length,
+                itemBuilder: (context, index) {
+                  final item = _announcements[index];
+                  final isSystem = item['type'] == 'system';
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isSystem ? Colors.blue.withOpacity(0.1) : AppColors.primaryPurple.withOpacity(0.1),
+                      border: Border.all(color: isSystem ? Colors.blue.withOpacity(0.3) : AppColors.primaryPurple.withOpacity(0.3)),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              item['sender'],
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isSystem ? Colors.blue : AppColors.primaryPurple),
+                            ),
+                            Text(item['time'], style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(item['text'], style: const TextStyle(fontSize: 14, color: Colors.white)),
+                        if (item['cost'] != null)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(color: AppColors.primaryPurple.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
+                              child: const Text("Sponsorlu Elan", style: TextStyle(fontSize: 9, color: AppColors.primaryPurple)),
+                            ),
+                          )
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          
-          // Yeni İlan Gönderme Alanı
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: AppColors.cardBackground,
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withOpacity(0.1),
-                    border: Border.all(color: Colors.amber.withOpacity(0.2)),
-                    borderRadius: BorderRadius.circular(12),
+            
+            Container(
+              padding: const EdgeInsets.all(16),
+              color: AppColors.cardBackground,
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withOpacity(0.1),
+                      border: Border.all(color: Colors.amber.withOpacity(0.2)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(LucideIcons.shieldAlert, color: Colors.amber, size: 16),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text("Ajans sahibləri və VIP istifadəçilər 15,000 Coin qarşılığında sistemə turnir, PK yarışı və ya özəl elan göndərə bilər!", style: TextStyle(color: Colors.amber, fontSize: 10)),
+                        )
+                      ],
+                    ),
                   ),
-                  child: const Row(
+                  const SizedBox(height: 12),
+                  Row(
                     children: [
-                      Icon(LucideIcons.shieldAlert, color: Colors.amber, size: 16),
-                      SizedBox(width: 8),
                       Expanded(
-                        child: Text("Ajans sahibləri və VIP istifadəçilər 15,000 Coin qarşılığında sistemə turnir, PK yarışı və ya özəl elan göndərə bilər!", style: TextStyle(color: Colors.amber, fontSize: 10)),
-                      )
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _annController,
-                        style: const TextStyle(fontSize: 12),
-                        decoration: InputDecoration(
-                          hintText: "Hər kəsə elan göndər...",
-                          hintStyle: const TextStyle(color: AppColors.textGray),
-                          filled: true,
-                          fillColor: Colors.white10,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                        child: TextField(
+                          controller: _annController,
+                          style: const TextStyle(fontSize: 12),
+                          decoration: InputDecoration(
+                            hintText: "Hər kəsə elan göndər...",
+                            hintStyle: const TextStyle(color: AppColors.textGray),
+                            filled: true,
+                            fillColor: Colors.white10,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: _handlePublish,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryPink,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      ),
-                      child: const Text("Göndər", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    )
-                  ],
-                )
-              ],
-            ),
-          )
-        ],
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _handlePublish,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryPink,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        ),
+                        child: const Text("Göndər", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

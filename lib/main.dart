@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'core/app_colors.dart';
@@ -38,6 +39,7 @@ class MainNavigator extends StatefulWidget {
 
 class _MainNavigatorState extends State<MainNavigator> {
   int _currentIndex = 0;
+
   final List<Widget> _screens = [
     const HomeScreen(),
     const SearchScreen(),
@@ -47,54 +49,75 @@ class _MainNavigatorState extends State<MainNavigator> {
   ];
 
   void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    setState(() => _currentIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(index: _currentIndex, children: _screens),
 
-      floatingActionButton: SizedBox(
+      floatingActionButton: Container(
         height: 64,
         width: 64,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryPink.withOpacity(0.5),
+              blurRadius: 20,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
         child: FloatingActionButton(
           onPressed: () {},
           backgroundColor: AppColors.primaryPink,
-          elevation: 8,
+          elevation: 0,
           shape: const CircleBorder(),
           child: const Icon(LucideIcons.video, color: Colors.white, size: 28),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
-      bottomNavigationBar: BottomAppBar(
-        color: AppColors.cardBackground,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        child: SizedBox(
-          height: 65,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(icon: LucideIcons.home, label: "Canlı", index: 0),
-              _buildNavItem(
-                icon: LucideIcons.compass,
-                label: "Keşfet",
-                index: 1,
+      bottomNavigationBar: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: BottomAppBar(
+            color: AppColors.cardBackground.withOpacity(0.6),
+            shape: const CircularNotchedRectangle(),
+            notchMargin: 10.0,
+            elevation: 0,
+            child: SizedBox(
+              height: 65,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(
+                    icon: LucideIcons.home,
+                    label: "Canlı",
+                    index: 0,
+                  ),
+                  _buildNavItem(
+                    icon: LucideIcons.compass,
+                    label: "Kəşf Et",
+                    index: 1,
+                  ),
+                  const SizedBox(width: 48),
+                  _buildNavItem(
+                    icon: LucideIcons.messageCircle,
+                    label: "Mesajlar",
+                    index: 3,
+                  ),
+                  _buildNavItem(
+                    icon: LucideIcons.user,
+                    label: "Profil",
+                    index: 4,
+                  ),
+                ],
               ),
-
-              const SizedBox(width: 48),
-
-              _buildNavItem(
-                icon: LucideIcons.messageCircle,
-                label: "Mesajlar",
-                index: 3,
-              ),
-              _buildNavItem(icon: LucideIcons.user, label: "Profil", index: 4),
-            ],
+            ),
           ),
         ),
       ),
@@ -107,7 +130,6 @@ class _MainNavigatorState extends State<MainNavigator> {
     required int index,
   }) {
     final isSelected = _currentIndex == index;
-
     return GestureDetector(
       onTap: () => _onTabTapped(index),
       behavior: HitTestBehavior.opaque,
@@ -117,10 +139,20 @@ class _MainNavigatorState extends State<MainNavigator> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? Colors.white : AppColors.textGray,
-              size: 24,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: EdgeInsets.all(isSelected ? 6 : 0),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primaryPurple.withOpacity(0.2)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? AppColors.primaryPink : AppColors.textGray,
+                size: isSelected ? 26 : 24,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -128,7 +160,7 @@ class _MainNavigatorState extends State<MainNavigator> {
               style: TextStyle(
                 color: isSelected ? Colors.white : AppColors.textGray,
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal,
               ),
             ),
           ],

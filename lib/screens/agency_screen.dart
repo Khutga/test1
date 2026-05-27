@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
 
@@ -37,41 +38,40 @@ class _AgencyScreenState extends State<AgencyScreen> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          // Yatay Sekmeler
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: const BoxDecoration(
-              color: Colors.white10,
-              border: Border(bottom: BorderSide(color: AppColors.borderWhite)),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  _buildTabBtn("İstatistik", "dashboard"),
-                  _buildTabBtn("Üzv İdarəetmə", "members"),
-                  _buildTabBtn("Ödəniş & Çəkim", "payout"),
-                  // Diğer sekmeleri de buraya ekleyebilirsin
-                ],
+      body: MainBackground(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: const BoxDecoration(
+                color: Colors.white10,
+                border: Border(bottom: BorderSide(color: AppColors.borderWhite)),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    _buildTabBtn("İstatistik", "dashboard"),
+                    _buildTabBtn("Üzv İdarəetmə", "members"),
+                    _buildTabBtn("Ödəniş & Çəkim", "payout"),
+                  ],
+                ),
               ),
             ),
-          ),
-          
-          // İçerik Alanı
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: _activeTab == 'dashboard' 
-                  ? _buildDashboard(quotaInfo) 
-                  : _activeTab == 'members' 
-                      ? _buildMembersList() 
-                      : const Center(child: Text("Bu bölüm yapım aşamasında")),
-            ),
-          )
-        ],
+            
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: _activeTab == 'dashboard' 
+                    ? _buildDashboard(quotaInfo) 
+                    : _activeTab == 'members' 
+                        ? _buildMembersList() 
+                        : const Center(child: Text("Bu bölüm yapım aşamasında")),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -103,7 +103,6 @@ class _AgencyScreenState extends State<AgencyScreen> {
   Widget _buildDashboard(Map<String, dynamic> quotaInfo) {
     return Column(
       children: [
-        // İstatistik Kartı
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -139,7 +138,6 @@ class _AgencyScreenState extends State<AgencyScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              // Slider Simülatörü
               const Text("Kota Simulyatoru", style: TextStyle(fontSize: 10, color: AppColors.textGray)),
               Slider(
                 value: _simulatedAgencyCoins,
@@ -198,183 +196,6 @@ class _AgencyScreenState extends State<AgencyScreen> {
     );
   }
 
-  Widget _buildRequests() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("Ajansa Katılmaq İstəyənlər", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 12),
-        ...MockData.joinRequests.map((req) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white10,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.borderWhite),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(req['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Text("ID: ${req['idCode']} • Level ${req['level']}", style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
-                      ],
-                    ),
-                    Text(req['requestDate'], style: const TextStyle(fontSize: 10, color: AppColors.primaryPurple, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Divider(color: AppColors.borderWhite, height: 1),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Həftəlik hədəf: ${req['expectedHours']} saat", style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: () {}, // Reddet logic
-                          child: const Text("Rədd Et", style: TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: () {}, // Kabul logic
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.green, padding: const EdgeInsets.symmetric(horizontal: 12), minimumSize: const Size(0, 32)),
-                          icon: const Icon(LucideIcons.userCheck, color: Colors.black, size: 14),
-                          label: const Text("Təsdiqlə", style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold)),
-                        )
-                      ],
-                    )
-                  ],
-                )
-              ],
-            ),
-          );
-        }).toList()
-      ],
-    );
-  }
 
-  Widget _buildAssistants() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("Asistan İdarəetmə Sistemi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(16)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Yeni Asistan Təyin Et", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textGray)),
-              const SizedBox(height: 12),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: "Asistan Adı / ID",
-                  hintStyle: const TextStyle(color: AppColors.textGray, fontSize: 12),
-                  filled: true,
-                  fillColor: Colors.black,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryPurple, padding: const EdgeInsets.symmetric(vertical: 12)),
-                  icon: const Icon(LucideIcons.plus, color: Colors.white, size: 16),
-                  label: const Text("Təyin Et", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                ),
-              )
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        ...MockData.assistants.map((ass) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(16)),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(ass['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    Text(ass['role'], style: const TextStyle(fontSize: 10, color: AppColors.primaryPurple, fontWeight: FontWeight.bold)),
-                    Text("ID: ${ass['idCode']} • ${ass['joinDate']}", style: const TextStyle(fontSize: 9, color: AppColors.textGray)),
-                  ],
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(LucideIcons.trash2, color: Colors.red, size: 18),
-                  style: IconButton.styleFrom(backgroundColor: Colors.red.withOpacity(0.1)),
-                )
-              ],
-            ),
-          );
-        }).toList()
-      ],
-    );
-  }
 
-  Widget _buildInvite() {
-    const String inviteCode = "AG-938X221-FIFI";
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(height: 24),
-        Container(
-          width: 80, height: 80,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(colors: [AppColors.primaryPurple, AppColors.primaryPink]),
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: const Text("🎫", style: TextStyle(fontSize: 36)),
-        ),
-        const SizedBox(height: 16),
-        const Text("Xüsusi Üzv Dəvət Kodu", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        const Text(
-          "Yeni yayınçıları bu kodla ajansınıza qeydiyyatdan keçirin, gəlirlərindən faiz qazanın!",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12, color: AppColors.textGray),
-        ),
-        const SizedBox(height: 24),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white10,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderWhite),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(inviteCode, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primaryPink, letterSpacing: 2)),
-              const SizedBox(width: 16),
-              IconButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Kod Kopyalandı!")));
-                },
-                icon: const Icon(LucideIcons.copy, color: AppColors.primaryPink, size: 18),
-                style: IconButton.styleFrom(backgroundColor: AppColors.primaryPink.withOpacity(0.1)),
-              )
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 }

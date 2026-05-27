@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
-import 'live_view_screen.dart'; // Yayına gitmek için
+import 'live_view_screen.dart'; 
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -51,7 +52,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
       ),
-      body: _searchController.text.isNotEmpty ? _buildSearchResults() : _buildExploreContent(),
+      body: MainBackground(child: _searchController.text.isNotEmpty ? _buildSearchResults() : _buildExploreContent()),
     );
   }
 
@@ -61,7 +62,6 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Trend Konular
           Row(
             children: const [
               Icon(LucideIcons.trendingUp, color: AppColors.primaryPink, size: 18),
@@ -97,7 +97,6 @@ class _SearchScreenState extends State<SearchScreen> {
           
           const SizedBox(height: 24),
           
-          // Önerilen Yayıncılar
           Row(
             children: const [
               Icon(LucideIcons.star, color: Colors.amber, size: 18),
@@ -131,6 +130,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+
   Widget _buildSearchResults() {
     if (_filteredStreams.isEmpty) {
       return Center(
@@ -146,47 +146,17 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 3 / 4,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+        crossAxisCount: 2, childAspectRatio: 0.75, crossAxisSpacing: 16, mainAxisSpacing: 16,
       ),
       itemCount: _filteredStreams.length,
       itemBuilder: (context, index) {
         final stream = _filteredStreams[index];
-        return GestureDetector(
+        return LiveStreamCard(
+          stream: stream,
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LiveViewScreen(streamData: stream))),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[800],
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  bottom: 12,
-                  left: 12,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(stream['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      Row(
-                        children: [
-                          const Icon(LucideIcons.eye, size: 12, color: Colors.white70),
-                          const SizedBox(width: 4),
-                          Text(stream['viewers'], style: const TextStyle(fontSize: 10, color: Colors.white70)),
-                        ],
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
         );
       },
     );
-  }
-}
+  }}

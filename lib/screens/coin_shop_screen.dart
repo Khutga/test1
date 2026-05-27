@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
 
@@ -11,7 +12,7 @@ class CoinShopScreen extends StatefulWidget {
 }
 
 class _CoinShopScreenState extends State<CoinShopScreen> {
-  int _userCoins = 54200; // Normalde bu State Management'tan (Riverpod vb.) gelir.
+  int _userCoins = 54200; 
 
   void _showCheckoutSheet(BuildContext context, Map<String, dynamic> pack) {
     showModalBottomSheet(
@@ -47,7 +48,6 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   onPressed: () {
-                    // Satın alma işlemi simülasyonu
                     Navigator.pop(ctx);
                     setState(() {
                       _userCoins += (pack['amount'] + pack['bonus']) as int;
@@ -79,53 +79,55 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
           ],
         ),
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 1.2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        itemCount: MockData.coinPackages.length,
-        itemBuilder: (context, index) {
-          final pack = MockData.coinPackages[index];
-          return GestureDetector(
-            onTap: () => _showCheckoutSheet(context, pack),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white10,
-                border: Border.all(color: pack['popular'] ? AppColors.primaryPink : AppColors.borderWhite),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (pack['popular'])
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: AppColors.primaryPink, borderRadius: BorderRadius.circular(8)),
-                      child: const Text("POPÜLER", style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold)),
+      body: MainBackground(
+        child: GridView.builder(
+          padding: const EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 1.2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: MockData.coinPackages.length,
+          itemBuilder: (context, index) {
+            final pack = MockData.coinPackages[index];
+            return GestureDetector(
+              onTap: () => _showCheckoutSheet(context, pack),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white10,
+                  border: Border.all(color: pack['popular'] ? AppColors.primaryPink : AppColors.borderWhite),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (pack['popular'])
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(color: AppColors.primaryPink, borderRadius: BorderRadius.circular(8)),
+                        child: const Text("POPÜLER", style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold)),
+                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("🪙", style: TextStyle(fontSize: 20)),
+                        const SizedBox(width: 4),
+                        Text(pack['amount'].toString(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                      ],
                     ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("🪙", style: TextStyle(fontSize: 20)),
-                      const SizedBox(width: 4),
-                      Text(pack['amount'].toString(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-                    ],
-                  ),
-                  if (pack['bonus'] > 0)
-                    Text("+${pack['bonus']} Bonus", style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
-                  const Spacer(),
-                  Text(pack['price'], style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 16)),
-                ],
+                    if (pack['bonus'] > 0)
+                      Text("+${pack['bonus']} Bonus", style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                    const Spacer(),
+                    Text(pack['price'], style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

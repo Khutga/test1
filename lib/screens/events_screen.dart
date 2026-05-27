@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
 
 class EventsScreen extends StatelessWidget {
@@ -13,70 +14,69 @@ class EventsScreen extends StatelessWidget {
         title: const Text("Xüsusi Tədbirlər", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Bonus Coin qazanmaq və profilinizi önə çıxarmaq üçün aktiv turnirlərə qoşulun.",
-              style: TextStyle(color: AppColors.textGray, fontSize: 12),
-            ),
-            const SizedBox(height: 24),
-            
-            // Mega Event Kartı
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primaryPink, AppColors.primaryPurple],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+      body: MainBackground(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Bonus Coin qazanmaq və profilinizi önə çıxarmaq üçün aktiv turnirlərə qoşulun.",
+                style: TextStyle(color: AppColors.textGray, fontSize: 12),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primaryPink, AppColors.primaryPurple],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppColors.primaryPurple),
+                  boxShadow: [
+                    BoxShadow(color: AppColors.primaryPurple.withOpacity(0.3), blurRadius: 20, spreadRadius: 2),
+                  ],
                 ),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.primaryPurple),
-                boxShadow: [
-                  BoxShadow(color: AppColors.primaryPurple.withOpacity(0.3), blurRadius: 20, spreadRadius: 2),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("MÖVSÜMİ AJANS TURNİRİ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1)),
-                  const SizedBox(height: 8),
-                  const Text("Həftəlik ən çox coin qazanan ajanslara tam \$10,000 mükafat fondu!", style: TextStyle(color: Colors.white, fontSize: 12)),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(20)),
-                        child: const Text("Gecə 00:00-da Sıfırlanır", style: TextStyle(fontSize: 10, color: Colors.white)),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Turnirə qoşuldunuz!"), backgroundColor: Colors.green));
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppColors.primaryPurple,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("MÖVSÜMİ AJANS TURNİRİ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                    const SizedBox(height: 8),
+                    const Text("Həftəlik ən çox coin qazanan ajanslara tam \$10,000 mükafat fondu!", style: TextStyle(color: Colors.white, fontSize: 12)),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(20)),
+                          child: const Text("Gecə 00:00-da Sıfırlanır", style: TextStyle(fontSize: 10, color: Colors.white)),
                         ),
-                        child: const Text("Qoşul", style: TextStyle(fontWeight: FontWeight.bold)),
-                      )
-                    ],
-                  )
-                ],
+                        ElevatedButton(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Turnirə qoşuldunuz!"), backgroundColor: Colors.green));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppColors.primaryPurple,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          ),
+                          child: const Text("Qoşul", style: TextStyle(fontWeight: FontWeight.bold)),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Diğer Eventler
-            _buildEventCard("Ən Aktiv Sevgili Challenge", "Premium Cütlük Badge-i", "1.2K Cütlük"),
-            _buildEventCard("Həftəlik Top Coin Kralı", "+75,000 Star Bonus", "4.8K Yayıncı"),
-          ],
+              
+              const SizedBox(height: 24),
+              
+              _buildEventCard("Ən Aktiv Sevgili Challenge", "Premium Cütlük Badge-i", "1.2K Cütlük"),
+              _buildEventCard("Həftəlik Top Coin Kralı", "+75,000 Star Bonus", "4.8K Yayıncı"),
+            ],
+          ),
         ),
       ),
     );

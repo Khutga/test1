@@ -1,10 +1,14 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
 
 class RelationshipScreen extends StatefulWidget {
-  const RelationshipScreen({super.key});
+  final Map<String, dynamic> chatData; 
+
+  const RelationshipScreen({super.key, required this.chatData});
 
   @override
   State<RelationshipScreen> createState() => _RelationshipScreenState();
@@ -32,98 +36,125 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.cardBackground,
+        backgroundColor: AppColors.background,
+        elevation: 0,
         title: const Text("Birliktelik Alanı", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Çift Bilgisi ve Progress Bar
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.primaryPink.withOpacity(0.3), AppColors.primaryPurple.withOpacity(0.3)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                border: Border.all(color: AppColors.primaryPink.withOpacity(0.3)),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildAvatar(AppColors.primaryPink),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Icon(LucideIcons.heart, color: AppColors.primaryPink, size: 32),
-                      ),
-                      _buildAvatar(AppColors.primaryPurple),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Text("Melis ❤️ Alexander", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const Text("Birliktelik Leveli: 4", style: TextStyle(color: AppColors.primaryPurple, fontSize: 12)),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("İlişki Puanı", style: TextStyle(fontSize: 10, color: AppColors.textGray)),
-                      Text("$_couplePoints / $_targetPoints XP", style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: _couplePoints / _targetPoints,
-                    backgroundColor: Colors.black54,
-                    color: AppColors.primaryPink,
-                    minHeight: 10,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _handleSendLoveEnergy,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryPink,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      ),
-                      icon: const Icon(LucideIcons.heart, color: Colors.white, size: 16),
-                      label: const Text("Sevgi Enerjisi Göndər (+50 XP)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      body: MainBackground(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(32),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      border: Border.all(color: AppColors.primaryPink.withOpacity(0.3), width: 1.5),
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(color: AppColors.primaryPink.withOpacity(0.1), blurRadius: 30, spreadRadius: -5),
+                      ],
                     ),
-                  )
-                ],
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildAvatar(widget.chatData['name'][0], AppColors.primaryPink),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Icon(LucideIcons.heart, color: Colors.redAccent.withOpacity(0.8), size: 36),
+                            ),
+                            _buildAvatar("A", AppColors.primaryPurple), 
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Text("${widget.chatData['name']} ❤️ Alexander", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(color: AppColors.primaryPurple.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
+                          child: const Text("Birliktelik Leveli: 4", style: TextStyle(color: AppColors.primaryPurple, fontSize: 12, fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text("İlişki Puanı", style: TextStyle(fontSize: 12, color: Colors.white70)),
+                            Text("$_couplePoints / $_targetPoints XP", style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          height: 12,
+                          decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(6)),
+                          child: FractionallySizedBox(
+                            alignment: Alignment.centerLeft,
+                            widthFactor: (_couplePoints / _targetPoints).clamp(0.0, 1.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(colors: [AppColors.primaryPink, AppColors.primaryPurple]),
+                                borderRadius: BorderRadius.circular(6),
+                                boxShadow: [BoxShadow(color: AppColors.primaryPink.withOpacity(0.5), blurRadius: 6)],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: _handleSendLoveEnergy,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: AppColors.primaryPink.withOpacity(0.5))),
+                            ).copyWith(
+                              backgroundColor: WidgetStateProperty.resolveWith((states) => AppColors.primaryPink.withOpacity(0.2)),
+                            ),
+                            icon: const Icon(LucideIcons.heart, color: Colors.pinkAccent, size: 18),
+                            label: const Text("Sevgi Enerjisi Göndər (+50 XP)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Yol Haritası (Roadmap)
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Sevgililik Yol Haritası & Avantajlar", style: TextStyle(color: AppColors.textGray, fontSize: 12, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 12),
-            ...MockData.relationshipRoadmap.map((step) => _buildRoadmapRow(step)).toList(),
-          ],
+              
+              const SizedBox(height: 32),
+              
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Sevgililik Yol Haritası & Avantajlar", style: TextStyle(color: AppColors.textGray, fontSize: 14, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 16),
+              ...MockData.relationshipRoadmap.map((step) => _buildRoadmapRow(step)).toList(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildAvatar(Color color) {
+  Widget _buildAvatar(String initial, Color color) {
     return Container(
-      width: 56,
-      height: 56,
+      width: 60,
+      height: 60,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.5),
+        color: color.withOpacity(0.2),
         shape: BoxShape.circle,
         border: Border.all(color: color, width: 2),
+        boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: 10)],
+      ),
+      child: Center(
+        child: Text(initial, style: TextStyle(color: color, fontSize: 24, fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -131,29 +162,38 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
   Widget _buildRoadmapRow(Map<String, dynamic> step) {
     final bool unlocked = step['unlocked'];
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white10,
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: unlocked ? AppColors.primaryPink.withOpacity(0.3) : Colors.transparent),
       ),
       child: Row(
         children: [
           Container(
-            width: 24,
-            height: 24,
+            width: 32,
+            height: 32,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: unlocked ? AppColors.primaryPink : Colors.grey[800],
+              gradient: unlocked ? const LinearGradient(colors: [AppColors.primaryPink, AppColors.primaryPurple]) : null,
+              color: unlocked ? null : Colors.white.withOpacity(0.05),
               shape: BoxShape.circle,
             ),
-            child: Text(step['lv'].toString(), style: TextStyle(color: unlocked ? Colors.white : Colors.grey[500], fontSize: 12, fontWeight: FontWeight.bold)),
+            child: Text(step['lv'].toString(), style: TextStyle(color: unlocked ? Colors.white : Colors.white54, fontSize: 14, fontWeight: FontWeight.bold)),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
-            child: Text(step['label'], style: TextStyle(color: unlocked ? Colors.white : AppColors.textGray, fontSize: 12)),
+            child: Text(step['label'], style: TextStyle(color: unlocked ? Colors.white : Colors.white54, fontSize: 13, fontWeight: unlocked ? FontWeight.w600 : FontWeight.normal)),
           ),
-          Text(unlocked ? "Açık" : "Kilitli", style: TextStyle(color: unlocked ? Colors.green : AppColors.textGray, fontSize: 10, fontWeight: FontWeight.bold)),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: unlocked ? Colors.greenAccent.withOpacity(0.1) : Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(unlocked ? "Açık" : "Kilitli", style: TextStyle(color: unlocked ? Colors.greenAccent : Colors.white30, fontSize: 10, fontWeight: FontWeight.bold)),
+          ),
         ],
       ),
     );

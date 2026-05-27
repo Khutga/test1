@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color background = Color(0xFF0A0A0F); // Ana arka plan
+  static const Color background = Color(0xFF050508); 
   static const Color cardBackground = Color(0xFF12121A);
   static const Color primaryPink = Color(0xFFEC4899);
   static const Color primaryPurple = Color(0xFFA855F7);
