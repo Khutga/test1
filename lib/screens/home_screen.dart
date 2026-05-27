@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'live_view_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          // Sub-Tab Navigation
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Row(
@@ -50,7 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const Divider(color: AppColors.borderWhite),
           
-          // Live Streams Grid
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
@@ -63,7 +62,18 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: MockData.liveStreams.length,
               itemBuilder: (context, index) {
                 final stream = MockData.liveStreams[index];
-                return _buildStreamCard(stream);
+                return GestureDetector(
+                  onTap: () {
+                    // Kart tıklandığında seçilen yayın verisiyle canlı yayına aktarır
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LiveViewScreen(streamData: stream),
+                      ),
+                    );
+                  },
+                  child: _buildStreamCard(stream),
+                );
               },
             ),
           ),
@@ -105,11 +115,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Colors.grey[800], // Resim placeholder
+        color: Colors.grey[800],
       ),
       child: Stack(
         children: [
-          // Canlı Etiketi
           Positioned(
             top: 8,
             left: 8,
@@ -122,7 +131,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Text("CANLI", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
             ),
           ),
-          // İsim ve Tagler
           Positioned(
             bottom: 12,
             left: 12,

@@ -57,4 +57,21 @@ class MockData {
     {"id": 1, "name": "Hakan_Asistan", "idCode": "AG-938X221", "role": "Finans Sorumlusu", "joinDate": "10.01.2026"},
     {"id": 2, "name": "Dilara_Mod", "idCode": "AG-112B342", "role": "Yayın Moderatörü", "joinDate": "15.02.2026"}
   ];
+  static const List<Map<String, dynamic>> trendingTags = [
+    {"id": 1, "tag": "Sohbet", "count": "125K"},
+    {"id": 2, "tag": "Müzik", "count": "89K"},
+    {"id": 3, "tag": "Oyun", "count": "45K"},
+    {"id": 4, "tag": "Dans", "count": "32K"},
+    {"id": 5, "tag": "PK_Savaşı", "count": "18K"}
+  ];
+
+  static const List<Map<String, dynamic>> withdrawalMethods = [
+    {"id": 1, "type": "Papara", "accountName": "Alexander Sahibi", "details": "Papara No: 1982736451"},
+    {"id": 2, "type": "Crypto (USDT TRC20)", "accountName": "Alexander Crypto Wallet", "details": "TTRC20: TY78aB...9zX"}
+  ];
+
+  static const List<Map<String, dynamic>> transactions = [
+    {"id": 1001, "date": "24.05.2026", "amount": "\$1,200", "status": "Tamamlandı", "method": "Papara"},
+    {"id": 1002, "date": "15.05.2026", "amount": "\$850", "status": "Tamamlandı", "method": "Crypto"},
+  ];
 }

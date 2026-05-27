@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'core/app_colors.dart';
+import 'screens/registration_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/search_screen.dart';
+import 'screens/messages_screen.dart';
 import 'screens/profile_screen.dart';
 
 void main() {
@@ -19,9 +22,9 @@ class FiFiLiveApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.background,
-        fontFamily: 'Sans', // Kendi fontunu ekleyebilirsin
+        fontFamily: 'Sans',
       ),
-      home: const MainNavigator(),
+      home: const RegistrationScreen(),
     );
   }
 }
@@ -35,44 +38,99 @@ class MainNavigator extends StatefulWidget {
 
 class _MainNavigatorState extends State<MainNavigator> {
   int _currentIndex = 0;
-
   final List<Widget> _screens = [
     const HomeScreen(),
-    const Center(child: Text("Keşfet Ekranı (Yapım Aşamasında)")),
-    const Center(child: Text("Canlı Yayın Başlat (Yapım Aşamasında)")),
-    const Center(child: Text("Mesajlar Ekranı (Yapım Aşamasında)")),
+    const SearchScreen(),
+    const Center(child: Text("Yayın Katmanı Simulyasiyası")),
+    const MessagesScreen(),
     const ProfileScreen(),
   ];
+
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppColors.borderWhite)),
+      body: IndexedStack(index: _currentIndex, children: _screens),
+
+      floatingActionButton: SizedBox(
+        height: 64,
+        width: 64,
+        child: FloatingActionButton(
+          onPressed: () {},
+          backgroundColor: AppColors.primaryPink,
+          elevation: 8,
+          shape: const CircleBorder(),
+          child: const Icon(LucideIcons.video, color: Colors.white, size: 28),
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          backgroundColor: AppColors.cardBackground,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: AppColors.textGray,
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          selectedFontSize: 10,
-          unselectedFontSize: 10,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: "Canlı"),
-            BottomNavigationBarItem(icon: Icon(LucideIcons.compass), label: "Keşfet"),
-            BottomNavigationBarItem(icon: Icon(LucideIcons.video), label: "Yayın"),
-            BottomNavigationBarItem(icon: Icon(LucideIcons.messageCircle), label: "Mesajlar"),
-            BottomNavigationBarItem(icon: Icon(LucideIcons.user), label: "Profil"),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      bottomNavigationBar: BottomAppBar(
+        color: AppColors.cardBackground,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        child: SizedBox(
+          height: 65,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(icon: LucideIcons.home, label: "Canlı", index: 0),
+              _buildNavItem(
+                icon: LucideIcons.compass,
+                label: "Keşfet",
+                index: 1,
+              ),
+
+              const SizedBox(width: 48),
+
+              _buildNavItem(
+                icon: LucideIcons.messageCircle,
+                label: "Mesajlar",
+                index: 3,
+              ),
+              _buildNavItem(icon: LucideIcons.user, label: "Profil", index: 4),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required String label,
+    required int index,
+  }) {
+    final isSelected = _currentIndex == index;
+
+    return GestureDetector(
+      onTap: () => _onTabTapped(index),
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 60,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : AppColors.textGray,
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppColors.textGray,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
           ],
         ),
       ),

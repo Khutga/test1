@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
 import 'chat_screen.dart';
+import 'announcements_screen.dart';
 
 class MessagesScreen extends StatelessWidget {
   const MessagesScreen({super.key});
@@ -19,10 +20,13 @@ class MessagesScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Sistem Elanları Banner'ı
+            // Sistem Elanları Banner'ı artik aktif sayfaya açılıyor
             InkWell(
               onTap: () {
-                // TODO: AnnouncementsScreen'e git
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AnnouncementsScreen()),
+                );
               },
               borderRadius: BorderRadius.circular(16),
               child: Container(
@@ -61,7 +65,6 @@ class MessagesScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             
-            // Mesaj Listesi
             Expanded(
               child: ListView.separated(
                 itemCount: MockData.messagesList.length,
@@ -96,7 +99,6 @@ class MessagesScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Avatar ve Çevrimiçi Noktası
             Stack(
               children: [
                 CircleAvatar(
