@@ -21,7 +21,7 @@ class EventsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Bonus Coin qazanmaq və profilinizi önə çıxarmaq üçün aktiv turnirlərə Katılun.",
+                "Bonus Coin kazanmak ve profilinizi öne çıkarmak için aktif turnuvalara katılın.",
                 style: TextStyle(color: AppColors.textGray, fontSize: 12),
               ),
               const SizedBox(height: 24),
@@ -44,7 +44,7 @@ class EventsScreen extends StatelessWidget {
                   children: [
                     const Text("SEZONLUK AJANS TURNUVASI", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1)),
                     const SizedBox(height: 8),
-                    const Text("Həftəlik ən çox coin qazanan ajanslara tam \$10,000 mükafat fondu!", style: TextStyle(color: Colors.white, fontSize: 12)),
+                    const Text("Haftalık en çok coin kazanan ajanslara tam \$10,000 ödül havuzu!", style: TextStyle(color: Colors.white, fontSize: 12)),
                     const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -56,7 +56,7 @@ class EventsScreen extends StatelessWidget {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Turnirə Katıldunuz!"), backgroundColor: Colors.green));
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Turnuvaya Katıldınız!"), backgroundColor: Colors.green));
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
@@ -73,8 +73,8 @@ class EventsScreen extends StatelessWidget {
               
               const SizedBox(height: 24),
               
-              _buildEventCard("Ən Aktiv Sevgili Challenge", "Premium Cütlük Badge-i", "1.2K Cütlük"),
-              _buildEventCard("Həftəlik Top Coin Kralı", "+75,000 Star Bonus", "4.8K Yayıncı"),
+              _buildEventCard("En Aktif Sevgili Challenge", "Premium Cütlük Badge-i", "1.2K Cütlük"),
+              _buildEventCard("Haftalık Top Coin Kralı", "+75,000 Star Bonus", "4.8K Yayıncı"),
             ],
           ),
         ),
@@ -102,7 +102,7 @@ class EventsScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text("Mükafat: $reward", style: const TextStyle(color: Colors.amber, fontSize: 10)),
+                    Text("Ödül: $reward", style: const TextStyle(color: Colors.amber, fontSize: 10)),
                     const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Text("•", style: TextStyle(color: AppColors.textGray))),
                     Text(participants, style: const TextStyle(color: AppColors.textGray, fontSize: 10)),
                   ],

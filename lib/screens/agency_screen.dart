@@ -120,7 +120,7 @@ class _AgencyScreenState extends State<AgencyScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Ajans Komissiya Seviyəniz", style: TextStyle(color: AppColors.primaryPink, fontWeight: FontWeight.bold, fontSize: 12)),
+                  const Text("Ajans Komisyon Seviyeniz", style: TextStyle(color: AppColors.primaryPink, fontWeight: FontWeight.bold, fontSize: 12)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(12)),
@@ -138,7 +138,7 @@ class _AgencyScreenState extends State<AgencyScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              const Text("Kota Simulyatoru", style: TextStyle(fontSize: 10, color: AppColors.textGray)),
+              const Text("Kota Simülatörü", style: TextStyle(fontSize: 10, color: AppColors.textGray)),
               Slider(
                 value: _simulatedAgencyCoins,
                 min: 100000,

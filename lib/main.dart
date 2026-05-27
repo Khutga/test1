@@ -7,6 +7,7 @@ import 'screens/home_screen.dart';
 import 'screens/search_screen.dart';
 import 'screens/messages_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/apiTest.dart';
 
 void main() {
   runApp(const FiFiLiveApp());

@@ -34,7 +34,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
         "sender": "SİZ (Ajans Sahibi)",
         "type": "pk",
         "text": _annController.text,
-        "time": "İndi",
+        "time": "Şimdi",
         "cost": cost
       });
       _annController.clear();
@@ -54,7 +54,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text("Sistem Duyuruları (📢)", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text("Balansınız: $_userCoins Coin", style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
+            Text("Bakiyeniz: $_userCoins Coin", style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
           ],
         ),
       ),
@@ -98,7 +98,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                               margin: const EdgeInsets.only(top: 8),
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(color: AppColors.primaryPurple.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
-                              child: const Text("Sponsorlu Elan", style: TextStyle(fontSize: 9, color: AppColors.primaryPurple)),
+                              child: const Text("Sponsorlu Duyuru", style: TextStyle(fontSize: 9, color: AppColors.primaryPurple)),
                             ),
                           )
                       ],
@@ -125,7 +125,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                         Icon(LucideIcons.shieldAlert, color: Colors.amber, size: 16),
                         SizedBox(width: 8),
                         Expanded(
-                          child: Text("Ajans sahibləri və VIP istifadəçilər 15,000 Coin qarşılığında sistemə turnir, PK yarışı və ya özəl elan göndərə bilər!", style: TextStyle(color: Colors.amber, fontSize: 10)),
+                          child: Text("Ajans sahipleri ve VIP kullanıcılar 15,000 Coin karşılığında sisteme turnuva, PK yarışı veya özel duyuru gönderebilir!", style: TextStyle(color: Colors.amber, fontSize: 10)),
                         )
                       ],
                     ),

@@ -45,7 +45,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
                 children: [
                   const Icon(LucideIcons.flame, color: AppColors.primaryPink, size: 64),
                   const SizedBox(height: 16),
-                  Text("PK Yayını Tam Ekran Simulyasiyası\n(${widget.streamData['name']})", 
+                  Text("PK Yayını Tam Ekran Simülasyonu\n(${widget.streamData['name']})", 
                     textAlign: TextAlign.center, 
                     style: const TextStyle(color: Colors.white38, fontSize: 12)),
                 ],
@@ -99,7 +99,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
                       children: [
                         Text("Bizim: ${(_pkPercentage * 120).toInt()} XP", style: const TextStyle(fontSize: 10, color: Colors.blue)),
                         const Text("PK BATTLE", style: TextStyle(fontSize: 10, color: Colors.red, fontWeight: FontWeight.bold)),
-                        Text("Rəqib: ${((1 - _pkPercentage) * 120).toInt()} XP", style: const TextStyle(fontSize: 10, color: AppColors.primaryPink)),
+                        Text("Rakip: ${((1 - _pkPercentage) * 120).toInt()} XP", style: const TextStyle(fontSize: 10, color: AppColors.primaryPink)),
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -135,7 +135,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
                       children: [
                         _buildGiftBtn("🐲", "Dragon", "25K Coin", Colors.red, () => _handleSendGift('Dragon')),
                         _buildGiftBtn("🛳️", "Yacht", "8.5K Coin", Colors.cyan, () => _handleSendGift('Yacht')),
-                        _buildGiftBtn("❤️", "Ürək", "10 Coin", AppColors.primaryPink, () => _handleSendGift('Heart')),
+                        _buildGiftBtn("❤️", "Kalp", "10 Coin", AppColors.primaryPink, () => _handleSendGift('Heart')),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -144,7 +144,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: "Söhbətə Katılun...",
+                              hintText: "Sohbete Katılın...",
                               hintStyle: const TextStyle(fontSize: 12, color: Colors.white70),
                               filled: true,
                               fillColor: Colors.black45,
