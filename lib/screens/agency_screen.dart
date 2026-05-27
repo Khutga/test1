@@ -33,7 +33,7 @@ class _AgencyScreenState extends State<AgencyScreen> {
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Ajans İdarəetmə Paneli", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text("Ajans Yönetim Paneli", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text("FiFi Live Ajans Sistemi v2.2", style: TextStyle(fontSize: 10, color: AppColors.textGray)),
           ],
         ),
@@ -53,8 +53,8 @@ class _AgencyScreenState extends State<AgencyScreen> {
                 child: Row(
                   children: [
                     _buildTabBtn("İstatistik", "dashboard"),
-                    _buildTabBtn("Üzv İdarəetmə", "members"),
-                    _buildTabBtn("Ödəniş & Çəkim", "payout"),
+                    _buildTabBtn("Üye Yönetimi", "members"),
+                    _buildTabBtn("Ödeme & Çekim", "payout"),
                   ],
                 ),
               ),

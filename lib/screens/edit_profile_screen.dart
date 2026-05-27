@@ -17,7 +17,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _handleSave() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Profil dəyişiklikləri yadda saxlanıldı!"), backgroundColor: Colors.green),
+      const SnackBar(content: Text("Profil Değişiklikleri Kaydetnıldı!"), backgroundColor: Colors.green),
     );
     Navigator.pop(context);
   }
@@ -28,7 +28,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text("Profili Redaktə Et", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text("Profili Düzenle", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: MainBackground(
         child: SingleChildScrollView(
@@ -38,19 +38,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               CustomTextField(label: "Ad / Nickname", hint: "Məsələn: Alexander", controller: _nameController, icon: LucideIcons.user),
               const SizedBox(height: 16),
-              CustomTextField(label: "Bio (Haqqında qısa məlumat)", hint: "Özün haqqında yaz", controller: _bioController, maxLines: 3, icon: LucideIcons.fileText),
+              CustomTextField(label: "Bio (Kendinden kısaca bahset)", hint: "Özün haqqında yaz", controller: _bioController, maxLines: 3, icon: LucideIcons.fileText),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(child: CustomTextField(label: "Boy (sm)", hint: "180", controller: _heightController, isNumber: true, icon: LucideIcons.arrowUpRight)),
+                  Expanded(child: CustomTextField(label: "Boy (cm)", hint: "180", controller: _heightController, isNumber: true, icon: LucideIcons.arrowUpRight)),
                   const SizedBox(width: 12),
-                  Expanded(child: CustomTextField(label: "Çəki (kq)", hint: "75", controller: _weightController, isNumber: true, icon: LucideIcons.activity)),
+                  Expanded(child: CustomTextField(label: "Kilo (kg)", hint: "75", controller: _weightController, isNumber: true, icon: LucideIcons.activity)),
                 ],
               ),
               const SizedBox(height: 32),
               
               PremiumButton(
-                text: "Dəyişiklikləri Yadda Saxla",
+                text: "Değişiklikleri Kaydet",
                 icon: LucideIcons.save,
                 onPressed: _handleSave,
               ),

@@ -42,7 +42,7 @@ class _SearchScreenState extends State<SearchScreen> {
           controller: _searchController,
           onChanged: _onSearchChanged,
           decoration: InputDecoration(
-            hintText: "Yayıncı, ID və ya Tag axtar...",
+            hintText: "Yayıncı, ID veya Etiket ara...",
             hintStyle: const TextStyle(color: AppColors.textGray, fontSize: 14),
             prefixIcon: const Icon(LucideIcons.search, color: AppColors.textGray, size: 20),
             filled: true,
@@ -66,7 +66,7 @@ class _SearchScreenState extends State<SearchScreen> {
             children: const [
               Icon(LucideIcons.trendingUp, color: AppColors.primaryPink, size: 18),
               SizedBox(width: 8),
-              Text("Trend Mövzular", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text("Trend Konular", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ],
           ),
           const SizedBox(height: 12),
@@ -101,7 +101,7 @@ class _SearchScreenState extends State<SearchScreen> {
             children: const [
               Icon(LucideIcons.star, color: Colors.amber, size: 18),
               SizedBox(width: 8),
-              Text("Tövsiyə Edilən Yayınçılar", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text("Önerilen Yayıncılar", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ],
           ),
           const SizedBox(height: 12),
@@ -139,7 +139,7 @@ class _SearchScreenState extends State<SearchScreen> {
           children: const [
             Icon(LucideIcons.search, size: 48, color: Colors.white24),
             SizedBox(height: 12),
-            Text("Nəticə tapılmadı.", style: TextStyle(color: AppColors.textGray)),
+            Text("Sonuç bulunamadı.", style: TextStyle(color: AppColors.textGray)),
           ],
         ),
       );

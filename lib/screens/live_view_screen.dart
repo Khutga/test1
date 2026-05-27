@@ -144,7 +144,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: "Söhbətə qoşulun...",
+                              hintText: "Söhbətə Katılun...",
                               hintStyle: const TextStyle(fontSize: 12, color: Colors.white70),
                               filled: true,
                               fillColor: Colors.black45,

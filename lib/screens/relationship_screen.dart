@@ -21,13 +21,13 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
   void _handleSendLoveEnergy() {
     if (_couplePoints >= _targetPoints) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Təbriklər! Yeni Birliktelik Levelinə Çatdınız!"), backgroundColor: Colors.green),
+        const SnackBar(content: Text("Tebrikler! Yeni İlişki Seviyesine Ulaştınız!"), backgroundColor: Colors.green),
       );
       setState(() => _couplePoints = 100);
     } else {
       setState(() => _couplePoints += 50);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❤️ +50 Sevgi Enerjisi Göndərildi!"), backgroundColor: AppColors.primaryPink),
+        const SnackBar(content: Text("❤️ +50 Sevgi Enerjisi Gönderildi!"), backgroundColor: AppColors.primaryPink),
       );
     }
   }
@@ -79,7 +79,7 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(color: AppColors.primaryPurple.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
-                          child: const Text("Birliktelik Leveli: 4", style: TextStyle(color: AppColors.primaryPurple, fontSize: 12, fontWeight: FontWeight.bold)),
+                          child: const Text("İlişki Seviyesi: 4", style: TextStyle(color: AppColors.primaryPurple, fontSize: 12, fontWeight: FontWeight.bold)),
                         ),
                         const SizedBox(height: 24),
                         Row(
@@ -119,7 +119,7 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
                               backgroundColor: WidgetStateProperty.resolveWith((states) => AppColors.primaryPink.withOpacity(0.2)),
                             ),
                             icon: const Icon(LucideIcons.heart, color: Colors.pinkAccent, size: 18),
-                            label: const Text("Sevgi Enerjisi Göndər (+50 XP)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            label: const Text("Sevgi Enerjisi Gönder (+50 XP)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           ),
                         )
                       ],
@@ -132,7 +132,7 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
               
               const Align(
                 alignment: Alignment.centerLeft,
-                child: Text("Sevgililik Yol Haritası & Avantajlar", style: TextStyle(color: AppColors.textGray, fontSize: 14, fontWeight: FontWeight.bold)),
+                child: Text("İlişki Yol Haritası & Avantajlar", style: TextStyle(color: AppColors.textGray, fontSize: 14, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 16),
               ...MockData.relationshipRoadmap.map((step) => _buildRoadmapRow(step)).toList(),

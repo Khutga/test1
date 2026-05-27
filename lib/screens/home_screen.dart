@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 16),
                     GlassTabButton(label: 'Trend🔥', isActive: _subTab == 'trend', onTap: () => setState(() => _subTab = 'trend')),
                     const SizedBox(width: 16),
-                    GlassTabButton(label: 'Yenilər✨', isActive: _subTab == 'yeni', onTap: () => setState(() => _subTab = 'yeni')),
+                    GlassTabButton(label: 'Yeniler✨', isActive: _subTab == 'yeni', onTap: () => setState(() => _subTab = 'yeni')),
                   ],
                 ),
               ),

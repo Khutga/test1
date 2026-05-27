@@ -22,7 +22,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
 
     if (_userCoins < cost) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Kifayət qədər coin yoxdur! Lazım olan: 15,000 Coin"), backgroundColor: Colors.red),
+        const SnackBar(content: Text("Yeterli coin yok! Lazım olan: 15,000 Coin"), backgroundColor: Colors.red),
       );
       return;
     }
@@ -41,7 +41,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("🎉 Elanınız uğurla yayımlandı! -15,000 Coin"), backgroundColor: Colors.green),
+      const SnackBar(content: Text("🎉 Duyurunuz başarıyla yayınlandı! -15,000 Coin"), backgroundColor: Colors.green),
     );
   }
 
@@ -53,7 +53,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Sistem Elanları (📢)", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text("Sistem Duyuruları (📢)", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text("Balansınız: $_userCoins Coin", style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
           ],
         ),
@@ -138,7 +138,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                           controller: _annController,
                           style: const TextStyle(fontSize: 12),
                           decoration: InputDecoration(
-                            hintText: "Hər kəsə elan göndər...",
+                            hintText: "Herkese duyuru gönder...",
                             hintStyle: const TextStyle(color: AppColors.textGray),
                             filled: true,
                             fillColor: Colors.white10,

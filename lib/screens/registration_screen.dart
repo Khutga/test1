@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
-import '../main.dart'; 
+import '../main.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -14,9 +14,9 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   int _step = 1;
-  String _selfieStatus = 'idle'; 
-  
-  String _gender = 'Kişi (Male)';
+  String _selfieStatus = 'idle';
+
+  String _gender = 'Erkek (Male)';
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _weightController = TextEditingController();
@@ -29,30 +29,43 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     int day = date.day;
     int month = date.month;
 
-    if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return 'Qoç ♈';
-    if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return 'Buğa ♉';
-    if ((month == 5 && day >= 21) || (month == 6 && day <= 21)) return 'Əkizlər ♊';
-    if ((month == 6 && day >= 22) || (month == 7 && day <= 22)) return 'Xərçəng ♋';
-    if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return 'Şir ♌';
-    if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return 'Qız ♍';
-    if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return 'Tərəzi ♎';
-    if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) return 'Əqrəb ♏';
-    if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) return 'Oxatan ♐';
-    if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) return 'Oğlaq ♑';
-    if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return 'Dolça ♒';
-    if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return 'Balıqlar ♓';
+    if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return 'Koç ♈';
+    if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return 'Boğa ♉';
+    if ((month == 5 && day >= 21) || (month == 6 && day <= 21))
+      return 'İkizler ♊';
+    if ((month == 6 && day >= 22) || (month == 7 && day <= 22))
+      return 'Yengeç ♋';
+    if ((month == 7 && day >= 23) || (month == 8 && day <= 22))
+      return 'Aslan ♌';
+    if ((month == 8 && day >= 23) || (month == 9 && day <= 22))
+      return 'Başak ♍';
+    if ((month == 9 && day >= 23) || (month == 10 && day <= 22))
+      return 'Terazi ♎';
+    if ((month == 10 && day >= 23) || (month == 11 && day <= 21))
+      return 'Akrep ♏';
+    if ((month == 11 && day >= 22) || (month == 12 && day <= 21))
+      return 'Yay ♐';
+    if ((month == 12 && day >= 22) || (month == 1 && day <= 19))
+      return 'Oğlak ♑';
+    if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return 'Kova ♒';
+    if ((month == 2 && day >= 19) || (month == 3 && day <= 20))
+      return 'Balık ♓';
     return '';
   }
 
   Future<void> _selectBirthDate(BuildContext context) async {
     final DateTime now = DateTime.now();
-    final DateTime eighteenYearsAgo = DateTime(now.year - 18, now.month, now.day);
-    
+    final DateTime eighteenYearsAgo = DateTime(
+      now.year - 18,
+      now.month,
+      now.day,
+    );
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: eighteenYearsAgo,
       firstDate: DateTime(1950),
-      lastDate: eighteenYearsAgo, 
+      lastDate: eighteenYearsAgo,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -84,9 +97,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   void _completeRegistration() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Qeydiyyat uğurla tamamlandı!"), backgroundColor: Colors.green),
+      const SnackBar(
+        content: Text("Kayıt başarıyla tamamlandı!"),
+        backgroundColor: Colors.green,
+      ),
     );
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigator()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MainNavigator()),
+    );
   }
 
   @override
@@ -98,7 +117,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.dispose();
   }
 
-  Widget _buildGlassContainer({required Widget child, EdgeInsetsGeometry padding = const EdgeInsets.all(24)}) {
+  Widget _buildGlassContainer({
+    required Widget child,
+    EdgeInsetsGeometry padding = const EdgeInsets.all(24),
+  }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: BackdropFilter(
@@ -110,7 +132,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             border: Border.all(color: Colors.white.withOpacity(0.1)),
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
-              BoxShadow(color: AppColors.primaryPurple.withOpacity(0.05), blurRadius: 20, spreadRadius: 5),
+              BoxShadow(
+                color: AppColors.primaryPurple.withOpacity(0.05),
+                blurRadius: 20,
+                spreadRadius: 5,
+              ),
             ],
           ),
           child: child,
@@ -123,7 +149,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: MainBackground(
-
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -135,21 +160,43 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   children: [
                     const Text(
                       "FiFi Live",
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.primaryPink, letterSpacing: 1),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.primaryPink,
+                        letterSpacing: 1,
+                      ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [AppColors.primaryPurple.withOpacity(0.3), AppColors.primaryPink.withOpacity(0.3)]),
-                        border: Border.all(color: AppColors.primaryPurple.withOpacity(0.5)),
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.primaryPurple.withOpacity(0.3),
+                            AppColors.primaryPink.withOpacity(0.3),
+                          ],
+                        ),
+                        border: Border.all(
+                          color: AppColors.primaryPurple.withOpacity(0.5),
+                        ),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text("Addım $_step / 3", style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                    )
+                      child: Text(
+                        "Adım $_step / 3",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 32),
-                
+
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
@@ -162,7 +209,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                   ),
                 ),
-                
+
                 Padding(
                   padding: const EdgeInsets.only(top: 16),
                   child: Row(
@@ -175,11 +222,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             child: OutlinedButton(
                               onPressed: () => setState(() => _step--),
                               style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 18),
-                                side: BorderSide(color: Colors.white.withOpacity(0.2)),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 18,
+                                ),
+                                side: BorderSide(
+                                  color: Colors.white.withOpacity(0.2),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
                               ),
-                              child: const Text("Geri", style: TextStyle(color: AppColors.textGray)),
+                              child: const Text(
+                                "Geri",
+                                style: TextStyle(color: AppColors.textGray),
+                              ),
                             ),
                           ),
                         ),
@@ -189,12 +245,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
-                              BoxShadow(color: AppColors.primaryPink.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5)),
+                              BoxShadow(
+                                color: AppColors.primaryPink.withOpacity(0.3),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
+                              ),
                             ],
                           ),
                           child: ElevatedButton(
-                            onPressed: (_step == 2 && (_nameController.text.isEmpty || _selectedBirthDate == null)) 
-                                ? null 
+                            onPressed:
+                                (_step == 2 &&
+                                    (_nameController.text.isEmpty ||
+                                        _selectedBirthDate == null))
+                                ? null
                                 : () {
                                     if (_step < 3) {
                                       setState(() => _step++);
@@ -204,21 +267,31 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primaryPink,
-                              disabledBackgroundColor: Colors.white.withOpacity(0.1),
+                              disabledBackgroundColor: Colors.white.withOpacity(
+                                0.1,
+                              ),
                               padding: const EdgeInsets.symmetric(vertical: 18),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
                               elevation: 0,
                             ),
                             child: Text(
-                              _step == 3 ? "Qeydiyyatı Tamamla" : "Növbəti Addım", 
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)
+                              _step == 3
+                                  ? "Kaydı Tamamla"
+                                  : "Sonraki Adım",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -232,23 +305,52 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Xoş gəldiniz! Cinsinizi seçin", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          const Text(
+            "Hoş Geldiniz! Cinsiyetinizi Seçin",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+          ),
           const SizedBox(height: 8),
-          const Text("Sizə ən uyğun tövsiyələri göstərmək üçün bu seçim vacibdir.", style: TextStyle(color: AppColors.textGray, fontSize: 13, height: 1.4)),
+          const Text(
+            "Size en uygun tavsiyeleri göstermek için bu seçim önemlidir.",
+            style: TextStyle(
+              color: AppColors.textGray,
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
           const SizedBox(height: 32),
           Row(
             children: [
-              Expanded(child: _buildGenderOption('Kişi (Male)', '♂', Colors.blueAccent, "Ödənişli Mesajlar")),
+              Expanded(
+                child: _buildGenderOption(
+                  'Erkek (Male)',
+                  '♂',
+                  Colors.blueAccent,
+                  "Ücretli Mesajlar",
+                ),
+              ),
               const SizedBox(width: 16),
-              Expanded(child: _buildGenderOption('Qadın (Female)', '♀', AppColors.primaryPink, "Hədiyyə Qazanmaq")),
+              Expanded(
+                child: _buildGenderOption(
+                  'Kadın (Female)',
+                  '♀',
+                  AppColors.primaryPink,
+                  "Hediye Kazanmak",
+                ),
+              ),
             ],
-          )
+          ),
         ],
-      )
+      ),
     );
   }
 
-  Widget _buildGenderOption(String label, String icon, Color color, String subTitle) {
+  Widget _buildGenderOption(
+    String label,
+    String icon,
+    Color color,
+    String subTitle,
+  ) {
     final isSelected = _gender == label;
     return GestureDetector(
       onTap: () => setState(() => _gender = label),
@@ -256,25 +358,59 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          gradient: isSelected ? LinearGradient(colors: [color.withOpacity(0.2), color.withOpacity(0.05)], begin: Alignment.topLeft, end: Alignment.bottomRight) : null,
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: [color.withOpacity(0.2), color.withOpacity(0.05)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
           color: isSelected ? null : Colors.white.withOpacity(0.02),
-          border: Border.all(color: isSelected ? color : Colors.white.withOpacity(0.1), width: 2),
+          border: Border.all(
+            color: isSelected ? color : Colors.white.withOpacity(0.1),
+            width: 2,
+          ),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: isSelected ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 15)] : [],
+          boxShadow: isSelected
+              ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 15)]
+              : [],
         ),
         child: Column(
           children: [
             Container(
               width: 56,
               height: 56,
-              decoration: BoxDecoration(color: color.withOpacity(0.2), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
               alignment: Alignment.center,
-              child: Text(icon, style: TextStyle(color: color, fontSize: 28, fontWeight: FontWeight.bold)),
+              child: Text(
+                icon,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             const SizedBox(height: 16),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
+            Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
             const SizedBox(height: 4),
-            Text(subTitle, style: TextStyle(fontSize: 10, color: isSelected ? Colors.white70 : AppColors.textGray)),
+            Text(
+              subTitle,
+              style: TextStyle(
+                fontSize: 10,
+                color: isSelected ? Colors.white70 : AppColors.textGray,
+              ),
+            ),
           ],
         ),
       ),
@@ -286,12 +422,27 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Profil Məlumatları", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          const Text(
+            "Profil Bilgileri",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+          ),
           const SizedBox(height: 24),
-          _buildTextField("Ad / Nickname", _nameController, hint: "Məsələn: Alexander", icon: LucideIcons.user),
+          _buildTextField(
+            "Ad / Nickname",
+            _nameController,
+            hint: "Məsələn: Alexander",
+            icon: LucideIcons.user,
+          ),
           const SizedBox(height: 16),
-          
-          const Text("Doğum Tarixi", style: TextStyle(fontSize: 12, color: AppColors.textGray, fontWeight: FontWeight.w600)),
+
+          const Text(
+            "Doğum Tarihi",
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.textGray,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 6),
           GestureDetector(
             onTap: () => _selectBirthDate(context),
@@ -304,11 +455,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.calendar, color: AppColors.textGray, size: 20),
+                  const Icon(
+                    LucideIcons.calendar,
+                    color: AppColors.textGray,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Text(
-                    _selectedBirthDate == null ? "Doğum tarixinizi seçin" : "${_selectedBirthDate!.day}.${_selectedBirthDate!.month}.${_selectedBirthDate!.year}",
-                    style: TextStyle(color: _selectedBirthDate == null ? Colors.white54 : Colors.white, fontSize: 14),
+                    _selectedBirthDate == null
+                        ? "Doğum Tarihinizi seçin"
+                        : "${_selectedBirthDate!.day}.${_selectedBirthDate!.month}.${_selectedBirthDate!.year}",
+                    style: TextStyle(
+                      color: _selectedBirthDate == null
+                          ? Colors.white54
+                          : Colors.white,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
@@ -317,48 +479,107 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
           if (_zodiac.isNotEmpty) ...[
             const SizedBox(height: 16),
-            const Text("Bürcünüz (Avtomatik)", style: TextStyle(fontSize: 12, color: AppColors.textGray, fontWeight: FontWeight.w600)),
+            const Text(
+              "Burcunuz",
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.textGray,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 6),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [AppColors.primaryPurple.withOpacity(0.2), Colors.transparent]),
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primaryPurple.withOpacity(0.2),
+                    Colors.transparent,
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.primaryPurple.withOpacity(0.3)),
+                border: Border.all(
+                  color: AppColors.primaryPurple.withOpacity(0.3),
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.sparkles, color: AppColors.primaryPurple, size: 20),
+                  const Icon(
+                    LucideIcons.sparkles,
+                    color: AppColors.primaryPurple,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
-                  Text(_zodiac, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(
+                    _zodiac,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const Spacer(),
                   const Icon(LucideIcons.lock, color: Colors.white30, size: 16),
                 ],
               ),
             ),
           ],
-          
+
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: _buildTextField("Boy (sm)", _heightController, isNumber: true, icon: LucideIcons.arrowUpRight)),
+              Expanded(
+                child: _buildTextField(
+                  "Boy (cm)",
+                  _heightController,
+                  isNumber: true,
+                  icon: LucideIcons.arrowUpRight,
+                ),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: _buildTextField("Çəki (kq)", _weightController, isNumber: true, icon: LucideIcons.activity)),
+              Expanded(
+                child: _buildTextField(
+                  "Kilo (kg)",
+                  _weightController,
+                  isNumber: true,
+                  icon: LucideIcons.activity,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          _buildTextField("Öz haqqınızda (Bio)", _bioController, maxLines: 3, hint: "Hobbiləriniz, maraqlarınız...", icon: LucideIcons.fileText),
+          _buildTextField(
+            "Kendiniz hakkında (Bio)",
+            _bioController,
+            maxLines: 3,
+            hint: "Hobbiləriniz, maraqlarınız...",
+            icon: LucideIcons.fileText,
+          ),
         ],
-      )
+      ),
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {String? hint, bool isNumber = false, int maxLines = 1, required IconData icon}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    String? hint,
+    bool isNumber = false,
+    int maxLines = 1,
+    required IconData icon,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textGray, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: AppColors.textGray,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
@@ -368,13 +589,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           style: const TextStyle(fontSize: 14, color: Colors.white),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14),
-            prefixIcon: maxLines == 1 ? Icon(icon, color: AppColors.textGray, size: 20) : null,
+            hintStyle: TextStyle(
+              color: Colors.white.withOpacity(0.3),
+              fontSize: 14,
+            ),
+            prefixIcon: maxLines == 1
+                ? Icon(icon, color: AppColors.textGray, size: 20)
+                : null,
             filled: true,
             fillColor: Colors.white.withOpacity(0.05),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.primaryPink, width: 1.5)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(
+                color: AppColors.primaryPink,
+                width: 1.5,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
           ),
         ),
       ],
@@ -386,17 +624,37 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Selfie Doğrulama", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          const Text(
+            "Selfie Doğrulama",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+          ),
           const SizedBox(height: 8),
-          const Text("Platformanın güvənliyi üçün real olduğunuzu təsdiqləyin. Bu proses cəmi bir neçə saniyə çəkəcək.", style: TextStyle(color: AppColors.textGray, fontSize: 13, height: 1.4)),
+          const Text(
+            "Platformun güvenliği için gerçek biri olduğunuzu doğrulayın. Bu proses cəmi bir neçə saniyə çəkəcək.",
+            style: TextStyle(
+              color: AppColors.textGray,
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
           const SizedBox(height: 32),
-          
+
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [AppColors.primaryPurple.withOpacity(0.1), Colors.transparent], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-              border: Border.all(color: AppColors.primaryPurple.withOpacity(0.3), width: 1.5),
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primaryPurple.withOpacity(0.1),
+                  Colors.transparent,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              border: Border.all(
+                color: AppColors.primaryPurple.withOpacity(0.3),
+                width: 1.5,
+              ),
               borderRadius: BorderRadius.circular(32),
             ),
             child: Column(
@@ -404,45 +662,96 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 if (_selfieStatus == 'idle') ...[
                   Container(
                     padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle),
-                    child: const Icon(LucideIcons.camera, size: 48, color: AppColors.primaryPurple),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      LucideIcons.camera,
+                      size: 48,
+                      color: AppColors.primaryPurple,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _handleSelfieSimulation,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryPurple,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
-                    child: const Text("Kameranı Aç", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  )
+                    child: const Text(
+                      "Kamerayı Aç",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ],
                 if (_selfieStatus == 'capturing') ...[
                   const SizedBox(
                     width: 80,
                     height: 80,
-                    child: CircularProgressIndicator(color: AppColors.primaryPink, strokeWidth: 4),
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryPink,
+                      strokeWidth: 4,
+                    ),
                   ),
                   const SizedBox(height: 24),
-                  const Text("Üz cizgiləriniz analiz edilir...", style: TextStyle(color: AppColors.primaryPink, fontWeight: FontWeight.bold, fontSize: 14)),
+                  const Text(
+                    "Yüz hatlarınız analiz ediliyor...",
+                    style: TextStyle(
+                      color: AppColors.primaryPink,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
                 ],
                 if (_selfieStatus == 'done') ...[
                   Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.green.withOpacity(0.2), shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.green.withOpacity(0.2), blurRadius: 20)]),
-                    child: const Icon(Icons.check, color: Colors.greenAccent, size: 48),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.2),
+                          blurRadius: 20,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.greenAccent,
+                      size: 48,
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  const Text("Mükəmməl! Təsdiqləndi", style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 18)),
+                  const Text(
+                    "Mükemmel! Onaylandı",
+                    style: TextStyle(
+                      color: Colors.greenAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  const Text("Mavi təsdiq nişanı hesabınıza əlavə edildi.", style: TextStyle(color: Colors.white70, fontSize: 12)),
-                ]
+                  const Text(
+                    "Mavi onay rozeti hesabınıza eklendi.",
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ],
               ],
             ),
           ),
         ],
-      )
+      ),
     );
   }
 }

@@ -35,13 +35,13 @@ class MockData {
     {"id": 102, "name": "Ceren.K", "gift": "Ürək ❤️", "cost": "10 Coin", "date": "15.05.2026"}
   ];
 
-  static const List<Map<String, dynamic>> relationshipRoadmap = [
-    {"lv": 1, "label": "Sadə mesajlaşma", "unlocked": true},
-    {"lv": 2, "label": "Şəkil göndərmək", "unlocked": true},
-    {"lv": 3, "label": "Səsli mesajlar", "unlocked": true},
-    {"lv": 4, "label": "Səsli zəng icazəsi", "unlocked": true},
-    {"lv": 5, "label": "Video zəng limiti ləğvi", "unlocked": false},
-    {"lv": 6, "label": "Xüsusi Çütlük Badge-i & Çərçivəsi", "unlocked": false}
+static const List<Map<String, dynamic>> relationshipRoadmap = [
+    {"lv": 1, "label": "Basit mesajlaşma", "unlocked": true},
+    {"lv": 2, "label": "Fotoğraf gönderme", "unlocked": true},
+    {"lv": 3, "label": "Sesli mesajlar", "unlocked": true},
+    {"lv": 4, "label": "Sesli arama izni", "unlocked": true},
+    {"lv": 5, "label": "Görüntülü arama limiti kaldırma", "unlocked": false},
+    {"lv": 6, "label": "Özel Çift Rozeti & Çerçevesi", "unlocked": false}
   ];
   static const List<Map<String, dynamic>> announcements = [
     {"id": 1, "sender": "SİSTEM", "type": "system", "text": "FiFi Live 2.0 Versiyasına Xoş Gəldiniz! 🚀", "time": "10:00"},

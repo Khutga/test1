@@ -46,7 +46,7 @@ class ProfileScreen extends StatelessWidget {
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Şəxsi Balans", style: TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w600)),
+                          Text("Bakiye", style: TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w600)),
                           SizedBox(height: 4),
                           Text("54,200 Coin", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.amber)),
                         ],
@@ -68,7 +68,7 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 32),
                 
                 MenuActionTile(
-                  icon: LucideIcons.gift, label: "Hədiyyə Keçmişi", iconColor: Colors.pink,
+                  icon: LucideIcons.gift, label: "Hediye Geçmişi", iconColor: Colors.pink,
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GiftHistoryScreen())),
                 ),
                 MenuActionTile(
@@ -76,7 +76,7 @@ class ProfileScreen extends StatelessWidget {
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AgencyScreen())),
                 ),
                 MenuActionTile(
-                  icon: LucideIcons.shield, label: "Ayarlar və Gizlilik", iconColor: Colors.blueAccent,
+                  icon: LucideIcons.shield, label: "Ayarlar ve Gizlilik", iconColor: Colors.blueAccent,
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
                 ),
               ],

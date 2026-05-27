@@ -7,8 +7,8 @@ class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   final List<Map<String, dynamic>> _options = const [
-    {"title": "Hesab Güvənliyi", "icon": LucideIcons.key, "color": Colors.blueAccent},
-    {"title": "Bildirişlər", "icon": LucideIcons.bell, "color": Colors.amber},
+    {"title": "Hesap Güvenliği", "icon": LucideIcons.key, "color": Colors.blueAccent},
+    {"title": "Bildirimler", "icon": LucideIcons.bell, "color": Colors.amber},
     {"title": "Gizlilik", "icon": LucideIcons.shield, "color": Colors.greenAccent},
     {"title": "Dil Seçimi", "icon": LucideIcons.compass, "color": AppColors.primaryPurple},
     {"title": "Yardım & Dəstək", "icon": LucideIcons.messageCircle, "color": AppColors.primaryPink},
@@ -20,7 +20,7 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text("Ayarlar və Gizlilik", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+        title: const Text("Ayarlar ve Gizlilik", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
       ),
       body: MainBackground(
         child: Column(
@@ -36,7 +36,7 @@ class SettingsScreen extends StatelessWidget {
                     label: opt['title'],
                     iconColor: opt['color'],
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${opt['title']} tezliklə aktiv olacaq.")));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${opt['title']} yakında aktif olacak.")));
                     },
                   );
                 },
@@ -47,7 +47,7 @@ class SettingsScreen extends StatelessWidget {
               child: Column(
                 children: [
                   PremiumButton(
-                    text: "Hesabdan Çıxış Et",
+                    text: "Hesaptan Çıkış Yap",
                     icon: LucideIcons.logOut,
                     onPressed: () {}, 
                   ),

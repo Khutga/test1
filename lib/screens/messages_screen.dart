@@ -38,9 +38,9 @@ class MessagesScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Sistem Elanları & PK", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text("Sistem Duyuruları & PK", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                           SizedBox(height: 2),
-                          Text("Turnirləri izləmək üçün klikləyin.", style: TextStyle(color: Colors.white54, fontSize: 11)),
+                          Text("Turnuvaları izlemek için tıklayın.", style: TextStyle(color: Colors.white54, fontSize: 11)),
                         ],
                       ),
                     ),

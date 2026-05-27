@@ -11,7 +11,7 @@ class EventsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.background,
-        title: const Text("Xüsusi Tədbirlər", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        title: const Text("Özel Etkinlikler", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         elevation: 0,
       ),
       body: MainBackground(
@@ -21,7 +21,7 @@ class EventsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Bonus Coin qazanmaq və profilinizi önə çıxarmaq üçün aktiv turnirlərə qoşulun.",
+                "Bonus Coin qazanmaq və profilinizi önə çıxarmaq üçün aktiv turnirlərə Katılun.",
                 style: TextStyle(color: AppColors.textGray, fontSize: 12),
               ),
               const SizedBox(height: 24),
@@ -42,7 +42,7 @@ class EventsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("MÖVSÜMİ AJANS TURNİRİ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                    const Text("SEZONLUK AJANS TURNUVASI", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1)),
                     const SizedBox(height: 8),
                     const Text("Həftəlik ən çox coin qazanan ajanslara tam \$10,000 mükafat fondu!", style: TextStyle(color: Colors.white, fontSize: 12)),
                     const SizedBox(height: 24),
@@ -52,18 +52,18 @@ class EventsScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(20)),
-                          child: const Text("Gecə 00:00-da Sıfırlanır", style: TextStyle(fontSize: 10, color: Colors.white)),
+                          child: const Text("Gece 00:00'da Sıfırlanır", style: TextStyle(fontSize: 10, color: Colors.white)),
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Turnirə qoşuldunuz!"), backgroundColor: Colors.green));
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Turnirə Katıldunuz!"), backgroundColor: Colors.green));
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: AppColors.primaryPurple,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           ),
-                          child: const Text("Qoşul", style: TextStyle(fontWeight: FontWeight.bold)),
+                          child: const Text("Katıl", style: TextStyle(fontWeight: FontWeight.bold)),
                         )
                       ],
                     )

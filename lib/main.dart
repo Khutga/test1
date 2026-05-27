@@ -101,7 +101,7 @@ class _MainNavigatorState extends State<MainNavigator> {
                   ),
                   _buildNavItem(
                     icon: LucideIcons.compass,
-                    label: "Kəşf Et",
+                    label: "Keşfet",
                     index: 1,
                   ),
                   const SizedBox(width: 48),
