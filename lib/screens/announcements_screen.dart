@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
+import '../widgets/custom_widgets.dart';
 
 class AnnouncementsScreen extends StatefulWidget {
   const AnnouncementsScreen({super.key});
@@ -19,149 +19,123 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
   void _handlePublish() {
     if (_annController.text.trim().isEmpty) return;
     const int cost = 15000;
-
     if (_userCoins < cost) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Yeterli coin yok! Lazım olan: 15,000 Coin"), backgroundColor: Colors.red),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Yetersiz coin!"), backgroundColor: Colors.red));
       return;
     }
-
     setState(() {
       _userCoins -= cost;
-      _announcements.insert(0, {
-        "id": DateTime.now().millisecondsSinceEpoch,
-        "sender": "SİZ (Ajans Sahibi)",
-        "type": "pk",
-        "text": _annController.text,
-        "time": "Şimdi",
-        "cost": cost
-      });
+      _announcements.insert(0, {"id": DateTime.now().millisecondsSinceEpoch, "sender": "SİZ", "type": "pk", "text": _annController.text, "time": "Şimdi", "cost": cost});
       _annController.clear();
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("🎉 Duyurunuz başarıyla yayınlandı! -15,000 Coin"), backgroundColor: Colors.green),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text("Duyuru yayınlandı!"), backgroundColor: AppTheme.success));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.cardBackground,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Sistem Duyuruları (📢)", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text("Bakiyeniz: $_userCoins Coin", style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
+            Text("Duyurular", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.textPrimary)),
+            Text("Bakiye: $_userCoins Coin", style: TextStyle(fontSize: 9, color: context.textSecondary)),
           ],
         ),
       ),
       body: MainBackground(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: _announcements.length,
-                itemBuilder: (context, index) {
-                  final item = _announcements[index];
-                  final isSystem = item['type'] == 'system';
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: isSystem ? Colors.blue.withOpacity(0.1) : AppColors.primaryPurple.withOpacity(0.1),
-                      border: Border.all(color: isSystem ? Colors.blue.withOpacity(0.3) : AppColors.primaryPurple.withOpacity(0.3)),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(14),
+                  itemCount: _announcements.length,
+                  itemBuilder: (_, index) {
+                    final item = _announcements[index];
+                    final isSystem = item['type'] == 'system';
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: GlassContainer(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              item['sender'],
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isSystem ? Colors.blue : AppColors.primaryPurple),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(item['sender'], style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: isSystem ? AppTheme.accent : AppTheme.accentGold)),
+                                Text(item['time'], style: TextStyle(fontSize: 9, color: context.textSecondary)),
+                              ],
                             ),
-                            Text(item['time'], style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
+                            const SizedBox(height: 6),
+                            Text(item['text'], style: TextStyle(fontSize: 12, color: context.textPrimary)),
+                            if (item['cost'] != null)
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Container(
+                                  margin: const EdgeInsets.only(top: 6),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(color: AppTheme.accent.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                                  child: Text("Sponsorlu", style: TextStyle(fontSize: 8, color: AppTheme.accent, fontWeight: FontWeight.w700)),
+                                ),
+                              ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(item['text'], style: const TextStyle(fontSize: 14, color: Colors.white)),
-                        if (item['cost'] != null)
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: Container(
-                              margin: const EdgeInsets.only(top: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(color: AppColors.primaryPurple.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
-                              child: const Text("Sponsorlu Duyuru", style: TextStyle(fontSize: 9, color: AppColors.primaryPurple)),
-                            ),
-                          )
-                      ],
-                    ),
-                  );
-                },
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            
-            Container(
-              padding: const EdgeInsets.all(16),
-              color: AppColors.cardBackground,
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.1),
-                      border: Border.all(color: Colors.amber.withOpacity(0.2)),
-                      borderRadius: BorderRadius.circular(12),
+
+              // Input
+              Container(
+                padding: const EdgeInsets.all(12),
+                color: context.card,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(color: AppTheme.warning.withOpacity(0.08), borderRadius: BorderRadius.circular(8), border: Border.all(color: AppTheme.warning.withOpacity(0.15))),
+                      child: Row(
+                        children: [
+                          Icon(LucideIcons.shieldAlert, color: AppTheme.warning, size: 14),
+                          const SizedBox(width: 6),
+                          Expanded(child: Text("15,000 Coin ile duyuru gönderebilirsiniz.", style: TextStyle(color: AppTheme.warning, fontSize: 9))),
+                        ],
+                      ),
                     ),
-                    child: const Row(
+                    const SizedBox(height: 8),
+                    Row(
                       children: [
-                        Icon(LucideIcons.shieldAlert, color: Colors.amber, size: 16),
-                        SizedBox(width: 8),
                         Expanded(
-                          child: Text("Ajans sahipleri ve VIP kullanıcılar 15,000 Coin karşılığında sisteme turnuva, PK yarışı veya özel duyuru gönderebilir!", style: TextStyle(color: Colors.amber, fontSize: 10)),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _annController,
-                          style: const TextStyle(fontSize: 12),
-                          decoration: InputDecoration(
-                            hintText: "Herkese duyuru gönder...",
-                            hintStyle: const TextStyle(color: AppColors.textGray),
-                            filled: true,
-                            fillColor: Colors.white10,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                          child: TextField(
+                            controller: _annController,
+                            style: TextStyle(fontSize: 12, color: context.textPrimary),
+                            decoration: InputDecoration(
+                              hintText: "Duyuru yaz...",
+                              hintStyle: TextStyle(color: context.textSecondary, fontSize: 12),
+                              filled: true,
+                              fillColor: context.isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.06),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: _handlePublish,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryPink,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        const SizedBox(width: 6),
+                        ElevatedButton(
+                          onPressed: _handlePublish,
+                          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10)),
+                          child: const Text("Gönder", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
                         ),
-                        child: const Text("Gönder", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      )
-                    ],
-                  )
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );

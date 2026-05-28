@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
+import '../widgets/custom_widgets.dart';
 
 class LiveViewScreen extends StatefulWidget {
   final Map<String, dynamic> streamData;
-
   const LiveViewScreen({super.key, required this.streamData});
 
   @override
@@ -14,19 +13,13 @@ class LiveViewScreen extends StatefulWidget {
 
 class _LiveViewScreenState extends State<LiveViewScreen> {
   String? _giftEffect;
-  double _pkPercentage = 0.5; 
+  double _pkPercentage = 0.5;
 
   void _handleSendGift(String giftType) {
     setState(() => _giftEffect = giftType);
-    
-    if (giftType == 'Dragon') {
-      setState(() => _pkPercentage = (_pkPercentage + 0.15).clamp(0.0, 1.0));
-    } else if (giftType == 'Yacht') {
-      setState(() => _pkPercentage = (_pkPercentage + 0.08).clamp(0.0, 1.0));
-    } else {
-      setState(() => _pkPercentage = (_pkPercentage + 0.02).clamp(0.0, 1.0));
-    }
-
+    setState(() {
+      _pkPercentage = (_pkPercentage + (giftType == 'Dragon' ? 0.15 : giftType == 'Yacht' ? 0.08 : 0.02)).clamp(0.0, 1.0);
+    });
     Future.delayed(const Duration(milliseconds: 3500), () {
       if (mounted) setState(() => _giftEffect = null);
     });
@@ -36,150 +29,135 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: MainBackground(
-        child: Stack(
-          children: [
-            Center(
+      body: Stack(
+        children: [
+          // Placeholder
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(LucideIcons.flame, color: Colors.white24, size: 48),
+                const SizedBox(height: 12),
+                Text("PK Simülasyonu\n(${widget.streamData['name']})", textAlign: TextAlign.center, style: const TextStyle(color: Colors.white30, fontSize: 11)),
+              ],
+            ),
+          ),
+
+          // Top bar
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            left: 12, right: 12,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(16)),
+                  child: Row(
+                    children: [
+                      const CircleAvatar(radius: 12, backgroundColor: Colors.white24),
+                      const SizedBox(width: 6),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(widget.streamData['name'], style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+                          const Text("Lv.42", style: TextStyle(fontSize: 8, color: Colors.white54)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(LucideIcons.x, color: Colors.white, size: 20),
+                  style: IconButton.styleFrom(backgroundColor: Colors.black45),
+                ),
+              ],
+            ),
+          ),
+
+          // PK Bar
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 56,
+            left: 12, right: 12,
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(10)),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(LucideIcons.flame, color: AppColors.primaryPink, size: 64),
-                  const SizedBox(height: 16),
-                  Text("PK Yayını Tam Ekran Simülasyonu\n(${widget.streamData['name']})", 
-                    textAlign: TextAlign.center, 
-                    style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Biz: ${(_pkPercentage * 120).toInt()} XP", style: const TextStyle(fontSize: 9, color: Colors.blue)),
+                      const Text("PK", style: TextStyle(fontSize: 9, color: Colors.red, fontWeight: FontWeight.w800)),
+                      Text("Rakip: ${((1 - _pkPercentage) * 120).toInt()} XP", style: const TextStyle(fontSize: 9, color: Colors.redAccent)),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  LinearProgressIndicator(value: _pkPercentage, backgroundColor: Colors.red, color: Colors.blue, minHeight: 6, borderRadius: BorderRadius.circular(3)),
                 ],
               ),
             ),
-        
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 8,
-              left: 16,
-              right: 16,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ),
+
+          // Bottom controls
+          Positioned(
+            bottom: 0, left: 0, right: 0,
+            child: Container(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 12, left: 12, right: 12, top: 16),
+              decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: [Colors.black, Colors.transparent])),
+              child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(20)),
-                    child: Row(
-                      children: [
-                        const CircleAvatar(radius: 14, backgroundColor: AppColors.primaryPink),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(widget.streamData['name'], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                            const Text("Lv.42 Yıldız", style: TextStyle(fontSize: 9, color: AppColors.primaryPink)),
-                          ],
-                        ),
-                      ],
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildGiftBtn("🐲", "Dragon", "25K", Colors.red, () => _handleSendGift('Dragon')),
+                      _buildGiftBtn("🛳️", "Yacht", "8.5K", Colors.cyan, () => _handleSendGift('Yacht')),
+                      _buildGiftBtn("❤️", "Kalp", "10", Colors.pink, () => _handleSendGift('Heart')),
+                    ],
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(LucideIcons.x, color: Colors.white),
-                    style: IconButton.styleFrom(backgroundColor: Colors.black45),
-                  )
-                ],
-              ),
-            ),
-        
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 70,
-              left: 16,
-              right: 16,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(16)),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Bizim: ${(_pkPercentage * 120).toInt()} XP", style: const TextStyle(fontSize: 10, color: Colors.blue)),
-                        const Text("PK BATTLE", style: TextStyle(fontSize: 10, color: Colors.red, fontWeight: FontWeight.bold)),
-                        Text("Rakip: ${((1 - _pkPercentage) * 120).toInt()} XP", style: const TextStyle(fontSize: 10, color: AppColors.primaryPink)),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    LinearProgressIndicator(
-                      value: _pkPercentage,
-                      backgroundColor: Colors.red,
-                      color: Colors.blue,
-                      minHeight: 8,
-                      borderRadius: BorderRadius.circular(4),
-                    )
-                  ],
-                ),
-              ),
-            ),
-        
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 16, left: 16, right: 16, top: 24),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [Colors.black, Colors.transparent],
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildGiftBtn("🐲", "Dragon", "25K Coin", Colors.red, () => _handleSendGift('Dragon')),
-                        _buildGiftBtn("🛳️", "Yacht", "8.5K Coin", Colors.cyan, () => _handleSendGift('Yacht')),
-                        _buildGiftBtn("❤️", "Kalp", "10 Coin", AppColors.primaryPink, () => _handleSendGift('Heart')),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: "Sohbete Katılın...",
-                              hintStyle: const TextStyle(fontSize: 12, color: Colors.white70),
-                              filled: true,
-                              fillColor: Colors.black45,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: const BorderSide(color: Colors.white10)),
-                            ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          style: const TextStyle(fontSize: 12, color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: "Sohbete katıl...",
+                            hintStyle: const TextStyle(fontSize: 11, color: Colors.white54),
+                            filled: true, fillColor: Colors.black45,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: const BoxDecoration(color: AppColors.primaryPink, shape: BoxShape.circle),
-                          child: const Icon(LucideIcons.send, size: 16),
-                        )
-                      ],
-                    )
-                  ],
-                ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(color: AppTheme.accent, shape: BoxShape.circle),
+                        child: const Icon(LucideIcons.send, size: 14, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-        
-            if (_giftEffect != null)
-              Positioned.fill(
-                child: Container(
-                  color: _giftEffect == 'Dragon' ? Colors.red.withOpacity(0.3) : Colors.blue.withOpacity(0.2),
-                  child: Center(
-                    child: Text(
-                      _giftEffect == 'Dragon' ? "🐲" : _giftEffect == 'Yacht' ? "🛳️" : "❤️",
-                      style: const TextStyle(fontSize: 120),
-                    ),
+          ),
+
+          // Gift effect overlay
+          if (_giftEffect != null)
+            Positioned.fill(
+              child: Container(
+                color: _giftEffect == 'Dragon' ? Colors.red.withOpacity(0.2) : Colors.blue.withOpacity(0.15),
+                child: Center(
+                  child: Text(
+                    _giftEffect == 'Dragon' ? "🐲" : _giftEffect == 'Yacht' ? "🛳️" : "❤️",
+                    style: const TextStyle(fontSize: 80),
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -188,18 +166,14 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          border: Border.all(color: color.withOpacity(0.3)),
-          borderRadius: BorderRadius.circular(12),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(color: color.withOpacity(0.15), border: Border.all(color: color.withOpacity(0.3)), borderRadius: BorderRadius.circular(10)),
         child: Column(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 24)),
-            const SizedBox(height: 4),
-            Text(title, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-            Text(cost, style: const TextStyle(fontSize: 9, color: Colors.amber)),
+            Text(emoji, style: const TextStyle(fontSize: 20)),
+            const SizedBox(height: 2),
+            Text(title, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white)),
+            Text(cost, style: const TextStyle(fontSize: 8, color: Colors.amber)),
           ],
         ),
       ),

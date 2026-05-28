@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
+import '../widgets/custom_widgets.dart';
 
 class AgencyScreen extends StatefulWidget {
   const AgencyScreen({super.key});
@@ -29,48 +29,45 @@ class _AgencyScreenState extends State<AgencyScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.cardBackground,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Ajans Yönetim Paneli", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text("FiFi Live Ajans Sistemi v2.2", style: TextStyle(fontSize: 10, color: AppColors.textGray)),
+            Text("Ajans Paneli", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.textPrimary)),
+            Text("v2.2", style: TextStyle(fontSize: 9, color: context.textSecondary)),
           ],
         ),
       ),
       body: MainBackground(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: const BoxDecoration(
-                color: Colors.white10,
-                border: Border(bottom: BorderSide(color: AppColors.borderWhite)),
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
+        child: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              // Tabs
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: context.border))),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(children: [
                     _buildTabBtn("İstatistik", "dashboard"),
                     _buildTabBtn("Üye Yönetimi", "members"),
                     _buildTabBtn("Ödeme & Çekim", "payout"),
-                  ],
+                  ]),
                 ),
               ),
-            ),
-            
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: _activeTab == 'dashboard' 
-                    ? _buildDashboard(quotaInfo) 
-                    : _activeTab == 'members' 
-                        ? _buildMembersList() 
-                        : const Center(child: Text("Bu bölüm yapım aşamasında")),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: _activeTab == 'dashboard'
+                      ? _buildDashboard(quotaInfo)
+                      : _activeTab == 'members'
+                          ? _buildMembersList()
+                          : Center(child: Text("Yapım aşamasında", style: TextStyle(color: context.textSecondary))),
+                ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -81,76 +78,53 @@ class _AgencyScreenState extends State<AgencyScreen> {
     return GestureDetector(
       onTap: () => setState(() => _activeTab = id),
       child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.only(right: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          gradient: isActive ? const LinearGradient(colors: [AppColors.primaryPurple, AppColors.primaryPink]) : null,
-          color: isActive ? null : Colors.white10,
-          borderRadius: BorderRadius.circular(20),
+          color: isActive ? AppTheme.accent : (context.isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.08)),
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: isActive ? Colors.white : AppColors.textGray,
-          ),
-        ),
+        child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: isActive ? Colors.white : context.textSecondary)),
       ),
     );
   }
 
   Widget _buildDashboard(Map<String, dynamic> quotaInfo) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.primaryPurple.withOpacity(0.6), Colors.black],
-            ),
-            border: Border.all(color: AppColors.primaryPurple.withOpacity(0.5), width: 2),
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return GlassContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Ajans Komisyon Seviyeniz", style: TextStyle(color: AppColors.primaryPink, fontWeight: FontWeight.bold, fontSize: 12)),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(12)),
-                    child: Text("LEVEL ${quotaInfo['level']}", style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold)),
-                  )
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(_simulatedAgencyCoins.toInt().toString(), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.amber)),
-                  Text("%${quotaInfo['rate']} Pay", style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Text("Kota Simülatörü", style: TextStyle(fontSize: 10, color: AppColors.textGray)),
-              Slider(
-                value: _simulatedAgencyCoins,
-                min: 100000,
-                max: 40000000,
-                activeColor: AppColors.primaryPink,
-                inactiveColor: Colors.grey[800],
-                onChanged: (val) => setState(() => _simulatedAgencyCoins = val),
+              Text("Komisyon Seviyesi", style: TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700, fontSize: 11)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(color: AppTheme.accentGold, borderRadius: BorderRadius.circular(8)),
+                child: Text("LEVEL ${quotaInfo['level']}", style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800)),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(_simulatedAgencyCoins.toInt().toString(), style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppTheme.accentGold)),
+              Text("%${quotaInfo['rate']} Pay", style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.w700, fontSize: 13)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text("Kota Simülatörü", style: TextStyle(fontSize: 9, color: context.textSecondary)),
+          Slider(
+            value: _simulatedAgencyCoins, min: 100000, max: 40000000,
+            activeColor: AppTheme.accent,
+            inactiveColor: context.border,
+            onChanged: (val) => setState(() => _simulatedAgencyCoins = val),
+          ),
+        ],
+      ),
     );
   }
 
@@ -158,44 +132,38 @@ class _AgencyScreenState extends State<AgencyScreen> {
     return Column(
       children: MockData.agencyMembers.map((member) {
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white10,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderWhite),
-          ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: AppColors.primaryPink.withOpacity(0.2),
-                child: Text(member['name'][0], style: const TextStyle(color: AppColors.primaryPink, fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(member['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text(member['idCode'], style: const TextStyle(fontSize: 10, color: AppColors.textGray)),
-                  ],
+          margin: const EdgeInsets.only(bottom: 8),
+          child: GlassContainer(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              children: [
+                GlowAvatar(initial: member['name'][0], radius: 16),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(member['name'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: context.textPrimary)),
+                      Text(member['idCode'], style: TextStyle(fontSize: 9, color: context.textSecondary)),
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: member['status'] == 'Aktif' ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: (member['status'] == 'Aktif' ? AppTheme.success : AppTheme.danger).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    member['status'],
+                    style: TextStyle(fontSize: 9, color: member['status'] == 'Aktif' ? AppTheme.success : AppTheme.danger, fontWeight: FontWeight.w700),
+                  ),
                 ),
-                child: Text(member['status'], style: TextStyle(fontSize: 10, color: member['status'] == 'Aktif' ? Colors.green : Colors.red)),
-              )
-            ],
+              ],
+            ),
           ),
         );
       }).toList(),
     );
   }
-
-
-
 }

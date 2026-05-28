@@ -3,55 +3,40 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../core/app_colors.dart';
 
+// ─── GLASS CONTAINER ───
 class GlassContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double borderRadius;
-  final List<Color>? gradientColors;
   final VoidCallback? onTap;
 
   const GlassContainer({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(24),
-    this.borderRadius = 24,
-    this.gradientColors,
+    this.padding = const EdgeInsets.all(14),
+    this.borderRadius = 16,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    Widget container = ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: gradientColors == null
-                ? Colors.white.withOpacity(0.03)
-                : null,
-            gradient: gradientColors != null
-                ? LinearGradient(
-                    colors: gradientColors!,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                : null,
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
-            borderRadius: BorderRadius.circular(borderRadius),
-            boxShadow: [
-              if (gradientColors != null)
+    Widget container = Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: context.card,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: context.border.withOpacity(0.5)),
+        boxShadow: context.isDark
+            ? null
+            : [
                 BoxShadow(
-                  color: gradientColors!.first.withOpacity(0.1),
-                  blurRadius: 20,
-                  spreadRadius: 2,
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-            ],
-          ),
-          child: child,
-        ),
+              ],
       ),
+      child: child,
     );
 
     if (onTap != null) {
@@ -65,41 +50,38 @@ class GlassContainer extends StatelessWidget {
   }
 }
 
+// ─── AVATAR ───
 class GlowAvatar extends StatelessWidget {
   final String initial;
   final double radius;
-  final Color color;
+  final Color? color;
 
   const GlowAvatar({
     super.key,
     required this.initial,
-    this.radius = 26,
-    this.color = AppColors.primaryPink,
+    this.radius = 22,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 15)],
-      ),
-      child: CircleAvatar(
-        radius: radius,
-        backgroundColor: color.withOpacity(0.8),
-        child: Text(
-          initial,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: radius * 0.6,
-          ),
+    final c = color ?? AppTheme.accent;
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: c.withOpacity(context.isDark ? 0.7 : 0.85),
+      child: Text(
+        initial,
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+          fontSize: radius * 0.55,
         ),
       ),
     );
   }
 }
 
+// ─── PREMIUM BUTTON ───
 class PremiumButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -114,44 +96,26 @@ class PremiumButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          if (onPressed != null)
-            BoxShadow(
-              color: AppColors.primaryPink.withOpacity(0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-        ],
-      ),
+    return SizedBox(
+      width: double.infinity,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryPink,
-          disabledBackgroundColor: Colors.white.withOpacity(0.1),
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          backgroundColor: AppTheme.accent,
+          disabledBackgroundColor: context.textSecondary.withOpacity(0.15),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 0,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, color: Colors.white, size: 18),
-              const SizedBox(width: 8),
+              Icon(icon, color: Colors.white, size: 16),
+              const SizedBox(width: 6),
             ],
-            Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
+            Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14)),
           ],
         ),
       ),
@@ -159,6 +123,7 @@ class PremiumButton extends StatelessWidget {
   }
 }
 
+// ─── TEXT FIELD ───
 class CustomTextField extends StatelessWidget {
   final String label;
   final String hint;
@@ -182,46 +147,30 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: AppColors.textGray,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 6),
+        Text(label, style: TextStyle(fontSize: 11, color: context.textSecondary, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
         TextField(
           controller: controller,
           keyboardType: isNumber ? TextInputType.number : TextInputType.text,
           maxLines: maxLines,
-          style: const TextStyle(fontSize: 14, color: Colors.white),
+          style: TextStyle(fontSize: 13, color: context.textPrimary),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(
-              color: Colors.white.withOpacity(0.3),
-              fontSize: 14,
-            ),
+            hintStyle: TextStyle(color: context.textSecondary.withOpacity(0.5), fontSize: 13),
             prefixIcon: (maxLines == 1 && icon != null)
-                ? Icon(icon, color: AppColors.textGray, size: 20)
+                ? Icon(icon, color: context.textSecondary, size: 18)
                 : null,
             filled: true,
-            fillColor: Colors.white.withOpacity(0.05),
+            fillColor: context.isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.06),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: context.border),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: AppColors.primaryPink,
-                width: 1.5,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
             ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           ),
         ),
       ],
@@ -229,12 +178,14 @@ class CustomTextField extends StatelessWidget {
   }
 }
 
+// ─── MENU TILE ───
 class MenuActionTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color iconColor;
   final VoidCallback onTap;
   final String? badge;
+  final Widget? trailing;
 
   const MenuActionTile({
     super.key,
@@ -243,66 +194,48 @@ class MenuActionTile extends StatelessWidget {
     required this.iconColor,
     required this.onTap,
     this.badge,
+    this.trailing,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 8),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(14),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.03),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            color: context.card,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: context.border.withOpacity(0.5)),
           ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
                   color: iconColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: iconColor, size: 20),
+                child: Icon(icon, color: iconColor, size: 17),
               ),
-              const SizedBox(width: 16),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                ),
-              ),
+              const SizedBox(width: 12),
+              Text(label, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: context.textPrimary)),
               const Spacer(),
               if (badge != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.redAccent.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    color: AppTheme.danger.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text(
-                    badge!,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
+                  child: Text(badge!, style: TextStyle(fontSize: 9, color: AppTheme.danger, fontWeight: FontWeight.w800)),
                 ),
-              const SizedBox(width: 8),
-              const Icon(
-                LucideIcons.chevronRight,
-                color: Colors.white30,
-                size: 18,
-              ),
+              if (trailing != null) trailing!,
+              if (badge == null && trailing == null)
+                Icon(LucideIcons.chevronRight, color: context.textSecondary.withOpacity(0.4), size: 16),
             ],
           ),
         ),
@@ -311,6 +244,7 @@ class MenuActionTile extends StatelessWidget {
   }
 }
 
+// ─── GRADIENT BADGE ───
 class GradientBadge extends StatelessWidget {
   final String text;
   final IconData? icon;
@@ -320,48 +254,41 @@ class GradientBadge extends StatelessWidget {
     super.key,
     required this.text,
     this.icon,
-    this.color = AppColors.primaryPink,
+    this.color = AppTheme.accent,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, color: color, size: 10),
-            const SizedBox(width: 4),
+            Icon(icon, color: color, size: 9),
+            const SizedBox(width: 3),
           ],
-          Text(
-            text,
-            style: TextStyle(
-              color: color,
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(text, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w700)),
         ],
       ),
     );
   }
 }
 
+// ─── GLASS ICON BUTTON ───
 class GlassIconButton extends StatelessWidget {
   final IconData icon;
-  final Color color;
+  final Color? color;
   final VoidCallback onTap;
 
   const GlassIconButton({
     super.key,
     required this.icon,
-    this.color = Colors.white,
+    this.color,
     required this.onTap,
   });
 
@@ -370,18 +297,19 @@ class GlassIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(7),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: context.isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.08),
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: context.border.withOpacity(0.5)),
         ),
-        child: Icon(icon, color: color, size: 20),
+        child: Icon(icon, color: color ?? context.textPrimary, size: 18),
       ),
     );
   }
 }
 
+// ─── LIVE STREAM CARD (KOMPAKT) ───
 class LiveStreamCard extends StatelessWidget {
   final Map<String, dynamic> stream;
   final VoidCallback onTap;
@@ -394,140 +322,103 @@ class LiveStreamCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.grey[800]!, Colors.grey[900]!],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primaryPurple.withOpacity(0.15),
-              blurRadius: 15,
-              spreadRadius: 2,
-            ),
-          ],
-          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5),
+          borderRadius: BorderRadius.circular(16),
+          color: context.card,
+          boxShadow: context.isDark
+              ? null
+              : [
+                  BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 2)),
+                ],
+          border: Border.all(color: context.border.withOpacity(0.5)),
         ),
         child: Stack(
           children: [
+            // Placeholder background
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: context.isDark
+                      ? [Colors.grey[850]!, Colors.grey[900]!]
+                      : [Colors.grey[200]!, Colors.grey[300]!],
+                ),
+              ),
+            ),
+
+            // CANLI badge
             Positioned(
-              top: 12,
-              left: 12,
+              top: 8,
+              left: 8,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryPink,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primaryPink.withOpacity(0.5),
-                      blurRadius: 8,
-                    ),
-                  ],
+                  color: AppTheme.danger,
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Row(
                   children: [
-                    Icon(LucideIcons.radio, color: Colors.white, size: 12),
-                    SizedBox(width: 4),
-                    Text(
-                      "CANLI",
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                      ),
-                    ),
+                    Icon(LucideIcons.radio, color: Colors.white, size: 9),
+                    SizedBox(width: 3),
+                    Text("CANLI", style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: Colors.white)),
                   ],
                 ),
               ),
             ),
+
+            // İzleyici sayısı
             Positioned(
-              top: 12,
-              right: 12,
+              top: 8,
+              right: 8,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.black.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      LucideIcons.eye,
-                      color: Colors.white70,
-                      size: 12,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      stream['viewers'],
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.white70,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const Icon(LucideIcons.eye, color: Colors.white70, size: 10),
+                    const SizedBox(width: 3),
+                    Text(stream['viewers'], style: const TextStyle(fontSize: 9, color: Colors.white70, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
             ),
+
+            // Alt bilgi
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(22),
-                ),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      border: Border(
-                        top: BorderSide(color: Colors.white.withOpacity(0.1)),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          stream['name'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: (stream['tags'] as List)
-                              .map(
-                                (tag) => Container(
-                                  margin: const EdgeInsets.only(right: 6),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    tag,
-                                    style: const TextStyle(
-                                      fontSize: 9,
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
-                    ),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [Colors.black.withOpacity(0.7), Colors.transparent],
                   ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(stream['name'], style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white)),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 4,
+                      children: (stream['tags'] as List).map((tag) => Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(tag, style: const TextStyle(fontSize: 8, color: Colors.white70)),
+                      )).toList(),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -538,48 +429,31 @@ class LiveStreamCard extends StatelessWidget {
   }
 }
 
+// ─── TAB BUTTON ───
 class GlassTabButton extends StatelessWidget {
   final String label;
   final bool isActive;
   final VoidCallback onTap;
 
-  const GlassTabButton({
-    super.key,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
+  const GlassTabButton({super.key, required this.label, required this.isActive, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          gradient: isActive
-              ? const LinearGradient(
-                  colors: [AppColors.primaryPurple, AppColors.primaryPink],
-                )
-              : null,
-          color: isActive ? null : Colors.white.withOpacity(0.05),
+          color: isActive ? AppTheme.accent : (context.isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.08)),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: AppColors.primaryPink.withOpacity(0.3),
-                    blurRadius: 10,
-                  ),
-                ]
-              : [],
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isActive ? Colors.white : AppColors.textGray,
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
+            color: isActive ? Colors.white : context.textSecondary,
+            fontWeight: FontWeight.w700,
+            fontSize: 12,
           ),
         ),
       ),
@@ -587,6 +461,7 @@ class GlassTabButton extends StatelessWidget {
   }
 }
 
+// ─── MAIN BACKGROUND (SADE) ───
 class MainBackground extends StatelessWidget {
   final Widget child;
   const MainBackground({super.key, required this.child});
@@ -594,29 +469,8 @@ class MainBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment.topRight,
-          radius: 1.4,
-          colors: [
-            AppColors.primaryPurple.withOpacity(0.15),
-            AppColors.background,
-          ],
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.bottomLeft,
-            radius: 1.2,
-            colors: [
-              AppColors.primaryPink.withOpacity(0.06),
-              Colors.transparent,
-            ],
-          ),
-        ),
-        child: child,
-      ),
+      color: context.bg,
+      child: child,
     );
   }
 }

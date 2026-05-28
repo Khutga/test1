@@ -1,14 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:nivi/screens/live.dart';
 import 'core/app_colors.dart';
+import 'core/theme_provider.dart';
 import 'screens/registration_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/search_screen.dart';
 import 'screens/messages_screen.dart';
 import 'screens/profile_screen.dart';
-import 'screens/apiTest.dart';
 
 void main() {
   runApp(const FiFiLiveApp());
@@ -19,15 +19,22 @@ class FiFiLiveApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'FiFi Live',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: AppColors.background,
-        fontFamily: 'Sans',
-      ),
-      home: const RegistrationScreen(),
+    return AnimatedBuilder(
+      animation: themeProvider,
+      builder: (context, _) {
+        final isDark = themeProvider.isDark;
+        SystemChrome.setSystemUIOverlayStyle(
+          isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+        );
+        return MaterialApp(
+          title: 'FiFi Live',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: themeProvider.themeMode,
+          home: const RegistrationScreen(),
+        );
+      },
     );
   }
 }
@@ -45,7 +52,7 @@ class _MainNavigatorState extends State<MainNavigator> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const SearchScreen(),
-    const Center(child: Text("Yayın Katmanı Simulyasiyası")),
+    const Center(child: Text("Yayın Katmanı")),
     const MessagesScreen(),
     const ProfileScreen(),
   ];
@@ -60,111 +67,41 @@ class _MainNavigatorState extends State<MainNavigator> {
       extendBody: true,
       body: IndexedStack(index: _currentIndex, children: _screens),
 
-      floatingActionButton: Container(
-        height: 64,
-        width: 64,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primaryPink.withOpacity(0.5),
-              blurRadius: 20,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
+      floatingActionButton: SizedBox(
+        height: 52,
+        width: 52,
         child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const PremiumLiveStreamPage(
-                  roomName: "ExampleRoom",
-                  username: 'Example User',
-                  isHost: true,
-                ),
-              ),
-            );
-          },
-          backgroundColor: AppColors.primaryPink,
-          elevation: 0,
+          onPressed: () {},
+          backgroundColor: AppTheme.accent,
+          elevation: 4,
           shape: const CircleBorder(),
-          child: const Icon(LucideIcons.video, color: Colors.white, size: 28),
+          child: const Icon(LucideIcons.video, color: Colors.white, size: 22),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
       bottomNavigationBar: ClipRRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: BottomAppBar(
-            color: AppColors.cardBackground.withOpacity(0.6),
-            shape: const CircularNotchedRectangle(),
-            notchMargin: 10.0,
-            elevation: 0,
-            child: SizedBox(
-              height: 65,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItem(
-                    icon: LucideIcons.home,
-                    label: "Canlı",
-                    index: 0,
-                  ),
-                  _buildNavItem(
-                    icon: LucideIcons.compass,
-                    label: "Keşfet",
-                    index: 1,
-                  ),
-                  const SizedBox(width: 48),
-
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      _buildNavItem(
-                        icon: LucideIcons.messageCircle,
-                        label: "Mesajlar",
-                        index: 3,
-                      ),
-                      Positioned(
-                        top: -2,
-                        right: 8,
-                        child: Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                AppColors.primaryPink,
-                                AppColors.primaryPurple,
-                              ],
-                            ),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.background,
-                              width: 1.5,
-                            ),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "2",
-                              style: TextStyle(
-                                fontSize: 8,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _buildNavItem(
-                    icon: LucideIcons.user,
-                    label: "Profil",
-                    index: 4,
-                  ),
-                ],
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            decoration: BoxDecoration(
+              color: context.card.withOpacity(context.isDark ? 0.85 : 0.92),
+              border: Border(top: BorderSide(color: context.border.withOpacity(0.3))),
+            ),
+            child: SafeArea(
+              top: false,
+              child: SizedBox(
+                height: 56,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItem(icon: LucideIcons.home, label: "Canlı", index: 0),
+                    _buildNavItem(icon: LucideIcons.compass, label: "Keşfet", index: 1),
+                    const SizedBox(width: 40),
+                    _buildNavItem(icon: LucideIcons.messageCircle, label: "Mesajlar", index: 3, badge: 2),
+                    _buildNavItem(icon: LucideIcons.user, label: "Profil", index: 4),
+                  ],
+                ),
               ),
             ),
           ),
@@ -177,41 +114,57 @@ class _MainNavigatorState extends State<MainNavigator> {
     required IconData icon,
     required String label,
     required int index,
+    int badge = 0,
   }) {
     final isSelected = _currentIndex == index;
     return GestureDetector(
       onTap: () => _onTabTapped(index),
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 60,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
+        width: 56,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
           children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              padding: EdgeInsets.all(isSelected ? 6 : 0),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.primaryPurple.withOpacity(0.2)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                color: isSelected ? AppColors.primaryPink : AppColors.textGray,
-                size: isSelected ? 26 : 24,
-              ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  color: isSelected ? AppTheme.accent : context.textSecondary,
+                  size: isSelected ? 22 : 20,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected ? AppTheme.accent : context.textSecondary,
+                    fontSize: 9,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textGray,
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal,
+            if (badge > 0)
+              Positioned(
+                top: -2,
+                right: 6,
+                child: Container(
+                  width: 14,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: AppTheme.danger,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: context.card, width: 1.5),
+                  ),
+                  child: Center(
+                    child: Text(
+                      badge.toString(),
+                      style: const TextStyle(fontSize: 7, fontWeight: FontWeight.w800, color: Colors.white),
+                    ),
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),

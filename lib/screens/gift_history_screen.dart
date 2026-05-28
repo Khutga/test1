@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nivi/widgets/custom_widgets.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
+import '../widgets/custom_widgets.dart';
 
 class GiftHistoryScreen extends StatefulWidget {
   const GiftHistoryScreen({super.key});
@@ -19,66 +19,59 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.cardBackground,
-        title: const Text("Hediye Geçmişi", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        elevation: 0,
+        title: Text("Hediye Geçmişi", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.textPrimary)),
       ),
       body: MainBackground(
-        child: Column(
-          children: [
-            Container(
-              color: AppColors.cardBackground,
-              child: Row(
-                children: [
-                  Expanded(child: _buildTabBtn('received', "Alınan Hediyeler", AppColors.primaryPink)),
-                  Expanded(child: _buildTabBtn('sent', "Gönderilen Hediyeler", AppColors.primaryPurple)),
-                ],
+        child: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              // Tabs
+              Container(
+                decoration: BoxDecoration(color: context.card, border: Border(bottom: BorderSide(color: context.border))),
+                child: Row(
+                  children: [
+                    Expanded(child: _buildTabBtn('received', "Alınan", AppTheme.success)),
+                    Expanded(child: _buildTabBtn('sent', "Gönderilen", AppTheme.accent)),
+                  ],
+                ),
               ),
-            ),
-            
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: activeList.length,
-                itemBuilder: (context, index) {
-                  final item = activeList[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white10,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.borderWhite),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(14),
+                  itemCount: activeList.length,
+                  itemBuilder: (_, index) {
+                    final item = activeList[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 6),
+                      child: GlassContainer(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(item['gift'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                            const SizedBox(height: 4),
-                            Text("${_activeTab == 'received' ? 'Gönderen:' : 'Alıcı:'} ${item['name']}", style: const TextStyle(color: AppColors.textGray, fontSize: 12)),
-                            const SizedBox(height: 4),
-                            Text(item['date'], style: const TextStyle(color: AppColors.textGray, fontSize: 10)),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(item['gift'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: context.textPrimary)),
+                                const SizedBox(height: 2),
+                                Text("${_activeTab == 'received' ? 'Gönderen:' : 'Alıcı:'} ${item['name']}", style: TextStyle(color: context.textSecondary, fontSize: 10)),
+                                Text(item['date'], style: TextStyle(color: context.textSecondary, fontSize: 9)),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(color: AppTheme.accentGold.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                              child: Text(item['cost'], style: TextStyle(color: AppTheme.accentGold, fontSize: 10, fontWeight: FontWeight.w700)),
+                            ),
                           ],
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.amber.withOpacity(0.1),
-                            border: Border.all(color: Colors.amber.withOpacity(0.2)),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(item['cost'], style: const TextStyle(color: Colors.amber, fontSize: 12, fontWeight: FontWeight.bold)),
-                        )
-                      ],
-                    ),
-                  );
-                },
+                      ),
+                    );
+                  },
+                ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -89,20 +82,12 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
     return GestureDetector(
       onTap: () => setState(() => _activeTab = id),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isActive ? activeColor.withOpacity(0.05) : Colors.transparent,
           border: Border(bottom: BorderSide(color: isActive ? activeColor : Colors.transparent, width: 2)),
         ),
         alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? activeColor : AppColors.textGray,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
+        child: Text(label, style: TextStyle(color: isActive ? activeColor : context.textSecondary, fontWeight: FontWeight.w700, fontSize: 12)),
       ),
     );
   }
