@@ -36,9 +36,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomTextField(label: "Ad / Nickname", hint: "Məsələn: Alexander", controller: _nameController, icon: LucideIcons.user),
+              CustomTextField(label: "Ad / Nickname", hint: "Örnek: Alexander", controller: _nameController, icon: LucideIcons.user),
               const SizedBox(height: 16),
-              CustomTextField(label: "Bio (Kendinden kısaca bahset)", hint: "Özün haqqında yaz", controller: _bioController, maxLines: 3, icon: LucideIcons.fileText),
+              CustomTextField(label: "Bio (Kendinden kısaca bahset)", hint: "Kendinden kısaca bahset", controller: _bioController, maxLines: 3, icon: LucideIcons.fileText),
               const SizedBox(height: 16),
               Row(
                 children: [

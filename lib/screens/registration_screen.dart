@@ -430,7 +430,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           _buildTextField(
             "Ad / Nickname",
             _nameController,
-            hint: "Məsələn: Alexander",
+            hint: "Örnek: Alexander",
             icon: LucideIcons.user,
           ),
           const SizedBox(height: 16),
@@ -553,7 +553,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             "Kendiniz hakkında (Bio)",
             _bioController,
             maxLines: 3,
-            hint: "Hobbiləriniz, maraqlarınız...",
+            hint: "Hobileriniz, sizi tanımlayan şeyler...",
             icon: LucideIcons.fileText,
           ),
         ],
@@ -630,7 +630,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            "Platformun güvenliği için gerçek biri olduğunuzu doğrulayın. Bu proses cəmi bir neçə saniyə çəkəcək.",
+            "Platformun güvenliği için gerçek biri olduğunuzu doğrulayın. Sadece birkaç saniyenizi alacak.",
             style: TextStyle(
               color: AppColors.textGray,
               fontSize: 13,

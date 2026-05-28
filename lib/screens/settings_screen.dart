@@ -11,7 +11,7 @@ class SettingsScreen extends StatelessWidget {
     {"title": "Bildirimler", "icon": LucideIcons.bell, "color": Colors.amber},
     {"title": "Gizlilik", "icon": LucideIcons.shield, "color": Colors.greenAccent},
     {"title": "Dil Seçimi", "icon": LucideIcons.compass, "color": AppColors.primaryPurple},
-    {"title": "Yardım & Dəstək", "icon": LucideIcons.messageCircle, "color": AppColors.primaryPink},
+    {"title": "Yardım & Destek", "icon": LucideIcons.messageCircle, "color": AppColors.primaryPink},
   ];
 
   @override

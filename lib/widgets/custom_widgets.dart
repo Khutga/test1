@@ -28,15 +28,25 @@ class GlassContainer extends StatelessWidget {
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
-            color: gradientColors == null ? Colors.white.withOpacity(0.03) : null,
-            gradient: gradientColors != null 
-                ? LinearGradient(colors: gradientColors!, begin: Alignment.topLeft, end: Alignment.bottomRight) 
+            color: gradientColors == null
+                ? Colors.white.withOpacity(0.03)
+                : null,
+            gradient: gradientColors != null
+                ? LinearGradient(
+                    colors: gradientColors!,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
                 : null,
             border: Border.all(color: Colors.white.withOpacity(0.05)),
             borderRadius: BorderRadius.circular(borderRadius),
             boxShadow: [
               if (gradientColors != null)
-                BoxShadow(color: gradientColors!.first.withOpacity(0.1), blurRadius: 20, spreadRadius: 2),
+                BoxShadow(
+                  color: gradientColors!.first.withOpacity(0.1),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                ),
             ],
           ),
           child: child,
@@ -79,7 +89,11 @@ class GlowAvatar extends StatelessWidget {
         backgroundColor: color.withOpacity(0.8),
         child: Text(
           initial,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: radius * 0.6),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: radius * 0.6,
+          ),
         ),
       ),
     );
@@ -105,7 +119,11 @@ class PremiumButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           if (onPressed != null)
-            BoxShadow(color: AppColors.primaryPink.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 5)),
+            BoxShadow(
+              color: AppColors.primaryPink.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
         ],
       ),
       child: ElevatedButton(
@@ -114,14 +132,26 @@ class PremiumButton extends StatelessWidget {
           backgroundColor: AppColors.primaryPink,
           disabledBackgroundColor: Colors.white.withOpacity(0.1),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           elevation: 0,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (icon != null) ...[Icon(icon, color: Colors.white, size: 18), const SizedBox(width: 8)],
-            Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+            if (icon != null) ...[
+              Icon(icon, color: Colors.white, size: 18),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
           ],
         ),
       ),
@@ -152,7 +182,14 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textGray, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: AppColors.textGray,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
@@ -161,13 +198,30 @@ class CustomTextField extends StatelessWidget {
           style: const TextStyle(fontSize: 14, color: Colors.white),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14),
-            prefixIcon: (maxLines == 1 && icon != null) ? Icon(icon, color: AppColors.textGray, size: 20) : null,
+            hintStyle: TextStyle(
+              color: Colors.white.withOpacity(0.3),
+              fontSize: 14,
+            ),
+            prefixIcon: (maxLines == 1 && icon != null)
+                ? Icon(icon, color: AppColors.textGray, size: 20)
+                : null,
             filled: true,
             fillColor: Colors.white.withOpacity(0.05),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.primaryPink, width: 1.5)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(
+                color: AppColors.primaryPink,
+                width: 1.5,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
           ),
         ),
       ],
@@ -209,20 +263,46 @@ class MenuActionTile extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: iconColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Icon(icon, color: iconColor, size: 20),
               ),
               const SizedBox(width: 16),
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
               const Spacer(),
               if (badge != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                  child: Text(badge!, style: const TextStyle(fontSize: 10, color: Colors.redAccent, fontWeight: FontWeight.w900)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    badge!,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
               const SizedBox(width: 8),
-              const Icon(LucideIcons.chevronRight, color: Colors.white30, size: 18),
+              const Icon(
+                LucideIcons.chevronRight,
+                color: Colors.white30,
+                size: 18,
+              ),
             ],
           ),
         ),
@@ -255,8 +335,18 @@ class GradientBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[Icon(icon, color: color, size: 10), const SizedBox(width: 4)],
-          Text(text, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold)),
+          if (icon != null) ...[
+            Icon(icon, color: color, size: 10),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -290,8 +380,8 @@ class GlassIconButton extends StatelessWidget {
       ),
     );
   }
-  
 }
+
 class LiveStreamCard extends StatelessWidget {
   final Map<String, dynamic> stream;
   final VoidCallback onTap;
@@ -308,62 +398,139 @@ class LiveStreamCard extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.grey[800]!, Colors.grey[900]!], 
+            colors: [Colors.grey[800]!, Colors.grey[900]!],
           ),
-          boxShadow: [BoxShadow(color: AppColors.primaryPurple.withOpacity(0.15), blurRadius: 15, spreadRadius: 2)],
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryPurple.withOpacity(0.15),
+              blurRadius: 15,
+              spreadRadius: 2,
+            ),
+          ],
           border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5),
         ),
         child: Stack(
           children: [
             Positioned(
-              top: 12, left: 12,
+              top: 12,
+              left: 12,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.primaryPink,
                   borderRadius: BorderRadius.circular(8),
-                  boxShadow: [BoxShadow(color: AppColors.primaryPink.withOpacity(0.5), blurRadius: 8)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryPink.withOpacity(0.5),
+                      blurRadius: 8,
+                    ),
+                  ],
                 ),
                 child: const Row(
                   children: [
                     Icon(LucideIcons.radio, color: Colors.white, size: 12),
                     SizedBox(width: 4),
-                    Text("CANLI", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white)),
+                    Text(
+                      "CANLI",
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
             Positioned(
-              bottom: 0, left: 0, right: 0,
+              top: 12,
+              right: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      LucideIcons.eye,
+                      color: Colors.white70,
+                      size: 12,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      stream['viewers'],
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(22)),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(22),
+                ),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.5),
-                      border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1))),
+                      border: Border(
+                        top: BorderSide(color: Colors.white.withOpacity(0.1)),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(stream['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
+                        Text(
+                          stream['name'],
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
                         const SizedBox(height: 6),
                         Row(
-                          children: (stream['tags'] as List).map((tag) => Container(
-                            margin: const EdgeInsets.only(right: 6),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-                            child: Text(tag, style: const TextStyle(fontSize: 9, color: Colors.white70)),
-                          )).toList(),
-                        )
+                          children: (stream['tags'] as List)
+                              .map(
+                                (tag) => Container(
+                                  margin: const EdgeInsets.only(right: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    tag,
+                                    style: const TextStyle(
+                                      fontSize: 9,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -376,7 +543,12 @@ class GlassTabButton extends StatelessWidget {
   final bool isActive;
   final VoidCallback onTap;
 
-  const GlassTabButton({super.key, required this.label, required this.isActive, required this.onTap});
+  const GlassTabButton({
+    super.key,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -386,24 +558,37 @@ class GlassTabButton extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          gradient: isActive ? const LinearGradient(colors: [AppColors.primaryPurple, AppColors.primaryPink]) : null,
+          gradient: isActive
+              ? const LinearGradient(
+                  colors: [AppColors.primaryPurple, AppColors.primaryPink],
+                )
+              : null,
           color: isActive ? null : Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: isActive ? [BoxShadow(color: AppColors.primaryPink.withOpacity(0.3), blurRadius: 10)] : [],
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: AppColors.primaryPink.withOpacity(0.3),
+                    blurRadius: 10,
+                  ),
+                ]
+              : [],
         ),
         child: Text(
           label,
-          style: TextStyle(color: isActive ? Colors.white : AppColors.textGray, fontWeight: FontWeight.bold, fontSize: 13),
+          style: TextStyle(
+            color: isActive ? Colors.white : AppColors.textGray,
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
         ),
       ),
     );
   }
-  
 }
 
 class MainBackground extends StatelessWidget {
   final Widget child;
-
   const MainBackground({super.key, required this.child});
 
   @override
@@ -419,7 +604,19 @@ class MainBackground extends StatelessWidget {
           ],
         ),
       ),
-      child: child, 
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment.bottomLeft,
+            radius: 1.2,
+            colors: [
+              AppColors.primaryPink.withOpacity(0.06),
+              Colors.transparent,
+            ],
+          ),
+        ),
+        child: child,
+      ),
     );
   }
 }

@@ -63,7 +63,7 @@ class _SearchScreenState extends State<SearchScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
+            children:  [
               Icon(LucideIcons.trendingUp, color: AppColors.primaryPink, size: 18),
               SizedBox(width: 8),
               Text("Trend Konular", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
@@ -98,7 +98,7 @@ class _SearchScreenState extends State<SearchScreen> {
           const SizedBox(height: 24),
           
           Row(
-            children: const [
+            children:  [
               Icon(LucideIcons.star, color: Colors.amber, size: 18),
               SizedBox(width: 8),
               Text("Önerilen Yayıncılar", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
@@ -121,7 +121,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
-                child: const Text("Təqib Et", style: TextStyle(color: AppColors.primaryPink, fontSize: 10, fontWeight: FontWeight.bold)),
+                child: const Text("Takip Et", style: TextStyle(color: AppColors.primaryPink, fontSize: 10, fontWeight: FontWeight.bold)),
               ),
             );
           }).toList(),
@@ -136,7 +136,7 @@ class _SearchScreenState extends State<SearchScreen> {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children:  [
             Icon(LucideIcons.search, size: 48, color: Colors.white24),
             SizedBox(height: 12),
             Text("Sonuç bulunamadı.", style: TextStyle(color: AppColors.textGray)),

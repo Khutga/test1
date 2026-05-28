@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/screens/live.dart';
 import 'core/app_colors.dart';
 import 'screens/registration_screen.dart';
 import 'screens/home_screen.dart';
@@ -73,7 +74,18 @@ class _MainNavigatorState extends State<MainNavigator> {
           ],
         ),
         child: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const PremiumLiveStreamPage(
+                  roomName: "ExampleRoom",
+                  username: 'Example User',
+                  isHost: true,
+                ),
+              ),
+            );
+          },
           backgroundColor: AppColors.primaryPink,
           elevation: 0,
           shape: const CircleBorder(),
@@ -106,10 +118,46 @@ class _MainNavigatorState extends State<MainNavigator> {
                     index: 1,
                   ),
                   const SizedBox(width: 48),
-                  _buildNavItem(
-                    icon: LucideIcons.messageCircle,
-                    label: "Mesajlar",
-                    index: 3,
+
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      _buildNavItem(
+                        icon: LucideIcons.messageCircle,
+                        label: "Mesajlar",
+                        index: 3,
+                      ),
+                      Positioned(
+                        top: -2,
+                        right: 8,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                AppColors.primaryPink,
+                                AppColors.primaryPurple,
+                              ],
+                            ),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.background,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              "2",
+                              style: TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   _buildNavItem(
                     icon: LucideIcons.user,

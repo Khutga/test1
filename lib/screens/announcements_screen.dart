@@ -154,7 +154,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                           backgroundColor: AppColors.primaryPink,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                         ),
-                        child: const Text("Göndər", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        child: const Text("Gönder", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       )
                     ],
                   )
