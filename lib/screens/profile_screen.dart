@@ -11,21 +11,21 @@ import 'settings_screen.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  Widget _buildStatItem(String value, String label) {
+  Widget _buildStatItem(BuildContext context, String value, String label) {
     return Column(
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: Colors.white,
+            color: context.textPrimary, // Temadan çekildi
           ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: AppColors.textGray),
+          style: TextStyle(fontSize: 11, color: context.textSecondary), // Temadan çekildi
         ),
       ],
     );
@@ -40,29 +40,30 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                const GlowAvatar(
+                GlowAvatar(
                   initial: "A",
                   radius: 44,
-                  color: AppColors.primaryPurple,
+                  color: AppTheme.accent, // Hatalı primaryPurple değiştirildi
                 ),
                 const SizedBox(height: 16),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       "Alexander",
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0.5,
+                        color: context.textPrimary,
                       ),
                     ),
                     const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(
                         LucideIcons.edit2,
-                        color: AppColors.primaryPurple,
+                        color: AppTheme.accent,
                         size: 18,
                       ),
                       onPressed: () => Navigator.push(
@@ -73,34 +74,34 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                ), // "Alexander" Row'undan sonra, bio Text'inden önce ekle:
+                ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildStatItem("12.4K", "Takipçi"),
+                    _buildStatItem(context, "12.4K", "Takipçi"),
                     Container(
                       width: 1,
                       height: 28,
-                      color: Colors.white12,
+                      color: context.border, // Temadan çekildi
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                     ),
-                    _buildStatItem("348", "Takip"),
+                    _buildStatItem(context, "348", "Takip"),
                     Container(
                       width: 1,
                       height: 28,
-                      color: Colors.white12,
+                      color: context.border,
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                     ),
-                    _buildStatItem("Lv.42", "Seviye"),
+                    _buildStatItem(context, "Lv.42", "Seviye"),
                   ],
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                Text(
                   "Müzik, Kodlama ve Kahve. ☕️\nİstanbul ♍️ Başak Erkeği",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: AppColors.textGray,
+                    color: context.textSecondary,
                     fontSize: 13,
                     height: 1.4,
                   ),
@@ -109,31 +110,27 @@ class ProfileScreen extends StatelessWidget {
 
                 GlassContainer(
                   padding: const EdgeInsets.all(20),
-                  gradientColors: [
-                    AppColors.primaryPurple.withOpacity(0.2),
-                    AppColors.primaryPink.withOpacity(0.1),
-                  ],
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "Bakiye",
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white70,
+                              color: context.textSecondary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          SizedBox(height: 4),
-                          Text(
+                          const SizedBox(height: 4),
+                          const Text(
                             "54,200 Coin",
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
-                              color: Colors.amber,
+                              color: AppTheme.accentGold, // Temaya uygun
                             ),
                           ),
                         ],
@@ -146,9 +143,9 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryPink,
-                          shadowColor: AppColors.primaryPink.withOpacity(0.5),
-                          elevation: 8,
+                          backgroundColor: AppTheme.accent,
+                          shadowColor: AppTheme.accent.withOpacity(0.3),
+                          elevation: 4,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -174,7 +171,7 @@ class ProfileScreen extends StatelessWidget {
                 MenuActionTile(
                   icon: LucideIcons.gift,
                   label: "Hediye Geçmişi",
-                  iconColor: Colors.pink,
+                  iconColor: AppTheme.danger,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -185,7 +182,7 @@ class ProfileScreen extends StatelessWidget {
                 MenuActionTile(
                   icon: LucideIcons.activity,
                   label: "Ajans Sistemi & Paneli",
-                  iconColor: Colors.greenAccent,
+                  iconColor: AppTheme.success,
                   badge: "VIP",
                   onTap: () => Navigator.push(
                     context,
@@ -195,7 +192,7 @@ class ProfileScreen extends StatelessWidget {
                 MenuActionTile(
                   icon: LucideIcons.shield,
                   label: "Ayarlar ve Gizlilik",
-                  iconColor: Colors.blueAccent,
+                  iconColor: AppTheme.accent,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const SettingsScreen()),

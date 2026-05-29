@@ -38,8 +38,8 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Duyurular", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.textPrimary)),
-            Text("Bakiye: $_userCoins Coin", style: TextStyle(fontSize: 9, color: context.textSecondary)),
+            Text("Duyurular", style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: context.textPrimary)),
+            Text("Bakiye: $_userCoins Coin", style: TextStyle(fontSize: 12, color: context.textSecondary)),
           ],
         ),
       ),
@@ -65,12 +65,12 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(item['sender'], style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: isSystem ? AppTheme.accent : AppTheme.accentGold)),
-                                Text(item['time'], style: TextStyle(fontSize: 9, color: context.textSecondary)),
+                                Text(item['sender'], style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isSystem ? AppTheme.accent : AppTheme.accentGold)),
+                                Text(item['time'], style: TextStyle(fontSize: 12, color: context.textSecondary)),
                               ],
                             ),
                             const SizedBox(height: 6),
-                            Text(item['text'], style: TextStyle(fontSize: 12, color: context.textPrimary)),
+                            Text(item['text'], style: TextStyle(fontSize: 14, color: context.textPrimary)),
                             if (item['cost'] != null)
                               Align(
                                 alignment: Alignment.centerRight,
@@ -78,7 +78,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                                   margin: const EdgeInsets.only(top: 6),
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(color: AppTheme.accent.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-                                  child: Text("Sponsorlu", style: TextStyle(fontSize: 8, color: AppTheme.accent, fontWeight: FontWeight.w700)),
+                                  child: Text("Sponsorlu", style: TextStyle(fontSize: 10, color: AppTheme.accent, fontWeight: FontWeight.w700)),
                                 ),
                               ),
                           ],
@@ -102,7 +102,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                         children: [
                           Icon(LucideIcons.shieldAlert, color: AppTheme.warning, size: 14),
                           const SizedBox(width: 6),
-                          Expanded(child: Text("15,000 Coin ile duyuru gönderebilirsiniz.", style: TextStyle(color: AppTheme.warning, fontSize: 9))),
+                          Expanded(child: Text("15,000 Coin ile duyuru gönderebilirsiniz.", style: TextStyle(color: AppTheme.warning, fontSize: 12))),
                         ],
                       ),
                     ),
@@ -112,10 +112,10 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                         Expanded(
                           child: TextField(
                             controller: _annController,
-                            style: TextStyle(fontSize: 12, color: context.textPrimary),
+                            style: TextStyle(fontSize: 14, color: context.textPrimary),
                             decoration: InputDecoration(
                               hintText: "Duyuru yaz...",
-                              hintStyle: TextStyle(color: context.textSecondary, fontSize: 12),
+                              hintStyle: TextStyle(color: context.textSecondary, fontSize: 14),
                               filled: true,
                               fillColor: context.isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.06),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
@@ -127,7 +127,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                         ElevatedButton(
                           onPressed: _handlePublish,
                           style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10)),
-                          child: const Text("Gönder", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
+                          child: const Text("Gönder", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14)),
                         ),
                       ],
                     ),

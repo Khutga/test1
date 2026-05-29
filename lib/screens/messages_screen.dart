@@ -38,8 +38,8 @@ class MessagesScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Sistem Duyuruları & PK", style: TextStyle(color: context.textPrimary, fontWeight: FontWeight.w700, fontSize: 12)),
-                            Text("Turnuvaları izlemek için tıklayın.", style: TextStyle(color: context.textSecondary, fontSize: 10)),
+                            Text("Sistem Duyuruları & PK", style: TextStyle(color: context.textPrimary, fontWeight: FontWeight.w700, fontSize: 15)),
+                            Text("Turnuvaları izlemek için tıklayın.", style: TextStyle(color: context.textSecondary, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -66,11 +66,11 @@ class MessagesScreen extends StatelessWidget {
                           // Avatar + online dot
                           Stack(
                             children: [
-                              GlowAvatar(initial: msg['name'][0], radius: 22),
+                              GlowAvatar(initial: msg['name'][0], radius: 25),
                               Positioned(
                                 bottom: 0, right: 0,
                                 child: Container(
-                                  width: 10, height: 10,
+                                  width: 15, height: 15,
                                   decoration: BoxDecoration(
                                     color: AppTheme.success,
                                     shape: BoxShape.circle,
@@ -90,8 +90,8 @@ class MessagesScreen extends StatelessWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(msg['name'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: context.textPrimary)),
-                                    Text(msg['time'], style: TextStyle(color: context.textSecondary, fontSize: 10)),
+                                    Text(msg['name'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: context.textPrimary)),
+                                    Text(msg['time'], style: TextStyle(color: context.textSecondary, fontSize: 12)),
                                   ],
                                 ),
                                 const SizedBox(height: 3),
@@ -99,7 +99,7 @@ class MessagesScreen extends StatelessWidget {
                                   msg['msg'],
                                   style: TextStyle(
                                     color: msg['unread'] > 0 ? context.textPrimary : context.textSecondary,
-                                    fontSize: 12,
+                                    fontSize: 14,
                                     fontWeight: msg['unread'] > 0 ? FontWeight.w600 : FontWeight.normal,
                                   ),
                                   maxLines: 1, overflow: TextOverflow.ellipsis,
@@ -119,8 +119,8 @@ class MessagesScreen extends StatelessWidget {
                           // Okunmamış badge
                           if (msg['unread'] > 0)
                             Container(
-                              margin: const EdgeInsets.only(left: 8),
-                              width: 22, height: 22,
+                              margin: const EdgeInsets.only(left: 15),
+                              width: 25, height: 25,
                               decoration: BoxDecoration(
                                 color: AppTheme.accent,
                                 shape: BoxShape.circle,

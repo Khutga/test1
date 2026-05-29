@@ -88,7 +88,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     PremiumButton(text: "Çıkış Yap", icon: LucideIcons.logOut, onPressed: () {}),
                     const SizedBox(height: 10),
-                    Text("FiFi Live v2.4.1 (Build 842)", style: TextStyle(color: context.textSecondary, fontSize: 10)),
+                    Text("FiFi Live v2.4.1 (Build 842)", style: TextStyle(color: context.textSecondary, fontSize: 13)),
                   ],
                 ),
               ),

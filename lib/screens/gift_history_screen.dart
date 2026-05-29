@@ -52,16 +52,16 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(item['gift'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: context.textPrimary)),
+                                Text(item['gift'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: context.textPrimary)),
                                 const SizedBox(height: 2),
-                                Text("${_activeTab == 'received' ? 'Gönderen:' : 'Alıcı:'} ${item['name']}", style: TextStyle(color: context.textSecondary, fontSize: 10)),
-                                Text(item['date'], style: TextStyle(color: context.textSecondary, fontSize: 9)),
+                                Text("${_activeTab == 'received' ? 'Gönderen:' : 'Alıcı:'} ${item['name']}", style: TextStyle(color: context.textSecondary, fontSize: 14)),
+                                Text(item['date'], style: TextStyle(color: context.textSecondary, fontSize: 14)),
                               ],
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(color: AppTheme.accentGold.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                              child: Text(item['cost'], style: TextStyle(color: AppTheme.accentGold, fontSize: 10, fontWeight: FontWeight.w700)),
+                              child: Text(item['cost'], style: TextStyle(color: AppTheme.accentGold, fontSize: 12, fontWeight: FontWeight.w700)),
                             ),
                           ],
                         ),
@@ -87,7 +87,7 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
           border: Border(bottom: BorderSide(color: isActive ? activeColor : Colors.transparent, width: 2)),
         ),
         alignment: Alignment.center,
-        child: Text(label, style: TextStyle(color: isActive ? activeColor : context.textSecondary, fontWeight: FontWeight.w700, fontSize: 12)),
+        child: Text(label, style: TextStyle(color: isActive ? activeColor : context.textSecondary, fontWeight: FontWeight.w700, fontSize: 14)),
       ),
     );
   }

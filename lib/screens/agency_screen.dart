@@ -84,7 +84,7 @@ class _AgencyScreenState extends State<AgencyScreen> {
           color: isActive ? AppTheme.accent : (context.isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.08)),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: isActive ? Colors.white : context.textSecondary)),
+        child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isActive ? Colors.white : context.textSecondary)),
       ),
     );
   }
@@ -98,11 +98,11 @@ class _AgencyScreenState extends State<AgencyScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Komisyon Seviyesi", style: TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700, fontSize: 11)),
+              Text("Komisyon Seviyesi", style: TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700, fontSize: 14)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(color: AppTheme.accentGold, borderRadius: BorderRadius.circular(8)),
-                child: Text("LEVEL ${quotaInfo['level']}", style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800)),
+                child: Text("LEVEL ${quotaInfo['level']}", style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
               ),
             ],
           ),
@@ -116,7 +116,7 @@ class _AgencyScreenState extends State<AgencyScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          Text("Kota Simülatörü", style: TextStyle(fontSize: 9, color: context.textSecondary)),
+          Text("Kota Simülatörü", style: TextStyle(fontSize: 12, color: context.textSecondary)),
           Slider(
             value: _simulatedAgencyCoins, min: 100000, max: 40000000,
             activeColor: AppTheme.accent,
@@ -137,14 +137,14 @@ class _AgencyScreenState extends State<AgencyScreen> {
             padding: const EdgeInsets.all(10),
             child: Row(
               children: [
-                GlowAvatar(initial: member['name'][0], radius: 16),
+                GlowAvatar(initial: member['name'][0], radius: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(member['name'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: context.textPrimary)),
-                      Text(member['idCode'], style: TextStyle(fontSize: 9, color: context.textSecondary)),
+                      Text(member['name'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: context.textPrimary)),
+                      Text(member['idCode'], style: TextStyle(fontSize: 12, color: context.textSecondary)),
                     ],
                   ),
                 ),
@@ -156,7 +156,7 @@ class _AgencyScreenState extends State<AgencyScreen> {
                   ),
                   child: Text(
                     member['status'],
-                    style: TextStyle(fontSize: 9, color: member['status'] == 'Aktif' ? AppTheme.success : AppTheme.danger, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 12, color: member['status'] == 'Aktif' ? AppTheme.success : AppTheme.danger, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],

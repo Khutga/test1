@@ -115,7 +115,7 @@ class PremiumButton extends StatelessWidget {
               Icon(icon, color: Colors.white, size: 16),
               const SizedBox(width: 6),
             ],
-            Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14)),
+            Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
           ],
         ),
       ),
@@ -147,16 +147,16 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 11, color: context.textSecondary, fontWeight: FontWeight.w600)),
+        Text(label, style: TextStyle(fontSize: 14, color: context.textSecondary, fontWeight: FontWeight.w600)),
         const SizedBox(height: 4),
         TextField(
           controller: controller,
           keyboardType: isNumber ? TextInputType.number : TextInputType.text,
           maxLines: maxLines,
-          style: TextStyle(fontSize: 13, color: context.textPrimary),
+          style: TextStyle(fontSize: 14, color: context.textPrimary),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: context.textSecondary.withOpacity(0.5), fontSize: 13),
+            hintStyle: TextStyle(color: context.textSecondary.withOpacity(0.5), fontSize: 14),
             prefixIcon: (maxLines == 1 && icon != null)
                 ? Icon(icon, color: context.textSecondary, size: 18)
                 : null,
@@ -269,10 +269,10 @@ class GradientBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, color: color, size: 9),
+            Icon(icon, color: color, size: 11),
             const SizedBox(width: 3),
           ],
-          Text(text, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w700)),
+          Text(text, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w700)),
         ],
       ),
     );
@@ -310,6 +310,7 @@ class GlassIconButton extends StatelessWidget {
 }
 
 // ─── LIVE STREAM CARD (KOMPAKT) ───
+// ─── LIVE STREAM CARD (KOMPAKT) ───
 class LiveStreamCard extends StatelessWidget {
   final Map<String, dynamic> stream;
   final VoidCallback onTap;
@@ -318,6 +319,11 @@ class LiveStreamCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Veritabanından gelen verileri hata vermeyecek (null-safe) şekilde alıyoruz:
+    final izleyiciSayisi = stream['izleyici_sayisi']?.toString() ?? '0';
+    final yayinciIsmi = stream['yayin_sahibi_isim'] ?? 'Bilinmiyor';
+    final etiket = stream['etiket']?.toString() ?? '';
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -359,15 +365,15 @@ class LiveStreamCard extends StatelessWidget {
                 ),
                 child: const Row(
                   children: [
-                    Icon(LucideIcons.radio, color: Colors.white, size: 9),
+                    Icon(LucideIcons.radio, color: Colors.white, size: 13),
                     SizedBox(width: 3),
-                    Text("CANLI", style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: Colors.white)),
+                    Text("CANLI", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white)),
                   ],
                 ),
               ),
             ),
 
-            // İzleyici sayısı
+            // 2. İzleyici sayısı (Yeni Veritabanı Değişkeni ile)
             Positioned(
               top: 8,
               right: 8,
@@ -379,15 +385,15 @@ class LiveStreamCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(LucideIcons.eye, color: Colors.white70, size: 10),
+                    const Icon(LucideIcons.eye, color: Colors.white70, size: 13),
                     const SizedBox(width: 3),
-                    Text(stream['viewers'], style: const TextStyle(fontSize: 9, color: Colors.white70, fontWeight: FontWeight.w700)),
+                    Text(izleyiciSayisi, style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
             ),
 
-            // Alt bilgi
+            // 3. Alt bilgi (İsim ve Etiket Yeni Veritabanı Değişkeni ile)
             Positioned(
               bottom: 0,
               left: 0,
@@ -405,19 +411,24 @@ class LiveStreamCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(stream['name'], style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white)),
+                    Text(yayinciIsmi, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.white)),
                     const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 4,
-                      children: (stream['tags'] as List).map((tag) => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(tag, style: const TextStyle(fontSize: 8, color: Colors.white70)),
-                      )).toList(),
-                    ),
+                    
+                    // Veritabanındaki etiket boş değilse ekrana bas
+                    if (etiket.isNotEmpty)
+                      Wrap(
+                        spacing: 4,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(etiket, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                          )
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -428,7 +439,6 @@ class LiveStreamCard extends StatelessWidget {
     );
   }
 }
-
 // ─── TAB BUTTON ───
 class GlassTabButton extends StatelessWidget {
   final String label;
@@ -453,7 +463,7 @@ class GlassTabButton extends StatelessWidget {
           style: TextStyle(
             color: isActive ? Colors.white : context.textSecondary,
             fontWeight: FontWeight.w700,
-            fontSize: 12,
+            fontSize: 15,
           ),
         ),
       ),

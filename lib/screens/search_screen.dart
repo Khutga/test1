@@ -38,10 +38,10 @@ class _SearchScreenState extends State<SearchScreen> {
         title: TextField(
           controller: _searchController,
           onChanged: _onSearchChanged,
-          style: TextStyle(fontSize: 13, color: context.textPrimary),
+          style: TextStyle(fontSize: 14, color: context.textPrimary),
           decoration: InputDecoration(
             hintText: "Yayıncı, ID veya etiket ara...",
-            hintStyle: TextStyle(color: context.textSecondary, fontSize: 13),
+            hintStyle: TextStyle(color: context.textSecondary, fontSize: 14),
             prefixIcon: Icon(LucideIcons.search, color: context.textSecondary, size: 18),
             filled: true,
             fillColor: context.isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.08),
@@ -67,9 +67,9 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           Row(
             children: [
-              Icon(LucideIcons.trendingUp, color: AppTheme.accent, size: 15),
+              Icon(LucideIcons.trendingUp, color: AppTheme.accent, size: 18),
               const SizedBox(width: 6),
-              Text("Trend Konular", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: context.textPrimary)),
+              Text("Trend Konular", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: context.textPrimary)),
             ],
           ),
           const SizedBox(height: 10),
@@ -84,11 +84,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 label: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(LucideIcons.hash, color: context.textSecondary, size: 12),
+                    Icon(LucideIcons.hash, color: context.textSecondary, size: 14),
                     const SizedBox(width: 3),
-                    Text(tag['tag'], style: TextStyle(color: context.textPrimary, fontWeight: FontWeight.w600, fontSize: 11)),
+                    Text(tag['tag'], style: TextStyle(color: context.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
                     const SizedBox(width: 4),
-                    Text(tag['count'], style: TextStyle(color: context.textSecondary, fontSize: 9)),
+                    Text(tag['count'], style: TextStyle(color: context.textSecondary, fontSize: 11)),
                   ],
                 ),
                 onPressed: () {
@@ -103,7 +103,7 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               Icon(LucideIcons.star, color: AppTheme.accentGold, size: 15),
               const SizedBox(width: 6),
-              Text("Önerilen Yayıncılar", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: context.textPrimary)),
+              Text("Önerilen Yayıncılar", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: context.textPrimary)),
             ],
           ),
           const SizedBox(height: 8),
@@ -112,18 +112,18 @@ class _SearchScreenState extends State<SearchScreen> {
               dense: true,
               contentPadding: EdgeInsets.zero,
               visualDensity: VisualDensity.compact,
-              leading: GlowAvatar(initial: stream['name'][0], radius: 18),
-              title: Text(stream['name'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: context.textPrimary)),
-              subtitle: Text((stream['tags'] as List).join(', '), style: TextStyle(color: context.textSecondary, fontSize: 10)),
+              leading: GlowAvatar(initial: stream['name'][0], radius: 23),
+              title: Text(stream['name'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: context.textPrimary)),
+              subtitle: Text((stream['tags'] as List).join(', '), style: TextStyle(color: context.textSecondary, fontSize: 12)),
               trailing: TextButton(
                 onPressed: () {},
                 style: TextButton.styleFrom(
                   backgroundColor: AppTheme.accent.withOpacity(0.1),
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   minimumSize: const Size(0, 30),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text("Takip Et", style: TextStyle(color: AppTheme.accent, fontSize: 10, fontWeight: FontWeight.w700)),
+                child: Text("Takip Et", style: TextStyle(color: AppTheme.accent, fontSize: 14, fontWeight: FontWeight.w700)),
               ),
             );
           }),
