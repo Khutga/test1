@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/services/katalog_servis.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/app_colors.dart';
@@ -44,6 +45,7 @@ class _MainNavigatorState extends State<MainNavigator> {
     ];
 
     SharedStreamData.startPolling();
+    KatalogServis.yukle();
     _kullaniciBilgileriniCek();
 
     // 🔥 Okunmayan mesajları ilk açılışta çek ve her 3 saniyede bir arka planda kontrol et

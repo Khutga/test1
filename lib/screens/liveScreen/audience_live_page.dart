@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '/widgets/custom_widgets.dart';
 import '/core/app_colors.dart';
 import '/services/sql_servis.dart';
+import '../../services/katalog_servis.dart';
 
 // --- YARDIMCI SINIFLAR ---
 class ChatMessage {
@@ -87,14 +88,8 @@ class _AudienceLivePageState extends State<AudienceLivePage> {
   final String phpApiKey = 'GizliAnahtar_Codefellas_2026!';
 
   // HEDİYE LİSTESİ
-  final List<Map<String, dynamic>> _giftCatalog = [
-    {'emoji': '❤️', 'name': 'Kalp', 'price': 10},
-    {'emoji': '🌹', 'name': 'Gül', 'price': 50},
-    {'emoji': '🚀', 'name': 'Roket', 'price': 500},
-    {'emoji': '🛳️', 'name': 'Yat', 'price': 8500},
-    {'emoji': '🐲', 'name': 'Ejderha', 'price': 25000},
-    {'emoji': '🐘', 'name': 'Fil Atan', 'price': 100000},
-  ];
+  List<Map<String, dynamic>> get _giftCatalog =>
+      KatalogServis.yayinHediyeleri.value;
   Timer?
   _roomCheckTimer; // Odanın veritabanında olup olmadığını kontrol eden bekçi
 

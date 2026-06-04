@@ -11,6 +11,7 @@ import '../../core/app_colors.dart';
 import '../../widgets/custom_widgets.dart';
 import '../relationship_screen.dart';
 import 'chat_call_screen.dart';
+import '../../services/katalog_servis.dart';
 
 class ChatScreen extends StatefulWidget {
   final Map<String, dynamic> chatData;
@@ -35,14 +36,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Timer? _messageCheckTimer;
   bool _isLoading = true;
 
-  final List<Map<String, dynamic>> _giftsList = [
-    {"icon": "🌹", "name": "Gül", "cost": 10},
-    {"icon": "🐻", "name": "Ayıcık", "cost": 50},
-    {"icon": "💍", "name": "Yüzük", "cost": 500},
-    {"icon": "👑", "name": "Taç", "cost": 1000},
-    {"icon": "🛳️", "name": "Yat", "cost": 8500},
-  ];
-
+  List<Map<String, dynamic>> get _giftsList =>
+      KatalogServis.sohbetHediyeleri.value;
   final String phpApiUrl = 'http://codefellas.com.tr/apps/nivi/api/api.php';
   final String phpUploadUrl =
       'http://codefellas.com.tr/apps/nivi/api/upload.php';

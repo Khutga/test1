@@ -3,18 +3,19 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../widgets/custom_widgets.dart';
-import 'login_screen.dart'; 
+import 'login_screen.dart';
+import '../adminScreen/admin_panel_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('kullanici_id'); 
+    await prefs.remove('kullanici_id');
 
     if (context.mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const LoginScreen()), 
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
         (Route<dynamic> route) => false,
       );
     }
@@ -75,6 +76,16 @@ class SettingsScreen extends StatelessWidget {
               icon: LucideIcons.info,
               label: "Hakkında",
               onTap: () {},
+            ),
+            //////////////////////////////  ADMIN PANELİNE SADECE BELİRLİ KULLANICILARIN GÖRÜNTÜLEYEBİLMESİ İÇİN ÖRNEK KOD
+            MenuActionTile(
+              icon: LucideIcons.shield,
+              label: "Admin Panel",
+              iconColor: AppTheme.danger,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AdminPanelScreen()),
+              ),
             ),
 
             const SizedBox(height: 32),
