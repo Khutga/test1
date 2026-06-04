@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/services/sql_servis.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/app_colors.dart';
 import '../core/mock_data.dart';
 import '../widgets/custom_widgets.dart';
@@ -15,11 +17,42 @@ class _AgencyScreenState extends State<AgencyScreen> {
   String _activeTab = 'dashboard';
   double _simulatedAgencyCoins = 12000000;
 
+  List<Map<String, dynamic>> _agencyMembers = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMembers();
+  }
+
+  Future<void> _loadMembers() async {
+    final prefs = await SharedPreferences.getInstance();
+    final int userId = prefs.getInt('kullanici_id') ?? 1;
+
+    // ajans_sahibi_id = Mevcut giriş yapan kullanıcı ID'si
+    final res = await SqlServis.cek(
+      tablo: 'ajans_uyeleri',
+      sartlar: {'ajans_sahibi_id': userId},
+    );
+    if (res.basarili) {
+      setState(() {
+        _agencyMembers = res.veri;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
   Map<String, dynamic> _getCommissionRate(double coins) {
     if (coins >= 30000000) return {"level": 4, "rate": 74, "nextQuota": null};
-    if (coins >= 20000000) return {"level": 3, "rate": 68, "nextQuota": 30000000.0};
-    if (coins >= 10000000) return {"level": 2, "rate": 63, "nextQuota": 20000000.0};
-    if (coins >= 3000000) return {"level": 1, "rate": 59, "nextQuota": 10000000.0};
+    if (coins >= 20000000)
+      return {"level": 3, "rate": 68, "nextQuota": 30000000.0};
+    if (coins >= 10000000)
+      return {"level": 2, "rate": 63, "nextQuota": 20000000.0};
+    if (coins >= 3000000)
+      return {"level": 1, "rate": 59, "nextQuota": 10000000.0};
     return {"level": 0, "rate": 50, "nextQuota": 3000000.0};
   }
 
@@ -32,8 +65,18 @@ class _AgencyScreenState extends State<AgencyScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Ajans Paneli", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: context.textPrimary)),
-            Text("v2.2", style: TextStyle(fontSize: 9, color: context.textSecondary)),
+            Text(
+              "Ajans Paneli",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: context.textPrimary,
+              ),
+            ),
+            Text(
+              "v2.2",
+              style: TextStyle(fontSize: 9, color: context.textSecondary),
+            ),
           ],
         ),
       ),
@@ -42,18 +85,22 @@ class _AgencyScreenState extends State<AgencyScreen> {
           top: false,
           child: Column(
             children: [
-              // Tabs
+              // Tabs... (Kodun senin versiyonundaki ile aynı)
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: context.border))),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: context.border)),
+                ),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(children: [
-                    _buildTabBtn("İstatistik", "dashboard"),
-                    _buildTabBtn("Üye Yönetimi", "members"),
-                    _buildTabBtn("Ödeme & Çekim", "payout"),
-                  ]),
+                  child: Row(
+                    children: [
+                      _buildTabBtn("İstatistik", "dashboard"),
+                      _buildTabBtn("Üye Yönetimi", "members"),
+                      _buildTabBtn("Ödeme & Çekim", "payout"),
+                    ],
+                  ),
                 ),
               ),
               Expanded(
@@ -62,8 +109,13 @@ class _AgencyScreenState extends State<AgencyScreen> {
                   child: _activeTab == 'dashboard'
                       ? _buildDashboard(quotaInfo)
                       : _activeTab == 'members'
-                          ? _buildMembersList()
-                          : Center(child: Text("Yapım aşamasında", style: TextStyle(color: context.textSecondary))),
+                      ? _buildMembersList()
+                      : Center(
+                          child: Text(
+                            "Yapım aşamasında",
+                            style: TextStyle(color: context.textSecondary),
+                          ),
+                        ),
                 ),
               ),
             ],
@@ -81,10 +133,21 @@ class _AgencyScreenState extends State<AgencyScreen> {
         margin: const EdgeInsets.only(right: 6),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive ? AppTheme.accent : (context.isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.08)),
+          color: isActive
+              ? AppTheme.accent
+              : (context.isDark
+                    ? Colors.white.withOpacity(0.06)
+                    : Colors.grey.withOpacity(0.08)),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isActive ? Colors.white : context.textSecondary)),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: isActive ? Colors.white : context.textSecondary,
+          ),
+        ),
       ),
     );
   }
@@ -98,11 +161,28 @@ class _AgencyScreenState extends State<AgencyScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Komisyon Seviyesi", style: TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700, fontSize: 14)),
+              Text(
+                "Komisyon Seviyesi",
+                style: TextStyle(
+                  color: AppTheme.accent,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(color: AppTheme.accentGold, borderRadius: BorderRadius.circular(8)),
-                child: Text("LEVEL ${quotaInfo['level']}", style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentGold,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "LEVEL ${quotaInfo['level']}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
             ],
           ),
@@ -111,14 +191,33 @@ class _AgencyScreenState extends State<AgencyScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(_simulatedAgencyCoins.toInt().toString(), style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppTheme.accentGold)),
-              Text("%${quotaInfo['rate']} Pay", style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.w700, fontSize: 13)),
+              Text(
+                _simulatedAgencyCoins.toInt().toString(),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.accentGold,
+                ),
+              ),
+              Text(
+                "%${quotaInfo['rate']} Pay",
+                style: TextStyle(
+                  color: AppTheme.success,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          Text("Kota Simülatörü", style: TextStyle(fontSize: 12, color: context.textSecondary)),
+          Text(
+            "Kota Simülatörü",
+            style: TextStyle(fontSize: 12, color: context.textSecondary),
+          ),
           Slider(
-            value: _simulatedAgencyCoins, min: 100000, max: 40000000,
+            value: _simulatedAgencyCoins,
+            min: 100000,
+            max: 40000000,
             activeColor: AppTheme.accent,
             inactiveColor: context.border,
             onChanged: (val) => setState(() => _simulatedAgencyCoins = val),
@@ -129,34 +228,75 @@ class _AgencyScreenState extends State<AgencyScreen> {
   }
 
   Widget _buildMembersList() {
+    if (_isLoading) return const Center(child: CircularProgressIndicator());
+     if (_agencyMembers.isEmpty) {
+      return const Center(
+        child: Text(
+          "Ajansınızda henüz üye yok.",
+          style: TextStyle(color: Colors.white54),
+        ),
+      );
+     }
+
     return Column(
-      children: MockData.agencyMembers.map((member) {
+      children: _agencyMembers.map((member) {
+        String isim = member['isim'] ?? 'Bilinmeyen';
+        String idCode = member['id_kodu'] ?? '---';
+        String status = member['durum'] ?? 'Pasif';
+
         return Container(
           margin: const EdgeInsets.only(bottom: 8),
           child: GlassContainer(
             padding: const EdgeInsets.all(10),
             child: Row(
               children: [
-                GlowAvatar(initial: member['name'][0], radius: 20),
+                GlowAvatar(
+                  initial: isim.isNotEmpty ? isim[0].toUpperCase() : '?',
+                  radius: 20,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(member['name'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: context.textPrimary)),
-                      Text(member['idCode'], style: TextStyle(fontSize: 12, color: context.textSecondary)),
+                      Text(
+                        isim,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: context.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        idCode,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: context.textSecondary,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
-                    color: (member['status'] == 'Aktif' ? AppTheme.success : AppTheme.danger).withOpacity(0.1),
+                    color:
+                        (status == 'Aktif' ? AppTheme.success : AppTheme.danger)
+                            .withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    member['status'],
-                    style: TextStyle(fontSize: 12, color: member['status'] == 'Aktif' ? AppTheme.success : AppTheme.danger, fontWeight: FontWeight.w700),
+                    status,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: status == 'Aktif'
+                          ? AppTheme.success
+                          : AppTheme.danger,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],

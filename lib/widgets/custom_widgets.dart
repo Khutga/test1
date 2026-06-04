@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/screens/accountScreen/user_profile_screen.dart';
 import '../core/app_colors.dart';
 
 // ─── GLASS CONTAINER ───
@@ -104,7 +105,9 @@ class PremiumButton extends StatelessWidget {
           backgroundColor: AppTheme.accent,
           disabledBackgroundColor: context.textSecondary.withOpacity(0.15),
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           elevation: 0,
         ),
         child: Row(
@@ -115,7 +118,14 @@ class PremiumButton extends StatelessWidget {
               Icon(icon, color: Colors.white, size: 16),
               const SizedBox(width: 6),
             ],
-            Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+            Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+              ),
+            ),
           ],
         ),
       ),
@@ -147,7 +157,14 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 14, color: context.textSecondary, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: context.textSecondary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 4),
         TextField(
           controller: controller,
@@ -156,12 +173,17 @@ class CustomTextField extends StatelessWidget {
           style: TextStyle(fontSize: 14, color: context.textPrimary),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: context.textSecondary.withOpacity(0.5), fontSize: 14),
+            hintStyle: TextStyle(
+              color: context.textSecondary.withOpacity(0.5),
+              fontSize: 14,
+            ),
             prefixIcon: (maxLines == 1 && icon != null)
                 ? Icon(icon, color: context.textSecondary, size: 18)
                 : null,
             filled: true,
-            fillColor: context.isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.06),
+            fillColor: context.isDark
+                ? Colors.white.withOpacity(0.05)
+                : Colors.grey.withOpacity(0.06),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: context.border),
@@ -170,7 +192,10 @@ class CustomTextField extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
           ),
         ),
       ],
@@ -222,20 +247,41 @@ class MenuActionTile extends StatelessWidget {
                 child: Icon(icon, color: iconColor, size: 17),
               ),
               const SizedBox(width: 12),
-              Text(label, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: context.textPrimary)),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: context.textPrimary,
+                ),
+              ),
               const Spacer(),
               if (badge != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.danger.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text(badge!, style: TextStyle(fontSize: 9, color: AppTheme.danger, fontWeight: FontWeight.w800)),
+                  child: Text(
+                    badge!,
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: AppTheme.danger,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
               if (trailing != null) trailing!,
               if (badge == null && trailing == null)
-                Icon(LucideIcons.chevronRight, color: context.textSecondary.withOpacity(0.4), size: 16),
+                Icon(
+                  LucideIcons.chevronRight,
+                  color: context.textSecondary.withOpacity(0.4),
+                  size: 16,
+                ),
             ],
           ),
         ),
@@ -272,7 +318,14 @@ class GradientBadge extends StatelessWidget {
             Icon(icon, color: color, size: 11),
             const SizedBox(width: 3),
           ],
-          Text(text, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w700)),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ],
       ),
     );
@@ -299,7 +352,9 @@ class GlassIconButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(7),
         decoration: BoxDecoration(
-          color: context.isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.08),
+          color: context.isDark
+              ? Colors.white.withOpacity(0.06)
+              : Colors.grey.withOpacity(0.08),
           shape: BoxShape.circle,
           border: Border.all(color: context.border.withOpacity(0.5)),
         ),
@@ -310,7 +365,7 @@ class GlassIconButton extends StatelessWidget {
 }
 
 // ─── LIVE STREAM CARD (KOMPAKT) ───
-// ─── LIVE STREAM CARD (KOMPAKT) ───
+
 class LiveStreamCard extends StatelessWidget {
   final Map<String, dynamic> stream;
   final VoidCallback onTap;
@@ -325,7 +380,7 @@ class LiveStreamCard extends StatelessWidget {
     final etiket = stream['etiket']?.toString() ?? '';
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap, // Kartın geneline tıklanınca yayına gider
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
@@ -333,7 +388,11 @@ class LiveStreamCard extends StatelessWidget {
           boxShadow: context.isDark
               ? null
               : [
-                  BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 2)),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
                 ],
           border: Border.all(color: context.border.withOpacity(0.5)),
         ),
@@ -367,7 +426,14 @@ class LiveStreamCard extends StatelessWidget {
                   children: [
                     Icon(LucideIcons.radio, color: Colors.white, size: 13),
                     SizedBox(width: 3),
-                    Text("CANLI", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white)),
+                    Text(
+                      "CANLI",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -385,9 +451,20 @@ class LiveStreamCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(LucideIcons.eye, color: Colors.white70, size: 13),
+                    const Icon(
+                      LucideIcons.eye,
+                      color: Colors.white70,
+                      size: 13,
+                    ),
                     const SizedBox(width: 3),
-                    Text(izleyiciSayisi, style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w700)),
+                    Text(
+                      izleyiciSayisi,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -401,7 +478,9 @@ class LiveStreamCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(16),
+                  ),
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
@@ -411,22 +490,62 @@ class LiveStreamCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(yayinciIsmi, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.white)),
+                    // İSME TIKLAYINCA HIZLI PROFİL AÇILAN KISIM
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => UserProfileScreen(
+                              hedefKullaniciAdi: yayinciIsmi,
+                            ), 
+                          ),
+                        );
+                      },
+                      // Tıklama alanı (hitbox) biraz genişletildi ki kullanıcı rahatça basabilsin
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                          top: 4,
+                          bottom: 4,
+                          right: 16,
+                        ),
+                        color: Colors
+                            .transparent, // Transparan arka plan tıklamayı algılar
+                        child: Text(
+                          yayinciIsmi,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+
                     const SizedBox(height: 4),
-                    
+
                     // Veritabanındaki etiket boş değilse ekrana bas
                     if (etiket.isNotEmpty)
                       Wrap(
                         spacing: 4,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(etiket, style: const TextStyle(fontSize: 12, color: Colors.white70)),
-                          )
+                            child: Text(
+                              etiket,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                   ],
@@ -439,13 +558,19 @@ class LiveStreamCard extends StatelessWidget {
     );
   }
 }
+
 // ─── TAB BUTTON ───
 class GlassTabButton extends StatelessWidget {
   final String label;
   final bool isActive;
   final VoidCallback onTap;
 
-  const GlassTabButton({super.key, required this.label, required this.isActive, required this.onTap});
+  const GlassTabButton({
+    super.key,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -455,7 +580,11 @@ class GlassTabButton extends StatelessWidget {
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: isActive ? AppTheme.accent : (context.isDark ? Colors.white.withOpacity(0.06) : Colors.grey.withOpacity(0.08)),
+          color: isActive
+              ? AppTheme.accent
+              : (context.isDark
+                    ? Colors.white.withOpacity(0.06)
+                    : Colors.grey.withOpacity(0.08)),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -478,9 +607,6 @@ class MainBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: context.bg,
-      child: child,
-    );
+    return Container(color: context.bg, child: child);
   }
 }

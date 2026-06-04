@@ -2,9 +2,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:nivi/widgets/custom_widgets.dart';
-import '../core/app_colors.dart';
-import '../main.dart';
-import 'mainScreen/mainPage.dart';
+import '../../core/app_colors.dart';
+import '../../main.dart';
+import '../mainScreen/mainPage.dart';
+import '../../services/auth_servis.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -22,9 +24,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
+  final TextEditingController _epostaController = TextEditingController();
+  final TextEditingController _sifreController = TextEditingController();
 
   DateTime? _selectedBirthDate;
   String _zodiac = '';
+ 
+
 
   String _calculateZodiac(DateTime date) {
     int day = date.day;
@@ -83,14 +89,41 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     if (mounted) setState(() => _selfieStatus = 'done');
   }
 
-  void _completeRegistration() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Kayıt başarıyla tamamlandı!"), backgroundColor: AppTheme.success),
+  void _completeRegistration() async {
+    if (_nameController.text.isEmpty || _epostaController.text.isEmpty || _sifreController.text.isEmpty || _selectedBirthDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Lütfen zorunlu alanları doldurun.")));
+      return;
+    }
+
+    // Format: YYYY-MM-DD
+    String dogumTarihi = "${_selectedBirthDate!.year}-${_selectedBirthDate!.month.toString().padLeft(2, '0')}-${_selectedBirthDate!.day.toString().padLeft(2, '0')}";
+    String secilenCinsiyet = _gender == 'Erkek (Male)' ? 'Erkek' : (_gender == 'Kadın (Female)' ? 'Kadın' : 'Belirtmek İstemiyor');
+
+    var res = await AuthServis.hesapOlustur(
+      kullaniciAdi: _nameController.text.trim(),
+      eposta: _epostaController.text.trim(),
+      sifre: _sifreController.text.trim(),
+      dogumTarihi: dogumTarihi,
+      cinsiyet: secilenCinsiyet,
+      ekAlanlar: {
+        "biyografi": _bioController.text,
+        "boy": _heightController.text.isNotEmpty ? int.tryParse(_heightController.text) : null,
+        "kilo": _weightController.text.isNotEmpty ? double.tryParse(_weightController.text) : null,
+        "burc": _zodiac,
+      }
     );
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MainNavigator()),
-    );
+
+    if (res.basarili && res.eklenenId != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('kullanici_id', int.parse(res.eklenenId!)); // ID'yi hafızaya al
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Kayıt başarılı!"), backgroundColor: AppTheme.success));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigator()));
+      }
+    } else {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res.mesaj), backgroundColor: AppTheme.danger));
+    }
   }
 
   @override
@@ -285,7 +318,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         children: [
           Text("Profil Bilgileri", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: context.textPrimary)),
           const SizedBox(height: 24),
-          _buildTextField(context, "Ad / Nickname", _nameController, hint: "Örnek: Alexander", icon: LucideIcons.user),
+         _buildTextField(context, "Kullanıcı Adı", _nameController, hint: "Örnek: Alexander", icon: LucideIcons.user),
+          const SizedBox(height: 16),
+          _buildTextField(context, "E-posta", _epostaController, hint: "E-posta adresiniz", icon: LucideIcons.mail),
+          const SizedBox(height: 16),
+          _buildTextField(context, "Şifre", _sifreController, hint: "Şifreniz", icon: LucideIcons.key), // Not: obscureText özelliği custom widget'a eklenebilir
           const SizedBox(height: 16),
 
           Text("Doğum Tarihi", style: TextStyle(fontSize: 12, color: context.textSecondary, fontWeight: FontWeight.w600)),

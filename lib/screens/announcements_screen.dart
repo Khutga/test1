@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/app_colors.dart';
-import '../core/mock_data.dart';
+import '../services/sql_servis.dart';
 import '../widgets/custom_widgets.dart';
 
 class AnnouncementsScreen extends StatefulWidget {
@@ -13,22 +14,73 @@ class AnnouncementsScreen extends StatefulWidget {
 
 class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
   final TextEditingController _annController = TextEditingController();
-  int _userCoins = 54200;
-  List<Map<String, dynamic>> _announcements = List.from(MockData.announcements);
+  int _userCoins = 0;
+  int _userId = 1;
+  String _userName = "Sen";
+  
+  List<Map<String, dynamic>> _announcements = [];
+  bool _isLoading = true;
 
-  void _handlePublish() {
+  @override
+  void initState() {
+    super.initState();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    setState(() => _isLoading = true);
+    final prefs = await SharedPreferences.getInstance();
+    _userId = prefs.getInt('kullanici_id') ?? 1;
+
+    // Kullanıcı Bakiyesi ve Adını Çek
+    final userRes = await SqlServis.cek(tablo: 'hesaplar', sartlar: {'id': _userId});
+    if (userRes.basarili && userRes.veri.isNotEmpty) {
+      _userCoins = int.tryParse(userRes.veri.first['birinci_coin_bakiye'].toString()) ?? 0;
+      _userName = userRes.veri.first['isim'] ?? 'Sen';
+    }
+
+    // Duyuruları Çek (Yeniden eskiye sıralamak için SQL'de ORDER BY gerekir ama serviste şimdilik tersten listeye ekleyebiliriz)
+    final annRes = await SqlServis.cek(tablo: 'duyurular');
+    if (annRes.basarili) {
+      _announcements = annRes.veri.reversed.toList(); // En yeniler en üstte
+    }
+
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _handlePublish() async {
     if (_annController.text.trim().isEmpty) return;
     const int cost = 15000;
+    
     if (_userCoins < cost) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Yetersiz coin!"), backgroundColor: Colors.red));
       return;
     }
-    setState(() {
-      _userCoins -= cost;
-      _announcements.insert(0, {"id": DateTime.now().millisecondsSinceEpoch, "sender": "SİZ", "type": "pk", "text": _annController.text, "time": "Şimdi", "cost": cost});
-      _annController.clear();
-    });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text("Duyuru yayınlandı!"), backgroundColor: AppTheme.success));
+
+    setState(() => _isLoading = true);
+
+    // Bakiyeyi Düş
+    int yeniBakiye = _userCoins - cost;
+    await SqlServis.guncelle(tablo: 'hesaplar', veriler: {'birinci_coin_bakiye': yeniBakiye}, sartlar: {'id': _userId});
+
+    // Duyuruyu Ekle
+    await SqlServis.ekle(
+      tablo: 'duyurular', 
+      veriler: {
+        'gonderen_id': _userId,
+        'gonderen_isim': _userName,
+        'tip': 'pk',
+        'mesaj': _annController.text.trim(),
+        'maliyet': cost
+      }
+    );
+
+    _annController.clear();
+    await _initData(); // Listeyi ve bakiyeyi yenile
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text("Duyuru yayınlandı!"), backgroundColor: AppTheme.success));
+    }
   }
 
   @override
@@ -49,12 +101,17 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
           child: Column(
             children: [
               Expanded(
-                child: ListView.builder(
+                child: _isLoading 
+                ? const Center(child: CircularProgressIndicator())
+                : _announcements.isEmpty 
+                  ? const Center(child: Text("Henüz duyuru yok.", style: TextStyle(color: Colors.white54)))
+                  : ListView.builder(
                   padding: const EdgeInsets.all(14),
                   itemCount: _announcements.length,
                   itemBuilder: (_, index) {
                     final item = _announcements[index];
-                    final isSystem = item['type'] == 'system';
+                    final isSystem = item['tip'] == 'sistem';
+                    
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: GlassContainer(
@@ -65,20 +122,20 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(item['sender'], style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isSystem ? AppTheme.accent : AppTheme.accentGold)),
-                                Text(item['time'], style: TextStyle(fontSize: 12, color: context.textSecondary)),
+                                Text(item['gonderen_isim'] ?? 'Sistem', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isSystem ? AppTheme.accent : AppTheme.accentGold)),
+                                Text((item['tarih'] ?? '').toString().split(' ').first, style: TextStyle(fontSize: 10, color: context.textSecondary)),
                               ],
                             ),
                             const SizedBox(height: 6),
-                            Text(item['text'], style: TextStyle(fontSize: 14, color: context.textPrimary)),
-                            if (item['cost'] != null)
+                            Text(item['mesaj'] ?? '', style: TextStyle(fontSize: 14, color: context.textPrimary)),
+                            if (int.tryParse(item['maliyet'].toString()) != null && int.parse(item['maliyet'].toString()) > 0)
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: Container(
                                   margin: const EdgeInsets.only(top: 6),
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(color: AppTheme.accent.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-                                  child: Text("Sponsorlu", style: TextStyle(fontSize: 10, color: AppTheme.accent, fontWeight: FontWeight.w700)),
+                                  child: const Text("Sponsorlu", style: TextStyle(fontSize: 10, color: AppTheme.accent, fontWeight: FontWeight.w700)),
                                 ),
                               ),
                           ],
@@ -89,7 +146,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                 ),
               ),
 
-              // Input
+              // Input Bar
               Container(
                 padding: const EdgeInsets.all(12),
                 color: context.card,
@@ -102,7 +159,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                         children: [
                           Icon(LucideIcons.shieldAlert, color: AppTheme.warning, size: 14),
                           const SizedBox(width: 6),
-                          Expanded(child: Text("15,000 Coin ile duyuru gönderebilirsiniz.", style: TextStyle(color: AppTheme.warning, fontSize: 12))),
+                          Expanded(child: Text("15,000 Coin ile tüm sunucuya duyuru gönderebilirsiniz.", style: TextStyle(color: AppTheme.warning, fontSize: 12))),
                         ],
                       ),
                     ),
@@ -125,7 +182,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                         ),
                         const SizedBox(width: 6),
                         ElevatedButton(
-                          onPressed: _handlePublish,
+                          onPressed: _isLoading ? null : _handlePublish,
                           style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10)),
                           child: const Text("Gönder", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14)),
                         ),

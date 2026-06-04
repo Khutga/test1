@@ -1,15 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../core/app_colors.dart';
-import '../widgets/custom_widgets.dart';
-import 'coin_shop_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/app_colors.dart';
+import '../../services/sql_servis.dart';
+import '../../widgets/custom_widgets.dart';
+import '../coin_shop_screen.dart';
 import 'edit_profile_screen.dart';
-import 'gift_history_screen.dart';
-import 'agency_screen.dart';
+import '../gift_history_screen.dart';
+import '../agency_screen.dart';
 import 'settings_screen.dart';
+import 'follow_list_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  int _followerCount = 0;
+  int _followingCount = 0;
+  Map<String, dynamic>? userData;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // 1. Zırh: Hafızadan veri gelene kadar sayfa kapandıysa dur!
+    if (!mounted) return;
+
+    final int userId = prefs.getInt('kullanici_id') ?? 1;
+
+    final response = await SqlServis.cek(
+      tablo: 'hesaplar',
+      sartlar: {'id': userId},
+    );
+
+    // 2. Zırh: Veritabanından hesap bilgisi gelene kadar sayfa kapandıysa dur!
+    if (!mounted) return;
+    if (response.basarili && response.veri.isNotEmpty) {
+      setState(() => userData = response.veri.first);
+    }
+
+    final followerRes = await SqlServis.cek(
+      tablo: 'takipciler',
+      sartlar: {'takip_edilen_id': userId},
+    );
+
+    // 3. Zırh: Takipçi sayısı gelene kadar sayfa kapandıysa dur!
+    if (!mounted) return;
+    if (followerRes.basarili) {
+      setState(() => _followerCount = followerRes.veri.length);
+    }
+
+    final followingRes = await SqlServis.cek(
+      tablo: 'takipciler',
+      sartlar: {'takip_eden_id': userId},
+    );
+
+    // 4. Zırh: Takip edilen sayısı gelene kadar sayfa kapandıysa dur!
+    if (!mounted) return;
+    if (followingRes.basarili) {
+      setState(() => _followingCount = followingRes.veri.length);
+    }
+
+    // Artık sayfanın hala ekranda olduğundan %100 eminiz, loading'i kapatabiliriz.
+    setState(() => isLoading = false);
+  }
 
   Widget _buildStatItem(BuildContext context, String value, String label) {
     return Column(
@@ -19,13 +83,13 @@ class ProfileScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: context.textPrimary, // Temadan çekildi
+            color: context.textPrimary,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: TextStyle(fontSize: 11, color: context.textSecondary), // Temadan çekildi
+          style: TextStyle(fontSize: 11, color: context.textSecondary),
         ),
       ],
     );
@@ -33,6 +97,18 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading)
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+
+    // Veritabanı değerleri
+    String isim = userData?['kullanici_adi'] ?? "Misafir";
+    String bakiye = userData?['birinci_coin_bakiye']?.toString() ?? "0";
+    String bio = userData?['biyografi'] ?? "Merhaba, FiFi Live'dayım!";
+    int xp = int.tryParse(userData?['xp_puani']?.toString() ?? '0') ?? 0;
+    int seviye =
+        (xp / 100).floor() +
+        1; // Basit bir seviye hesaplama (Her 100 XP = 1 Level)
+
     return Scaffold(
       body: MainBackground(
         child: SafeArea(
@@ -41,21 +117,19 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               children: [
                 GlowAvatar(
-                  initial: "A",
+                  initial: isim[0].toUpperCase(),
                   radius: 44,
-                  color: AppTheme.accent, // Hatalı primaryPurple değiştirildi
+                  color: AppTheme.accent,
                 ),
                 const SizedBox(height: 16),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Alexander",
+                      isim,
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
                         color: context.textPrimary,
                       ),
                     ),
@@ -66,12 +140,15 @@ class ProfileScreen extends StatelessWidget {
                         color: AppTheme.accent,
                         size: 18,
                       ),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const EditProfileScreen(),
-                        ),
-                      ),
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const EditProfileScreen(),
+                          ),
+                        );
+                        _loadProfileData(); // Döndüğünde yenile
+                      },
                     ),
                   ],
                 ),
@@ -79,26 +156,58 @@ class ProfileScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildStatItem(context, "12.4K", "Takipçi"),
-                    Container(
-                      width: 1,
-                      height: 28,
-                      color: context.border, // Temadan çekildi
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const FollowListScreen(initialTab: 'followers'),
+                          ),
+                        );
+                      },
+                      child: _buildStatItem(
+                        context,
+                        _followerCount.toString(),
+                        "Takipçi",
+                      ),
                     ),
-                    _buildStatItem(context, "348", "Takip"),
                     Container(
                       width: 1,
                       height: 28,
                       color: context.border,
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                     ),
-                    _buildStatItem(context, "Lv.42", "Seviye"),
+
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const FollowListScreen(initialTab: 'following'),
+                          ),
+                        );
+                      },
+                      child: _buildStatItem(
+                        context,
+                        _followingCount.toString(),
+                        "Takip Edilen",
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 28,
+                      color: context.border,
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                    ),
+
+                    _buildStatItem(context, "Lv.$seviye", "Seviye"),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "Müzik, Kodlama ve Kahve. ☕️\nİstanbul ♍️ Başak Erkeği",
+                  bio,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: context.textSecondary,
@@ -125,27 +234,28 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            "54,200 Coin",
-                            style: TextStyle(
+                          Text(
+                            "$bakiye Coin",
+                            style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
-                              color: AppTheme.accentGold, // Temaya uygun
+                              color: AppTheme.accentGold,
                             ),
                           ),
                         ],
                       ),
                       ElevatedButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const CoinShopScreen(),
-                          ),
-                        ),
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const CoinShopScreen(),
+                            ),
+                          );
+                          _loadProfileData(); // Döndüğünde bakiyeyi güncelle
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.accent,
-                          shadowColor: AppTheme.accent.withOpacity(0.3),
-                          elevation: 4,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -159,7 +269,6 @@ class ProfileScreen extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -181,17 +290,16 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 MenuActionTile(
                   icon: LucideIcons.activity,
-                  label: "Ajans Sistemi & Paneli",
+                  label: "Ajans Sistemi",
                   iconColor: AppTheme.success,
-                  badge: "VIP",
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const AgencyScreen()),
                   ),
                 ),
                 MenuActionTile(
-                  icon: LucideIcons.shield,
-                  label: "Ayarlar ve Gizlilik",
+                  icon: LucideIcons.settings,
+                  label: "Ayarlar",
                   iconColor: AppTheme.accent,
                   onTap: () => Navigator.push(
                     context,

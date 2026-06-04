@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../core/app_colors.dart';
-import '../widgets/custom_widgets.dart';
+import '../../core/app_colors.dart';
+import '../../widgets/custom_widgets.dart';
 
 class LiveViewScreen extends StatefulWidget {
   final Map<String, dynamic> streamData;

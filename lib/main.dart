@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/app_colors.dart';
 import 'core/theme_provider.dart';
 import 'screens/mainScreen/mainPage.dart';
-import 'screens/registration_screen.dart';
+import 'screens/accountScreen/registration_screen.dart';
 import 'providers/auth_provider.dart';
 
 void main() {

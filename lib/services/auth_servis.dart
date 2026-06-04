@@ -1,10 +1,6 @@
-import 'sql_servis.dart'; // SqlServis sınıfının bulunduğu dosya yolu
+import 'sql_servis.dart';
 
 class AuthServis {
-  
-  /// 🔐 **Kullanıcı Giriş Kontrolü (Login)**
-  /// 
-  /// E-posta ve şifre eşleşirse veritabanındaki kullanıcı bilgilerini döner.
   static Future<ApiResponse> girisYap({
     required String eposta,
     required String sifre,
@@ -13,75 +9,49 @@ class AuthServis {
       tablo: Tablolar.hesaplar,
       sartlar: {
         "eposta": eposta,
-        "sifre": sifre,
+        "sifre_hash": sifre, // DB'deki sütun adı
       },
     );
 
     if (res.basarili && res.veri.isEmpty) {
-      return ApiResponse(
-        basarili: false,
-        mesaj: "E-posta veya şifre hatalı.",
-        veri: [],
-      );
+      return ApiResponse(basarili: false, mesaj: "E-posta veya şifre hatalı.", veri: []);
     }
     return res;
   }
 
-  /// 📝 **Benzersizlik Kontrollü Hesap Oluşturma (Register)**
-  /// 
-  /// Kayıt öncesi e-posta ve kullanıcı adının (ad) veritabanında olup olmadığını kontrol eder.
   static Future<ApiResponse> hesapOlustur({
-    required String ad,
+    required String kullaniciAdi,
     required String eposta,
     required String sifre,
+    required String dogumTarihi,
+    required String cinsiyet,
     Map<String, dynamic>? ekAlanlar,
   }) async {
     
-    // 1. Adım: E-posta zaten var mı?
-    ApiResponse epostaKontrol = await SqlServis.cek(
-      tablo: Tablolar.hesaplar,
-      sartlar: {"eposta": eposta},
-    );
-    if (epostaKontrol.basarili && epostaKontrol.veri.isNotEmpty) {
-      return ApiResponse(
-        basarili: false,
-        mesaj: "Bu e-posta adresi zaten kayıtlı.",
-        veri: [],
-      );
-    }
+    // E-posta ve Kullanıcı adı kontrolü
+    ApiResponse epostaKontrol = await SqlServis.cek(tablo: Tablolar.hesaplar, sartlar: {"eposta": eposta});
+    if (epostaKontrol.basarili && epostaKontrol.veri.isNotEmpty) return ApiResponse(basarili: false, mesaj: "Bu e-posta kayıtlı.", veri: []);
 
-    // 2. Adım: Kullanıcı adı (ad) zaten alınmış mı?
-    ApiResponse adKontrol = await SqlServis.cek(
-      tablo: Tablolar.hesaplar,
-      sartlar: {"ad": ad},
-    );
-    if (adKontrol.basarili && adKontrol.veri.isNotEmpty) {
-      return ApiResponse(
-        basarili: false,
-        mesaj: "Bu kullanıcı adı zaten alınmış.",
-        veri: [],
-      );
-    }
+    ApiResponse adKontrol = await SqlServis.cek(tablo: Tablolar.hesaplar, sartlar: {"kullanici_adi": kullaniciAdi});
+    if (adKontrol.basarili && adKontrol.veri.isNotEmpty) return ApiResponse(basarili: false, mesaj: "Bu kullanıcı adı alınmış.", veri: []);
 
-    // 3. Adım: Kontroller temizse veriyi hazırla ve ekle
+    // Veritabanı şemasına uygun kayıt
     Map<String, dynamic> kayitVerileri = {
-      "ad": ad,
+      "kullanici_adi": kullaniciAdi,
+      "isim": kullaniciAdi, // Başlangıçta aynı yapıyoruz
+      "soy_isim": "",
       "eposta": eposta,
-      "sifre": sifre,
-      "durum": "aktif",
-      "bakiye": "0",
-      "tarih": DateTime.now().toString().substring(0, 10)
+      "sifre_hash": sifre,
+      "dogum_tarihi": dogumTarihi,
+      "cinsiyet": cinsiyet,
+      "xp_puani": 0,
+      "birinci_coin_bakiye": 0,
+      "yasakli_mi": 0,
+      "onayli_hesap": 0,
     };
 
-    // Formdan gelen telefon, notlar vb. ekstra kolonlar varsa ekle
-    if (ekAlanlar != null) {
-      kayitVerileri.addAll(ekAlanlar);
-    }
+    if (ekAlanlar != null) kayitVerileri.addAll(ekAlanlar);
 
-    return await SqlServis.ekle(
-      tablo: Tablolar.hesaplar,
-      veriler: kayitVerileri,
-      geriDondur: "*" // Kayıt başarılıysa kullanıcının tüm satır verisini geri döndür
-    );
+    return await SqlServis.ekle(tablo: Tablolar.hesaplar, veriler: kayitVerileri, geriDondur: "*");
   }
 }
