@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../core/app_colors.dart';
-import '../core/mock_data.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/sql_servis.dart';
 import 'package:shared_preferences/shared_preferences.dart';

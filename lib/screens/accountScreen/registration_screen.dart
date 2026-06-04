@@ -119,7 +119,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Kayıt başarılı!"), backgroundColor: AppTheme.success));
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigator()));
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const MainNavigator()),
+          (route) => false,
+        );
       }
     } else {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res.mesaj), backgroundColor: AppTheme.danger));
@@ -241,6 +245,27 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Zaten hesabın var mı? ",
+                      style: TextStyle(color: context.textSecondary, fontSize: 14),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Text(
+                        "Giriş Yap",
+                        style: TextStyle(
+                          color: AppTheme.accent,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -322,7 +347,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           const SizedBox(height: 16),
           _buildTextField(context, "E-posta", _epostaController, hint: "E-posta adresiniz", icon: LucideIcons.mail),
           const SizedBox(height: 16),
-          _buildTextField(context, "Şifre", _sifreController, hint: "Şifreniz", icon: LucideIcons.key), // Not: obscureText özelliği custom widget'a eklenebilir
+          _buildTextField(context, "Şifre", _sifreController, hint: "Şifreniz", icon: LucideIcons.key),
           const SizedBox(height: 16),
 
           Text("Doğum Tarihi", style: TextStyle(fontSize: 12, color: context.textSecondary, fontWeight: FontWeight.w600)),

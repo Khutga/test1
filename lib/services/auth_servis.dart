@@ -48,6 +48,7 @@ class AuthServis {
       "birinci_coin_bakiye": 0,
       "yasakli_mi": 0,
       "onayli_hesap": 0,
+      "ajansvarmi": 0,
     };
 
     if (ekAlanlar != null) kayitVerileri.addAll(ekAlanlar);

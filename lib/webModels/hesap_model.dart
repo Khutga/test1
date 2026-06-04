@@ -19,6 +19,7 @@ class HesapModel {
   final DateTime sonGuncelleme;
   final int? boy;
   final double? kilo;
+  final bool ajansVarMi;
 
   HesapModel({
     required this.id,
@@ -41,6 +42,7 @@ class HesapModel {
     required this.sonGuncelleme,
     this.boy,
     this.kilo,
+    required this.ajansVarMi,
   });
 
   factory HesapModel.fromJson(Map<String, dynamic> json) {
@@ -70,6 +72,7 @@ class HesapModel {
       sonGuncelleme: DateTime.tryParse(json['son_guncelleme']?.toString() ?? '') ?? DateTime.now(),
       boy: json['boy'] != null ? parseInt(json['boy']) : null,
       kilo: json['kilo'] != null ? parseDouble(json['kilo']) : null,
+      ajansVarMi: parseBool(json['ajansvarmi']),
     );
   }
 }

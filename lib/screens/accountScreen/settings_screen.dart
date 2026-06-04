@@ -3,18 +3,18 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../widgets/custom_widgets.dart';
-import 'registration_screen.dart'; // Başlangıç/Kayıt ekranın
+import 'login_screen.dart'; 
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('kullanici_id'); // ID'yi hafızadan sil
+    await prefs.remove('kullanici_id'); 
 
     if (context.mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const RegistrationScreen()),
+        MaterialPageRoute(builder: (context) => const LoginScreen()), 
         (Route<dynamic> route) => false,
       );
     }
