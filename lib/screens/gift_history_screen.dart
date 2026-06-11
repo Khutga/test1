@@ -13,7 +13,11 @@ class GiftHistoryScreen extends StatefulWidget {
 
 class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
   String _activeTab = 'received';
-  List<Map<String, dynamic>> _gifts = [];
+  String _timeFilter = 'all'; // 'all', 'today', 'week', 'month'
+
+  List<Map<String, dynamic>> _allGifts = []; // Veritabanından gelen ham liste
+  List<Map<String, dynamic>> _gifts =
+      []; // Ekranda gösterilen filtrelenmiş liste
   bool _isLoading = true;
 
   @override
@@ -35,10 +39,61 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
     final res = await SqlServis.cek(tablo: 'hediye_gecmisi', sartlar: sart);
 
     if (res.basarili) {
-      setState(() {
-        _gifts = res.veri;
-        _isLoading = false;
-      });
+      _allGifts = List<Map<String, dynamic>>.from(res.veri);
+      _applyFilters(); // Filtreleme ve sıralama işlemini uygula
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  // 🔥 YENİ: Zaman filtrelemesini ve sıralamayı yapan fonksiyon
+  void _applyFilters() {
+    List<Map<String, dynamic>> filtered = List.from(_allGifts);
+    DateTime now = DateTime.now();
+
+    if (_timeFilter != 'all') {
+      filtered = filtered.where((item) {
+        if (item['tarih'] == null) return false;
+        try {
+          DateTime date = DateTime.parse(item['tarih'].toString());
+          if (_timeFilter == 'today') {
+            return date.year == now.year &&
+                date.month == now.month &&
+                date.day == now.day;
+          } else if (_timeFilter == 'week') {
+            return now.difference(date).inDays <= 7;
+          } else if (_timeFilter == 'month') {
+            return date.year == now.year && date.month == now.month;
+          }
+        } catch (e) {
+          return false;
+        }
+        return true;
+      }).toList();
+    }
+
+    // 🔥 YENİ: Tarihe göre Yeniden Eskiye doğru sırala (En son hediye en üstte)
+    filtered.sort((a, b) {
+      String dateA = a['tarih']?.toString() ?? '';
+      String dateB = b['tarih']?.toString() ?? '';
+      return dateB.compareTo(dateA); // B'yi A'dan çıkararak Descending yaparız
+    });
+
+    setState(() {
+      _gifts = filtered;
+      _isLoading = false;
+    });
+  }
+
+  // Tarih formatlayıcı (Örn: 29.05.2026 16:35)
+  // Tarih formatlayıcı
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return 'Tarih Yok';
+    try {
+      DateTime dt = DateTime.parse(dateStr);
+      return "${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+    } catch (e) {
+      return dateStr;
     }
   }
 
@@ -60,7 +115,7 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
           top: false,
           child: Column(
             children: [
-              // Tabs
+              // Üst Sekmeler (Alınan / Gönderilen)
               Container(
                 decoration: BoxDecoration(
                   color: context.card,
@@ -74,7 +129,11 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
                         "Alınan",
                         AppTheme.success,
                         () {
-                          setState(() => _activeTab = 'received');
+                          setState(() {
+                            _activeTab = 'received';
+                            _timeFilter =
+                                'all'; // Sekme değişince filtreyi sıfırla
+                          });
                           _loadGifts();
                         },
                       ),
@@ -85,7 +144,11 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
                         "Gönderilen",
                         AppTheme.accent,
                         () {
-                          setState(() => _activeTab = 'sent');
+                          setState(() {
+                            _activeTab = 'sent';
+                            _timeFilter =
+                                'all'; // Sekme değişince filtreyi sıfırla
+                          });
                           _loadGifts();
                         },
                       ),
@@ -93,27 +156,59 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
                   ],
                 ),
               ),
+
+              // 🔥 YENİ: Zaman Filtresi Butonları (Bugün, Bu Hafta, Bu Ay)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildFilterChip('all', 'Tümü'),
+                      _buildFilterChip('today', 'Bugün'),
+                      _buildFilterChip('week', 'Bu Hafta'),
+                      _buildFilterChip('month', 'Bu Ay'),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Hediye Listesi
               Expanded(
                 child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: AppTheme.accent,
+                        ),
+                      )
                     : _gifts.isEmpty
                     ? const Center(
                         child: Text(
-                          "Hediye kaydı yok",
-                          style: TextStyle(color: Colors.white54),
+                          "Bu zaman aralığında hediye kaydı bulunamadı.",
+                          style: TextStyle(color: Colors.white54, fontSize: 13),
                         ),
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 4,
+                        ),
                         itemCount: _gifts.length,
                         itemBuilder: (_, index) {
                           final item = _gifts[index];
                           String gosterilecekIsim = _activeTab == 'received'
-                              ? item['gonderen_isim']
-                              : item['alan_isim'];
+                              ? item['gonderen_isim'] ?? 'Bilinmiyor'
+                              : item['alan_isim'] ?? 'Bilinmiyor';
+
+                          String formattedDate = _formatDate(
+                            item['tarih']?.toString(),
+                          );
 
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 6),
+                            margin: const EdgeInsets.only(bottom: 8),
                             child: GlassContainer(
                               padding: const EdgeInsets.all(12),
                               child: Row(
@@ -125,40 +220,66 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "${item['hediye_adi']} ${item['hediye_emoji']}",
+                                        "${item['hediye_adi']} ${item['hediye_emoji'] ?? '🎁'}",
                                         style: TextStyle(
                                           fontWeight: FontWeight.w700,
                                           fontSize: 15,
                                           color: context.textPrimary,
                                         ),
                                       ),
-                                      const SizedBox(height: 2),
+                                      const SizedBox(height: 4),
                                       Text(
                                         "${_activeTab == 'received' ? 'Gönderen:' : 'Alıcı:'} $gosterilecekIsim",
                                         style: TextStyle(
                                           color: context.textSecondary,
-                                          fontSize: 14,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
                                         ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.access_time,
+                                            size: 13,
+                                            color: context.textSecondary,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            formattedDate,
+                                            style: TextStyle(
+                                              color: context
+                                                  .textSecondary, // Beyaz yerine dinamik tema rengi yapıldı
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 3,
+                                      horizontal: 10,
+                                      vertical: 6,
                                     ),
                                     decoration: BoxDecoration(
                                       color: AppTheme.accentGold.withOpacity(
-                                        0.1,
+                                        0.15,
                                       ),
-                                      borderRadius: BorderRadius.circular(8),
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: AppTheme.accentGold.withOpacity(
+                                          0.3,
+                                        ),
+                                      ),
                                     ),
                                     child: Text(
                                       "${item['coin_miktari']} Coin",
                                       style: const TextStyle(
                                         color: AppTheme.accentGold,
                                         fontSize: 12,
-                                        fontWeight: FontWeight.w700,
+                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
                                   ),
@@ -201,8 +322,41 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
           label,
           style: TextStyle(
             color: isActive ? activeColor : context.textSecondary,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
             fontSize: 14,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String id, String label) {
+    final isActive = _timeFilter == id;
+    return GestureDetector(
+      onTap: () {
+        setState(() => _timeFilter = id);
+        _applyFilters();
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive
+              ? AppTheme.accent
+              : (context.isDark
+                    ? Colors.white.withOpacity(0.05)
+                    : Colors.grey.withOpacity(0.08)),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isActive ? AppTheme.accentLight : Colors.transparent,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isActive ? Colors.white : context.textSecondary,
+            fontSize: 12,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),

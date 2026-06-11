@@ -112,6 +112,16 @@ class _MainNavigatorState extends State<MainNavigator> {
   // YAYIN AYARLARI (ETİKET SEÇİMİ) PANELİ
   // ==========================================
   void _showGoLiveBottomSheet() {
+    if (_kullaniciCinsiyet == 'Erkek') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Yalnızca kadın kullanıcılar canlı yayın açabilir!"),
+          backgroundColor: AppTheme.danger,
+        ),
+      );
+      return;
+    }
+
     String selectedTag = "Sohbet";
     final TextEditingController customTagController = TextEditingController();
     bool isCustomTag = false;
@@ -393,17 +403,19 @@ class _MainNavigatorState extends State<MainNavigator> {
       extendBody: true,
       body: IndexedStack(index: _currentIndex, children: _screens),
 
-      floatingActionButton: SizedBox(
-        height: 52,
-        width: 52,
-        child: FloatingActionButton(
-          onPressed: _showGoLiveBottomSheet,
-          backgroundColor: AppTheme.accent,
-          elevation: 4,
-          shape: const CircleBorder(),
-          child: const Icon(LucideIcons.video, color: Colors.white, size: 22),
-        ),
-      ),
+     floatingActionButton: _kullaniciCinsiyet == 'Erkek'
+          ? null 
+          : SizedBox(
+              height: 52,
+              width: 52,
+              child: FloatingActionButton(
+                onPressed: _showGoLiveBottomSheet,
+                backgroundColor: AppTheme.accent,
+                elevation: 4,
+                shape: const CircleBorder(),
+                child: const Icon(LucideIcons.video, color: Colors.white, size: 22),
+              ),
+            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
       bottomNavigationBar: ClipRRect(
@@ -433,13 +445,14 @@ class _MainNavigatorState extends State<MainNavigator> {
                       label: "Keşfet",
                       index: 1,
                     ),
-                    const SizedBox(width: 40),
+                    if (_kullaniciCinsiyet != 'Erkek') 
+                      const SizedBox(width: 40),
                     _buildNavItem(
                       icon: LucideIcons.messageCircle,
                       label: "Mesajlar",
                       index: 3,
                       badge:
-                          _okunmayanMesajSayisi, // 🔥 GERÇEK VERİ BURAYA BAĞLANDI
+                          _okunmayanMesajSayisi, 
                     ),
                     _buildNavItem(
                       icon: LucideIcons.user,

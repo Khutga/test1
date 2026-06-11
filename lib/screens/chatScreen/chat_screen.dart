@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/services/ekonomi_servis.dart';
 import 'package:nivi/services/sql_servis.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -207,55 +208,104 @@ class _ChatScreenState extends State<ChatScreen> {
     bool isGift = false,
     String mediaUrl = "",
     String mediaType = "yok",
+    int hediyeFiyati = 0,
   }) async {
     final text = textOverride.isEmpty ? _controller.text.trim() : textOverride;
     if (text.isEmpty && mediaUrl.isEmpty) return;
 
-    if (!isGift) {
-      if (_userCoins < 1) {
+    int alanId = int.tryParse(widget.chatData['id'].toString()) ?? 0;
+    int mesajUcreti = 1;
+
+    // ==========================================
+    // 1. HEDİYE GÖNDERME İŞLEMİ (Komisyonlu)
+    // ==========================================
+    if (isGift && hediyeFiyati > 0) {
+      // Ekonomi servisi arka planda kontrollerini yapar
+      final sonuc = await EkonomiServis.hediyeIslemiYap(
+        gonderenId: _kendiId,
+        alanId: alanId,
+        hediyeFiyati: hediyeFiyati,
+      );
+
+      // 🔥 YENİ: Başarısız olursa Servisten dönen dinamik hata mesajını ekrana bas
+      if (sonuc['basarili'] != true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Yetersiz Bakiye! Mesaj basına 1 Coin alınır."),
+          SnackBar(
+            content: Text(sonuc['mesaj']),
             backgroundColor: AppTheme.danger,
           ),
+        );
+        return; // İşlemi iptal et
+      }
+
+      // İşlem başarılıysa hediye gönderildiği için bakiyeyi arayüzde güncelle
+      setState(() => _userCoins -= hediyeFiyati);
+    }
+    // ==========================================
+    // 2. NORMAL MESAJ GÖNDERME İŞLEMİ (Erkek için ücretli)
+    // ==========================================
+    else if (!isGift && _kendiCinsiyet == 'Erkek') {
+      
+      // 🔥 YENİ: XP ve Seviye ayarlarını para kesmeden ÖNCE kontrol et
+      int? mesajBasinaXp;
+      int? seviyeKatsayisi;
+
+      final ayarlarRes = await SqlServis.cek(tablo: 'sistem_ayarlari');
+      if (ayarlarRes.basarili) {
+        for (var a in ayarlarRes.veri) {
+          if (a['ayar_adi'] == 'mesaj_basina_xp') mesajBasinaXp = int.tryParse(a['ayar_degeri'].toString());
+          if (a['ayar_adi'] == 'iliski_seviye_katsayisi') seviyeKatsayisi = int.tryParse(a['ayar_degeri'].toString());
+        }
+      }
+
+      // Veritabanından oranlar gelmediyse veya 0'ın altındaysa anında İPTAL ET
+      if (mesajBasinaXp == null || seviyeKatsayisi == null || seviyeKatsayisi <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Sistem hatası: İlişki seviye katsayıları eksik veya hatalı! İşlem iptal edildi."), 
+            backgroundColor: AppTheme.danger
+          ),
+        );
+        return; // Hata ver ve mesajı göndermeyi durdur
+      }
+
+      // Ayarlar sağlamsa Bakiye Kontrolüne Geç
+      if (_userCoins < mesajUcreti) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Yetersiz Bakiye! Mesaj başına $mesajUcreti Coin alınır."), backgroundColor: AppTheme.danger),
         );
         return;
       }
 
-      int yeniBakiye = _userCoins - 1;
-      await SqlServis.guncelle(
-        tablo: 'hesaplar',
-        veriler: {'birinci_coin_bakiye': yeniBakiye},
-        sartlar: {'id': _kendiId},
-      );
+      int yeniBakiye = _userCoins - mesajUcreti;
+      await SqlServis.guncelle(tablo: 'hesaplar', veriler: {'birinci_coin_bakiye': yeniBakiye}, sartlar: {'id': _kendiId});
+      setState(() => _userCoins = yeniBakiye);
 
-      int karsiId = int.tryParse(widget.chatData['id'].toString()) ?? 0;
-      if (_kendiCinsiyet == 'Erkek') {
-        int kucukId = _kendiId < karsiId ? _kendiId : karsiId;
-        int buyukId = _kendiId > karsiId ? _kendiId : karsiId;
+      final karsiHesapRes = await SqlServis.cek(tablo: 'hesaplar', sartlar: {'id': alanId});
+      if (karsiHesapRes.basarili && karsiHesapRes.veri.isNotEmpty) {
+        double karsiBakiye = double.tryParse(karsiHesapRes.veri.first['birinci_coin_bakiye'].toString()) ?? 0.0;
+        await SqlServis.guncelle(tablo: 'hesaplar', veriler: {'birinci_coin_bakiye': karsiBakiye + mesajUcreti}, sartlar: {'id': alanId});
+      }
 
-        final relRes = await SqlServis.cek(
+      int kucukId = _kendiId < alanId ? _kendiId : alanId;
+      int buyukId = _kendiId > alanId ? _kendiId : alanId;
+      final relRes = await SqlServis.cek(tablo: 'sohbet_iliskileri', sartlar: {'kullanici1_id': kucukId, 'kullanici2_id': buyukId});
+      
+      if (relRes.basarili && relRes.veri.isNotEmpty) {
+        int eskiPuan = int.tryParse(relRes.veri.first['iliski_puani'].toString()) ?? 0;
+        
+        // Dinamik değerlere göre matematik işlemini yap (Artık null olamaz)
+        int yeniPuan = eskiPuan + mesajBasinaXp;
+        int yeniSeviye = (yeniPuan / seviyeKatsayisi).floor() + 1;
+        
+        await SqlServis.guncelle(
           tablo: 'sohbet_iliskileri',
+          veriler: {'iliski_puani': yeniPuan, 'seviye': yeniSeviye},
           sartlar: {'kullanici1_id': kucukId, 'kullanici2_id': buyukId},
         );
-        if (relRes.basarili && relRes.veri.isNotEmpty) {
-          int eskiPuan =
-              int.tryParse(relRes.veri.first['iliski_puani'].toString()) ?? 0;
-          int yeniPuan = eskiPuan + 10;
-          int yeniSeviye = (yeniPuan / 1000).floor() + 1;
-
-          await SqlServis.guncelle(
-            tablo: 'sohbet_iliskileri',
-            veriler: {'iliski_puani': yeniPuan, 'seviye': yeniSeviye},
-            sartlar: {'kullanici1_id': kucukId, 'kullanici2_id': buyukId},
-          );
-          _currentRelationshipLevel = yeniSeviye;
-        }
+        _currentRelationshipLevel = yeniSeviye;
       }
-      setState(() => _userCoins = yeniBakiye);
     }
-
-    int alanId = int.tryParse(widget.chatData['id'].toString()) ?? 0;
 
     setState(() {
       _messages.add({
@@ -270,12 +320,13 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     Future.delayed(const Duration(milliseconds: 50), () {
-      if (_scrollController.hasClients)
+      if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
+      }
     });
 
     await SqlServis.ekle(
@@ -292,7 +343,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void>  _hediyeyiVeritabaninaKaydetVeGonder(
+  Future<void> _hediyeyiVeritabaninaKaydetVeGonder(
     Map<String, dynamic> gift,
   ) async {
     int hediyeFiyati = gift['cost'] ?? 0;
@@ -326,20 +377,20 @@ class _ChatScreenState extends State<ChatScreen> {
         'coin_miktari': hediyeFiyati,
       },
     );
-  
+
     if (mounted) setState(() => _userCoins = yeniBakiye);
-     int kazanilanXP = (hediyeFiyati / 10).ceil(); // Her 10 coin = 1 XP
+    int kazanilanXP = (hediyeFiyati / 10).ceil(); // Her 10 coin = 1 XP
     int karsiId = int.tryParse(widget.chatData['id'].toString()) ?? 0;
     int kucukId = _kendiId < karsiId ? _kendiId : karsiId;
     int buyukId = _kendiId > karsiId ? _kendiId : karsiId;
 
-    // İlişki puanını güncelle
     final relRes = await SqlServis.cek(
       tablo: 'sohbet_iliskileri',
       sartlar: {'kullanici1_id': kucukId, 'kullanici2_id': buyukId},
     );
     if (relRes.basarili && relRes.veri.isNotEmpty) {
-      int eskiPuan = int.tryParse(relRes.veri.first['iliski_puani'].toString()) ?? 0;
+      int eskiPuan =
+          int.tryParse(relRes.veri.first['iliski_puani'].toString()) ?? 0;
       int yeniPuan = eskiPuan + kazanilanXP;
       int yeniSeviye = (yeniPuan / 1000).floor() + 1;
       await SqlServis.guncelle(
@@ -350,14 +401,22 @@ class _ChatScreenState extends State<ChatScreen> {
       _currentRelationshipLevel = yeniSeviye;
     } else {
       // İlişki kaydı yoksa oluştur
-      await SqlServis.ekle(tablo: 'sohbet_iliskileri', veriler: {
-        'kullanici1_id': kucukId, 'kullanici2_id': buyukId,
-        'iliski_puani': kazanilanXP, 'seviye': 1,
-      });
+      await SqlServis.ekle(
+        tablo: 'sohbet_iliskileri',
+        veriler: {
+          'kullanici1_id': kucukId,
+          'kullanici2_id': buyukId,
+          'iliski_puani': kazanilanXP,
+          'seviye': 1,
+        },
+      );
     }
 
     // Gönderenin XP'sini artır
-    final xpRes = await SqlServis.cek(tablo: 'hesaplar', sartlar: {'id': _kendiId});
+    final xpRes = await SqlServis.cek(
+      tablo: 'hesaplar',
+      sartlar: {'id': _kendiId},
+    );
     if (xpRes.basarili && xpRes.veri.isNotEmpty) {
       int mevcutXP = int.tryParse(xpRes.veri.first['xp_puani'].toString()) ?? 0;
       await SqlServis.guncelle(

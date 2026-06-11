@@ -1,3 +1,4 @@
+import 'dart:async'; // Timer için eklendi
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,19 +24,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _followingCount = 0;
   Map<String, dynamic>? userData;
   bool isLoading = true;
+  
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _loadProfileData();
+    
+    _refreshTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (mounted) {
+        _loadProfileData();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadProfileData() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // 1. Zırh: Hafızadan veri gelene kadar sayfa kapandıysa dur!
     if (!mounted) return;
-
     final int userId = prefs.getInt('kullanici_id') ?? 1;
 
     final response = await SqlServis.cek(
@@ -43,7 +56,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       sartlar: {'id': userId},
     );
 
-    // 2. Zırh: Veritabanından hesap bilgisi gelene kadar sayfa kapandıysa dur!
     if (!mounted) return;
     if (response.basarili && response.veri.isNotEmpty) {
       setState(() => userData = response.veri.first);
@@ -54,7 +66,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       sartlar: {'takip_edilen_id': userId},
     );
 
-    // 3. Zırh: Takipçi sayısı gelene kadar sayfa kapandıysa dur!
     if (!mounted) return;
     if (followerRes.basarili) {
       setState(() => _followerCount = followerRes.veri.length);
@@ -65,14 +76,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       sartlar: {'takip_eden_id': userId},
     );
 
-    // 4. Zırh: Takip edilen sayısı gelene kadar sayfa kapandıysa dur!
     if (!mounted) return;
     if (followingRes.basarili) {
       setState(() => _followingCount = followingRes.veri.length);
     }
 
-    // Artık sayfanın hala ekranda olduğundan %100 eminiz, loading'i kapatabiliriz.
-    setState(() => isLoading = false);
+    // İlk açılıştaki yükleme ekranını kaldır
+    if (isLoading && mounted) {
+      setState(() => isLoading = false);
+    }
   }
 
   Widget _buildStatItem(BuildContext context, String value, String label) {
@@ -97,17 +109,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading)
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.accent)));
+    }
 
     // Veritabanı değerleri
     String isim = userData?['kullanici_adi'] ?? "Misafir";
     String bakiye = userData?['birinci_coin_bakiye']?.toString() ?? "0";
     String bio = userData?['biyografi'] ?? "Merhaba, FiFi Live'dayım!";
     int xp = int.tryParse(userData?['xp_puani']?.toString() ?? '0') ?? 0;
-    int seviye =
-        (xp / 100).floor() +
-        1; // Basit bir seviye hesaplama (Her 100 XP = 1 Level)
+    int seviye = (xp / 100).floor() + 1; 
 
     return Scaffold(
       body: MainBackground(
@@ -147,7 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             builder: (_) => const EditProfileScreen(),
                           ),
                         );
-                        _loadProfileData(); // Döndüğünde yenile
+                        _loadProfileData();
                       },
                     ),
                   ],
@@ -252,7 +263,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               builder: (_) => const CoinShopScreen(),
                             ),
                           );
-                          _loadProfileData(); // Döndüğünde bakiyeyi güncelle
+                          _loadProfileData(); 
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.accent,
