@@ -23,7 +23,10 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
 
   bool _isLoading = true;
   String _kendiIsmim = "Sen";
-  int _userCoins = 0; // 🔥 YENİ: Kullanıcının coin bakiyesini tutacak değişken
+  int _userCoins = 0; // Kullanıcının coin bakiyesini tutacak değişken
+
+  // 🔥 YENİ: Veritabanından gelecek dinamik yol haritası verilerini tutacak liste
+  List<Map<String, dynamic>> _roadmapData = [];
 
   @override
   void initState() {
@@ -36,14 +39,13 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
     final prefs = await SharedPreferences.getInstance();
     _kendiId = prefs.getInt('kullanici_id') ?? 1;
 
-    // Kendi ismimizi ve BAKİYEMİZİ çekelim
+    // 1. Kendi ismimizi ve BAKİYEMİZİ çekelim
     final userRes = await SqlServis.cek(
       tablo: 'hesaplar',
       sartlar: {'id': _kendiId},
     );
     if (userRes.basarili && userRes.veri.isNotEmpty) {
       _kendiIsmim = userRes.veri.first['isim'] ?? 'Sen';
-      // 🔥 YENİ: Bakiyeyi çekip double.tryParse ile güvenli şekilde int'e çeviriyoruz
       _userCoins =
           (double.tryParse(
                     userRes.veri.first['birinci_coin_bakiye'].toString(),
@@ -52,7 +54,7 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
               .toInt();
     }
 
-    // Veritabanında bu iki kişi arasındaki ilişki kaydını ara
+    // 2. Veritabanında bu iki kişi arasındaki ilişki kaydını ara
     int kucukId = _kendiId < _karsiId ? _kendiId : _karsiId;
     int buyukId = _kendiId > _karsiId ? _kendiId : _karsiId;
 
@@ -62,13 +64,9 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
     );
 
     if (relRes.basarili && relRes.veri.isNotEmpty) {
-      setState(() {
-        _couplePoints =
-            int.tryParse(relRes.veri.first['iliski_puani'].toString()) ?? 0;
-        _currentLevel =
-            int.tryParse(relRes.veri.first['seviye'].toString()) ?? 1;
-        _isLoading = false;
-      });
+      _couplePoints =
+          int.tryParse(relRes.veri.first['iliski_puani'].toString()) ?? 0;
+      _currentLevel = int.tryParse(relRes.veri.first['seviye'].toString()) ?? 1;
     } else {
       // Eğer daha önce hiç kayıt yoksa, sıfırdan oluştur
       await SqlServis.ekle(
@@ -80,16 +78,31 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
           'seviye': 1,
         },
       );
-      setState(() {
-        _couplePoints = 0;
-        _currentLevel = 1;
-        _isLoading = false;
-      });
+      _couplePoints = 0;
+      _currentLevel = 1;
     }
+
+    // 🔥 3. YENİ: Türkçe destekli yeni SQL tablosundan yol haritası verilerini çekelim
+    final roadmapRes = await SqlServis.cek(tablo: 'iliski_yol_haritasi');
+
+    if (roadmapRes.basarili) {
+      _roadmapData = List<Map<String, dynamic>>.from(roadmapRes.veri);
+      // Seviye numarasına göre (1, 2, 3...) sıralı gelmesini garanti altına alalım
+      _roadmapData.sort(
+        (a, b) => int.parse(
+          a['seviye'].toString(),
+        ).compareTo(int.parse(b['seviye'].toString())),
+      );
+    }
+
+    // Tüm işlemler tamamlandığında loading durumunu kapatıp arayüzü çizdiriyoruz
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _handleSendLoveEnergy() async {
-    // 🔥 YENİ: Bakiye Kontrolü (50 Coin gerekli)
+    // Bakiye Kontrolü (50 Coin gerekli)
     if (_userCoins < 50) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -134,7 +147,7 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
       }
     }
 
-    // 🔥 Veritabanını güncelle: Hem yeni ilişki puanı hem de kullanıcının azalan bakiyesi
+    // Veritabanını güncelle: Hem yeni ilişki puanı hem de kullanıcının azalan bakiyesi
     int kucukId = _kendiId < _karsiId ? _kendiId : _karsiId;
     int buyukId = _kendiId > _karsiId ? _kendiId : _karsiId;
 
@@ -297,7 +310,6 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
                                   color: AppTheme.danger,
                                   size: 16,
                                 ),
-                                // 🔥 YENİ: Buton yazısı güncellendi
                                 label: Text(
                                   "Sevgi Enerjisi Gönder (50 Coin = +50 XP)",
                                   style: TextStyle(
@@ -326,6 +338,26 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
+
+                      // 🔥 YENİ: Veritabanından gelen verileri ekrana listeliyoruz
+                      if (_roadmapData.isEmpty)
+                        Text(
+                          "Yol haritası yüklenemedi.",
+                          style: TextStyle(
+                            color: context.textSecondary,
+                            fontSize: 11,
+                          ),
+                        )
+                      else
+                        ..._roadmapData
+                            .map(
+                              (step) => _buildRoadmapRow(
+                                context,
+                                step,
+                                _currentLevel,
+                              ),
+                            )
+                            .toList(),
                     ],
                   ),
                 ),
@@ -334,13 +366,17 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
     );
   }
 
+  // 🔥 SQL'den gelen verilere uyumlu güncellenmiş dinamik Yol Haritası Satırı
   Widget _buildRoadmapRow(
     BuildContext context,
     Map<String, dynamic> step,
     int currentLevel,
   ) {
-    // Kilit durumunu veritabanından gelen mevcut seviyeye göre belirliyoruz
-    final int stepLevel = step['lv'];
+    // SQL sütun isimlerine göre güvenli tip dönüşümleri (seviye ve aciklama)
+    final int stepLevel = int.tryParse(step['seviye'].toString()) ?? 1;
+    final String stepLabel = step['aciklama'] ?? '';
+
+    // Kilit durumunu, kullanıcının veritabanından gelen mevcut seviyesine göre kontrol ediyoruz
     final bool unlocked = currentLevel >= stepLevel;
 
     return Container(
@@ -371,7 +407,7 @@ class _RelationshipScreenState extends State<RelationshipScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                step['label'],
+                stepLabel, // Veritabanındaki 'aciklama' verisi
                 style: TextStyle(
                   color: unlocked ? context.textPrimary : context.textSecondary,
                   fontSize: 11,

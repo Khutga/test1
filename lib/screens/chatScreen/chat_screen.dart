@@ -292,7 +292,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> _hediyeyiVeritabaninaKaydetVeGonder(
+  Future<void>  _hediyeyiVeritabaninaKaydetVeGonder(
     Map<String, dynamic> gift,
   ) async {
     int hediyeFiyati = gift['cost'] ?? 0;
@@ -326,8 +326,46 @@ class _ChatScreenState extends State<ChatScreen> {
         'coin_miktari': hediyeFiyati,
       },
     );
-
+  
     if (mounted) setState(() => _userCoins = yeniBakiye);
+     int kazanilanXP = (hediyeFiyati / 10).ceil(); // Her 10 coin = 1 XP
+    int karsiId = int.tryParse(widget.chatData['id'].toString()) ?? 0;
+    int kucukId = _kendiId < karsiId ? _kendiId : karsiId;
+    int buyukId = _kendiId > karsiId ? _kendiId : karsiId;
+
+    // İlişki puanını güncelle
+    final relRes = await SqlServis.cek(
+      tablo: 'sohbet_iliskileri',
+      sartlar: {'kullanici1_id': kucukId, 'kullanici2_id': buyukId},
+    );
+    if (relRes.basarili && relRes.veri.isNotEmpty) {
+      int eskiPuan = int.tryParse(relRes.veri.first['iliski_puani'].toString()) ?? 0;
+      int yeniPuan = eskiPuan + kazanilanXP;
+      int yeniSeviye = (yeniPuan / 1000).floor() + 1;
+      await SqlServis.guncelle(
+        tablo: 'sohbet_iliskileri',
+        veriler: {'iliski_puani': yeniPuan, 'seviye': yeniSeviye},
+        sartlar: {'kullanici1_id': kucukId, 'kullanici2_id': buyukId},
+      );
+      _currentRelationshipLevel = yeniSeviye;
+    } else {
+      // İlişki kaydı yoksa oluştur
+      await SqlServis.ekle(tablo: 'sohbet_iliskileri', veriler: {
+        'kullanici1_id': kucukId, 'kullanici2_id': buyukId,
+        'iliski_puani': kazanilanXP, 'seviye': 1,
+      });
+    }
+
+    // Gönderenin XP'sini artır
+    final xpRes = await SqlServis.cek(tablo: 'hesaplar', sartlar: {'id': _kendiId});
+    if (xpRes.basarili && xpRes.veri.isNotEmpty) {
+      int mevcutXP = int.tryParse(xpRes.veri.first['xp_puani'].toString()) ?? 0;
+      await SqlServis.guncelle(
+        tablo: 'hesaplar',
+        veriler: {'xp_puani': mevcutXP + kazanilanXP},
+        sartlar: {'id': _kendiId},
+      );
+    }
     await _sendMessage(
       textOverride: "${gift['icon']} sana ${gift['name']} hediye etti!",
       isGift: true,

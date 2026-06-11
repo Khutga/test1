@@ -27,11 +27,16 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _yukleniyor = true;
   String _myUsername = "Misafir"; // Gerçek kullanıcı adını tutacak değişken
 
+  // 🔥 YENİ: Okunmamış duyuru kontrolü için gerekli değişkenler
+  bool _hasUnreadAnnouncements = false;
+  int _latestAnnouncementId = 0;
+
   @override
   void initState() {
     super.initState();
     _kullaniciAdimiBul();
-    // 🔥 Ortak Havuzu dinlemeye başla! Veri her değiştiğinde listeyi filtreleyip güncelleyecek.
+    _checkUnreadAnnouncements(); // 🔥 YENİ: Başlangıçta okunmamış duyuru var mı kontrol et
+    // Ortak Havuzu dinlemeye başla! Veri her değiştiğinde listeyi filtreleyip güncelleyecek.
     SharedStreamData.streamsNotifier.addListener(_verileriFiltrele);
     _verileriFiltrele(); // İlk açılışta mevcut veriyi al
   }
@@ -54,6 +59,31 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _myUsername = res.veri.first['kullanici_adi'] ?? "Misafir_$userId";
       });
+    }
+  }
+
+  // 🔥 YENİ: MySQL'deki duyuruları kontrol eden fonksiyon
+  Future<void> _checkUnreadAnnouncements() async {
+    final res = await SqlServis.cek(tablo: 'duyurular');
+    if (res.basarili && res.veri.isNotEmpty) {
+      // En yüksek ID'ye sahip olan duyuruyu (en yenisini) bul
+      int maxId = 0;
+      for (var item in res.veri) {
+        int id = int.tryParse(item['id'].toString()) ?? 0;
+        if (id > maxId) maxId = id;
+      }
+
+      // Cihaz hafızasındaki son okunan ID'yi çek
+      final prefs = await SharedPreferences.getInstance();
+      int lastSeenId = prefs.getInt('son_okunan_duyuru_id') ?? 0;
+
+      // Eğer yeni bir duyuru varsa rozeti aktif et
+      if (mounted) {
+        setState(() {
+          _latestAnnouncementId = maxId;
+          _hasUnreadAnnouncements = maxId > lastSeenId;
+        });
+      }
     }
   }
 
@@ -152,17 +182,57 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTap: widget.onSearchTap,
                         ),
                         const SizedBox(width: 8),
-                        GlassIconButton(
-                          icon: LucideIcons.bell,
-                          color: AppTheme.accentGold,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const AnnouncementsScreen(),
+
+                        // 🔥 YENİ: Bildirim Zili ve Rozet (Badge) Tasarımı
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            GlassIconButton(
+                              icon: LucideIcons.bell,
+                              color: AppTheme.accentGold,
+                              onTap: () async {
+                                // 1. Tıklandığında anında rozeti temizle ve cihaza "okundu" olarak kaydet
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setInt(
+                                  'son_okunan_duyuru_id',
+                                  _latestAnnouncementId,
+                                );
+                                setState(() {
+                                  _hasUnreadAnnouncements = false;
+                                });
+
+                                // 2. Sayfaya git
+                                if (!mounted) return;
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const AnnouncementsScreen(),
+                                  ),
+                                );
+
+                                // 3. Sayfadan geri dönüldüğünde yeni bir duyuru gelmiş olabilir diye tekrar kontrol et
+                                _checkUnreadAnnouncements();
+                              },
+                            ),
+                            if (_hasUnreadAnnouncements)
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.danger,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppTheme.danger,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            );
-                          },
+                          ],
                         ),
                       ],
                     ),
@@ -213,8 +283,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: RefreshIndicator(
                   color: AppTheme.accent,
                   backgroundColor: AppTheme.accent,
-                  // 🔥 AŞAĞI ÇEKİNCE ORTAK HAVUZU YENİLE
-                  onRefresh: () async => await SharedStreamData.fetchStreams(),
+                  // 🔥 AŞAĞI ÇEKİNCE ORTAK HAVUZU VE DUYURULARI YENİLE
+                  onRefresh: () async {
+                    await SharedStreamData.fetchStreams();
+                    await _checkUnreadAnnouncements(); // Sayfa yenilendiğinde rozeti de kontrol et
+                  },
                   child: _yukleniyor && _aktifYayinlar.isEmpty
                       ? const Center(
                           child: CircularProgressIndicator(

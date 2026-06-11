@@ -76,6 +76,10 @@ class _HostLivePageState extends State<HostLivePage> {
   Timer? _pkInviteTimer;
   int? _currentIncomingRequestId;
 
+  // 🔥 YENİ: PK Renk Kodlamaları
+  final Color _hostColor = Colors.blueAccent;
+  final Color _opponentColor = AppTheme.danger;
+
   final String pyServerUrl = 'https://yayin.sunucucodefellas.shop';
   final String livekitServerUrl = 'wss://nivi-44k377vl.livekit.cloud';
   final String phpApiUrl = 'http://codefellas.com.tr/apps/nivi/api/api.php';
@@ -204,6 +208,11 @@ class _HostLivePageState extends State<HostLivePage> {
   }
 
   void _showIncomingPkDialog(Map<String, dynamic> req) {
+    if (_remoteVideoTracks.isNotEmpty) {
+      _sqlGuncelle('pk_istekleri', {'durum': 'red'}, {'id': req['id']});
+      return;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -290,7 +299,6 @@ class _HostLivePageState extends State<HostLivePage> {
     try {
       await [Permission.camera, Permission.microphone].request();
 
-      // 🔥 DÜZELTME 1: Python API'sine 'etiket' parametresi eklendi
       final response = await http.post(
         Uri.parse('$pyServerUrl/get_token'),
         headers: {'Content-Type': 'application/json'},
@@ -298,7 +306,7 @@ class _HostLivePageState extends State<HostLivePage> {
           'room': targetRoom,
           'username': widget.username,
           'is_host': true,
-          'etiket': widget.etiket, // MYSQL'E YAZILACAK ETİKET
+          'etiket': widget.etiket,
         }),
       );
 
@@ -437,6 +445,18 @@ class _HostLivePageState extends State<HostLivePage> {
   // PK DAVET MENU VE BATTLE YÖNETİMİ
   // ==========================================
   void _showPkMenu() async {
+    if (_remoteVideoTracks.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Meydan okumak için yayında yalnız olmalısınız! (Çoklu yayında PK atılamaz)",
+          ),
+          backgroundColor: AppTheme.danger,
+        ),
+      );
+      return;
+    }
+
     final aktifYayinlar = await _sqlCek('aktif_yayinlar', {});
     final uygunYayinlar = aktifYayinlar
         .where(
@@ -713,65 +733,87 @@ class _HostLivePageState extends State<HostLivePage> {
     );
 
     Widget buildTrack(Map<String, dynamic> data) {
-      return Stack(
-        fit: StackFit.expand,
-        children: [
-          Container(
-            color: Colors.black,
-            child: VideoTrackRenderer(
-              data['track'] as VideoTrack,
-              fit: VideoViewFit.cover,
+      Color trackBorderColor = Colors.transparent;
+      if (_isPkActive) {
+        if (data['name'] == widget.username) {
+          trackBorderColor = _hostColor;
+        } else if (data['name'] == _pkOpponentName) {
+          trackBorderColor = _opponentColor;
+        }
+      }
+
+      return Container(
+        decoration: BoxDecoration(
+          border: _isPkActive
+              ? Border.all(color: trackBorderColor, width: 2)
+              : null,
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Container(
+              color: Colors.black,
+              // 🔥 YENİ: PK Modunda yatay sığdırma (contain), Normal modda dikey/tam sığdırma (cover)
+              child: VideoTrackRenderer(
+                data['track'] as VideoTrack,
+                fit: _isPkActive ? VideoViewFit.contain : VideoViewFit.cover,
+              ),
             ),
-          ),
-          Positioned(
-            bottom: 12,
-            left: 12,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  color: Colors.black.withOpacity(0.4),
-                  child: Text(
-                    data['name'],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
+            Positioned(
+              bottom: 12,
+              left: 12,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    color: _isPkActive
+                        ? trackBorderColor.withOpacity(0.6)
+                        : Colors.black.withOpacity(0.4),
+                    child: Text(
+                      data['name'],
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          if (data['name'] != widget.username &&
-              _activeRoomName == widget.roomName)
-            Positioned(
-              top: 12,
-              right: 12,
-              child: GlassIconButton(
-                icon: LucideIcons.logOut,
-                color: AppTheme.danger,
-                onTap: () => _endPk("Misafir gönderildi."),
+            if (data['name'] != widget.username &&
+                _activeRoomName == widget.roomName)
+              Positioned(
+                top: 12,
+                right: 12,
+                child: GlassIconButton(
+                  icon: LucideIcons.logOut,
+                  color: AppTheme.danger,
+                  onTap: () => _endPk("Misafir gönderildi."),
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       );
     }
 
     if (allTracks.length == 1) return buildTrack(allTracks[0]);
+
+    // 2 Kişi olduğunda yan yana ve ortada ayırıcıyla göster
     if (allTracks.length == 2)
-      return Column(
+      return Row(
         children: [
           Expanded(child: buildTrack(allTracks[0])),
-          Container(height: 2, color: AppTheme.accent),
+          Container(width: 2, color: Colors.black),
           Expanded(child: buildTrack(allTracks[1])),
         ],
       );
+
     return GridView.builder(
       padding: EdgeInsets.zero,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -841,7 +883,6 @@ class _HostLivePageState extends State<HostLivePage> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                // 🔥 DÜZELTME 2: Etiket Arayüzde Şık Bir Şekilde Gösteriliyor
                                 Row(
                                   children: [
                                     const Text(
@@ -961,8 +1002,8 @@ class _HostLivePageState extends State<HostLivePage> {
                               Text(
                                 "${widget.username}\n$_hostScore",
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: AppTheme.accentLight,
+                                style: TextStyle(
+                                  color: _hostColor,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 12,
                                 ),
@@ -990,8 +1031,8 @@ class _HostLivePageState extends State<HostLivePage> {
                               Text(
                                 "$_pkOpponentName\n$_opponentScore",
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: AppTheme.danger,
+                                style: TextStyle(
+                                  color: _opponentColor,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 12,
                                 ),
@@ -1004,8 +1045,8 @@ class _HostLivePageState extends State<HostLivePage> {
                             child: LinearProgressIndicator(
                               value: pkPercentage,
                               minHeight: 12,
-                              backgroundColor: AppTheme.danger.withOpacity(0.8),
-                              color: AppTheme.accent,
+                              backgroundColor: _opponentColor.withOpacity(0.9),
+                              color: _hostColor,
                             ),
                           ),
                         ],
@@ -1015,7 +1056,7 @@ class _HostLivePageState extends State<HostLivePage> {
                 ),
               ),
 
-            // HEDİYELER (Yeni Nesil Motor)
+            // HEDİYELER
             ..._floatingGifts
                 .map(
                   (gift) => AnimatedFloatingGift(
