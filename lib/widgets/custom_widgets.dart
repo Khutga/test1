@@ -141,6 +141,7 @@ class CustomTextField extends StatelessWidget {
   final IconData? icon;
   final bool isNumber;
   final int maxLines;
+  final TextInputType? keyboardType; // 🔥 Yeni parametre eklendi
 
   const CustomTextField({
     super.key,
@@ -150,6 +151,7 @@ class CustomTextField extends StatelessWidget {
     this.icon,
     this.isNumber = false,
     this.maxLines = 1,
+    this.keyboardType, // 🔥 Parametreyi tanımladık
   });
 
   @override
@@ -168,7 +170,8 @@ class CustomTextField extends StatelessWidget {
         const SizedBox(height: 4),
         TextField(
           controller: controller,
-          keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+          // 🔥 Eğer keyboardType verildiyse onu kullan, verilmediyse eski isNumber mantığına bak
+          keyboardType: keyboardType ?? (isNumber ? TextInputType.number : TextInputType.text),
           maxLines: maxLines,
           style: TextStyle(fontSize: 14, color: context.textPrimary),
           decoration: InputDecoration(

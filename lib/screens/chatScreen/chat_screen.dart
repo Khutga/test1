@@ -31,7 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
   int _kendiId = 1;
   String _kendiIsmim = "Ben";
   String _kendiCinsiyet = "Erkek";
-  int _currentRelationshipLevel = 1; // 🔥 SEVİYE KONTROLÜ İÇİN KRİTİK DEĞİŞKEN
+  int _currentRelationshipLevel = 1;
 
   List<Map<String, dynamic>> _messages = [];
   Timer? _messageCheckTimer;
@@ -131,12 +131,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
       if (scrollToBottom || isAtBottom) {
         Future.delayed(const Duration(milliseconds: 100), () {
-          if (_scrollController.hasClients)
+          if (_scrollController.hasClients) {
             _scrollController.animateTo(
               _scrollController.position.maxScrollExtent,
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeOut,
             );
+          }
         });
       }
       _markMessagesAsRead(karsiId);
@@ -168,7 +169,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("📷 Fotoğraf sunucuya yükleniyor..."),
+          content: Text("📷 Fotoğraf yükleniyor..."),
           duration: Duration(seconds: 2),
         ),
       );
@@ -184,16 +185,15 @@ class _ChatScreenState extends State<ChatScreen> {
       var data = jsonDecode(response.body);
 
       if (data['durum'] == 'basarili' && data['url'] != null) {
-        String yuklenenUrl = data['url'];
         await _sendMessage(
           textOverride: "📷 Fotoğraf gönderildi",
-          mediaUrl: yuklenenUrl,
+          mediaUrl: data['url'],
           mediaType: "resim",
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("❌ Yükleme Hatası: ${data['mesaj'] ?? 'Bilinmiyor'}"),
+            content: Text("❌ Yükleme Hatası: ${data['mesaj']}"),
             backgroundColor: Colors.red,
           ),
         );
@@ -203,101 +203,128 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  // =========================================================================
+  // 🔥 GÜNCELLENMİŞ HEDİYE SİSTEMİ (Ajans ve Komisyon Uyumlu)
+  // =========================================================================
+  Future<void> _hediyeyiVeritabaninaKaydetVeGonder(
+    Map<String, dynamic> gift,
+  ) async {
+    int hediyeFiyati = gift['cost'] ?? 0;
+    int alanId = int.tryParse(widget.chatData['id'].toString()) ?? 0;
+
+    if (_userCoins < hediyeFiyati) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Yetersiz Coin!"),
+          backgroundColor: AppTheme.danger,
+        ),
+      );
+      return;
+    }
+
+    // 1. Backend İşlemini Tetikle (Ajans payları, admin kesintisi, veritabanı logları burada PHP tarafından yapılır)
+    final sonuc = await EkonomiServis.hediyeIslemiYap(
+      gonderenId: _kendiId,
+      alanId: alanId,
+      hediyeFiyati: hediyeFiyati,
+      hediyeAdi: gift['name'],
+      hediyeEmoji: gift['icon'],
+    );
+
+    if (sonuc['basarili'] != true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(sonuc['mesaj']),
+          backgroundColor: AppTheme.danger,
+        ),
+      );
+      return;
+    }
+
+    // 2. İşlem başarılıysa UI bakiyesini anında düşür
+    setState(() => _userCoins -= hediyeFiyati);
+
+    // 3. XP ve İlişki Seviyesi Hesaplama (Dart tarafında kalmaya devam ediyor)
+    int kazanilanXP = (hediyeFiyati / 10).ceil();
+    await _xpVeSeviyeHesapla(alanId, kazanilanXP);
+
+    // 4. Sohbet Arayüzüne Hediye Mesajını Düşür
+    await _sendMessage(
+      textOverride: "${gift['icon']} sana ${gift['name']} hediye etti!",
+      isGift: true,
+      isHediyeIslemiTamamlandi: true, // Çift tetiklemeyi önlemek için bayrak
+    );
+  }
+
+  // =========================================================================
+  // 🔥 GÜNCELLENMİŞ NORMAL MESAJ GÖNDERME SİSTEMİ
+  // =========================================================================
   Future<void> _sendMessage({
     required String textOverride,
     bool isGift = false,
     String mediaUrl = "",
     String mediaType = "yok",
-    int hediyeFiyati = 0,
+    bool isHediyeIslemiTamamlandi = false,
   }) async {
     final text = textOverride.isEmpty ? _controller.text.trim() : textOverride;
     if (text.isEmpty && mediaUrl.isEmpty) return;
 
     int alanId = int.tryParse(widget.chatData['id'].toString()) ?? 0;
-    int mesajUcreti = 1;
+    bool isErkek = _kendiCinsiyet.toLowerCase() == 'erkek';
 
-    // ==========================================
-    // 1. HEDİYE GÖNDERME İŞLEMİ (Komisyonlu)
-    // ==========================================
-    if (isGift && hediyeFiyati > 0) {
-      // Ekonomi servisi arka planda kontrollerini yapar
-      final sonuc = await EkonomiServis.hediyeIslemiYap(
-        gonderenId: _kendiId,
-        alanId: alanId,
-        hediyeFiyati: hediyeFiyati,
-      );
-
-      // 🔥 YENİ: Başarısız olursa Servisten dönen dinamik hata mesajını ekrana bas
-      if (sonuc['basarili'] != true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(sonuc['mesaj']),
-            backgroundColor: AppTheme.danger,
-          ),
-        );
-        return; // İşlemi iptal et
-      }
-
-      // İşlem başarılıysa hediye gönderildiği için bakiyeyi arayüzde güncelle
-      setState(() => _userCoins -= hediyeFiyati);
-    }
-    // ==========================================
-    // 2. NORMAL MESAJ GÖNDERME İŞLEMİ (Erkek için ücretli)
-    // ==========================================
-    else if (!isGift && _kendiCinsiyet == 'Erkek') {
-      
-      // 🔥 YENİ: XP ve Seviye ayarlarını para kesmeden ÖNCE kontrol et
-      int? mesajBasinaXp;
-      int? seviyeKatsayisi;
+    if (!isGift) {
+      // 1. SİSTEM AYARLARINI ÇEK (XP Katsayıları)
+      int mesajBasinaXp = 100; // Default değer
+      int seviyeKatsayisi = 1000; // Default değer
 
       final ayarlarRes = await SqlServis.cek(tablo: 'sistem_ayarlari');
       if (ayarlarRes.basarili) {
         for (var a in ayarlarRes.veri) {
-          if (a['ayar_adi'] == 'mesaj_basina_xp') mesajBasinaXp = int.tryParse(a['ayar_degeri'].toString());
-          if (a['ayar_adi'] == 'iliski_seviye_katsayisi') seviyeKatsayisi = int.tryParse(a['ayar_degeri'].toString());
+          if (a['ayar_adi'] == 'mesaj_basina_xp')
+            mesajBasinaXp = int.tryParse(a['ayar_degeri'].toString()) ?? 100;
+          if (a['ayar_adi'] == 'iliski_seviye_katsayisi')
+            seviyeKatsayisi = int.tryParse(a['ayar_degeri'].toString()) ?? 1000;
         }
       }
 
-      // Veritabanından oranlar gelmediyse veya 0'ın altındaysa anında İPTAL ET
-      if (mesajBasinaXp == null || seviyeKatsayisi == null || seviyeKatsayisi <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Sistem hatası: İlişki seviye katsayıları eksik veya hatalı! İşlem iptal edildi."), 
-            backgroundColor: AppTheme.danger
-          ),
+      // 2. CİNSİYET KONTROLÜ (Erkekse Dinamik Ücreti Kes, Kıza/Ajansa Dağıt)
+      if (isErkek) {
+        final sonuc = await EkonomiServis.normalMesajIslemiYap(
+          gonderenId: _kendiId,
+          alanId: alanId,
         );
-        return; // Hata ver ve mesajı göndermeyi durdur
+
+        if (sonuc['basarili'] != true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(sonuc['mesaj']),
+              backgroundColor: AppTheme.danger,
+            ),
+          );
+          return; // Hata varsa (bakiye yoksa) mesajı göndermeyi durdur!
+        }
+
+        // Başarılıysa kullanıcının ekranındaki coin bakiyesini düşür
+        int kesilenMiktar = sonuc['kesilen_miktar'] ?? 0;
+        if (kesilenMiktar > 0) {
+          setState(() => _userCoins -= kesilenMiktar);
+        }
       }
 
-      // Ayarlar sağlamsa Bakiye Kontrolüne Geç
-      if (_userCoins < mesajUcreti) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Yetersiz Bakiye! Mesaj başına $mesajUcreti Coin alınır."), backgroundColor: AppTheme.danger),
-        );
-        return;
-      }
-
-      int yeniBakiye = _userCoins - mesajUcreti;
-      await SqlServis.guncelle(tablo: 'hesaplar', veriler: {'birinci_coin_bakiye': yeniBakiye}, sartlar: {'id': _kendiId});
-      setState(() => _userCoins = yeniBakiye);
-
-      final karsiHesapRes = await SqlServis.cek(tablo: 'hesaplar', sartlar: {'id': alanId});
-      if (karsiHesapRes.basarili && karsiHesapRes.veri.isNotEmpty) {
-        double karsiBakiye = double.tryParse(karsiHesapRes.veri.first['birinci_coin_bakiye'].toString()) ?? 0.0;
-        await SqlServis.guncelle(tablo: 'hesaplar', veriler: {'birinci_coin_bakiye': karsiBakiye + mesajUcreti}, sartlar: {'id': alanId});
-      }
-
+      // 3. İLİŞKİ SEVİYESİ ARTIŞI (Kadın/Erkek Farketmez Her İkisi de XP Kazanır)
       int kucukId = _kendiId < alanId ? _kendiId : alanId;
       int buyukId = _kendiId > alanId ? _kendiId : alanId;
-      final relRes = await SqlServis.cek(tablo: 'sohbet_iliskileri', sartlar: {'kullanici1_id': kucukId, 'kullanici2_id': buyukId});
-      
+      final relRes = await SqlServis.cek(
+        tablo: 'sohbet_iliskileri',
+        sartlar: {'kullanici1_id': kucukId, 'kullanici2_id': buyukId},
+      );
+
       if (relRes.basarili && relRes.veri.isNotEmpty) {
-        int eskiPuan = int.tryParse(relRes.veri.first['iliski_puani'].toString()) ?? 0;
-        
-        // Dinamik değerlere göre matematik işlemini yap (Artık null olamaz)
+        int eskiPuan =
+            int.tryParse(relRes.veri.first['iliski_puani'].toString()) ?? 0;
         int yeniPuan = eskiPuan + mesajBasinaXp;
         int yeniSeviye = (yeniPuan / seviyeKatsayisi).floor() + 1;
-        
+
         await SqlServis.guncelle(
           tablo: 'sohbet_iliskileri',
           veriler: {'iliski_puani': yeniPuan, 'seviye': yeniSeviye},
@@ -307,6 +334,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
 
+    // 4. MESAJI EKRANA BAS VE VERİTABANINA YAZ
     setState(() {
       _messages.add({
         "gonderen_id": _kendiId.toString(),
@@ -320,13 +348,12 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     Future.delayed(const Duration(milliseconds: 50), () {
-      if (_scrollController.hasClients) {
+      if (_scrollController.hasClients)
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
-      }
     });
 
     await SqlServis.ekle(
@@ -343,46 +370,10 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> _hediyeyiVeritabaninaKaydetVeGonder(
-    Map<String, dynamic> gift,
-  ) async {
-    int hediyeFiyati = gift['cost'] ?? 0;
-    if (_userCoins < hediyeFiyati) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Yetersiz Coin!"),
-          backgroundColor: AppTheme.danger,
-        ),
-      );
-      return;
-    }
-
-    int yeniBakiye = _userCoins - hediyeFiyati;
-    await SqlServis.guncelle(
-      tablo: 'hesaplar',
-      veriler: {'birinci_coin_bakiye': yeniBakiye},
-      sartlar: {'id': _kendiId},
-    );
-
-    int alanId = int.tryParse(widget.chatData['id'].toString()) ?? 0;
-    await SqlServis.ekle(
-      tablo: 'hediye_gecmisi',
-      veriler: {
-        'gonderen_id': _kendiId,
-        'gonderen_isim': _kendiIsmim,
-        'alan_id': alanId,
-        'alan_isim': widget.chatData['name'],
-        'hediye_adi': gift['name'],
-        'hediye_emoji': gift['icon'],
-        'coin_miktari': hediyeFiyati,
-      },
-    );
-
-    if (mounted) setState(() => _userCoins = yeniBakiye);
-    int kazanilanXP = (hediyeFiyati / 10).ceil(); // Her 10 coin = 1 XP
-    int karsiId = int.tryParse(widget.chatData['id'].toString()) ?? 0;
-    int kucukId = _kendiId < karsiId ? _kendiId : karsiId;
-    int buyukId = _kendiId > karsiId ? _kendiId : karsiId;
+  // Yardımcı Fonksiyon: Hediye sonrası XP ve Seviye işlemleri için kodu temiz tutar
+  Future<void> _xpVeSeviyeHesapla(int alanId, int kazanilanXP) async {
+    int kucukId = _kendiId < alanId ? _kendiId : alanId;
+    int buyukId = _kendiId > alanId ? _kendiId : alanId;
 
     final relRes = await SqlServis.cek(
       tablo: 'sohbet_iliskileri',
@@ -400,7 +391,6 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       _currentRelationshipLevel = yeniSeviye;
     } else {
-      // İlişki kaydı yoksa oluştur
       await SqlServis.ekle(
         tablo: 'sohbet_iliskileri',
         veriler: {
@@ -412,7 +402,6 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
 
-    // Gönderenin XP'sini artır
     final xpRes = await SqlServis.cek(
       tablo: 'hesaplar',
       sartlar: {'id': _kendiId},
@@ -425,12 +414,9 @@ class _ChatScreenState extends State<ChatScreen> {
         sartlar: {'id': _kendiId},
       );
     }
-    await _sendMessage(
-      textOverride: "${gift['icon']} sana ${gift['name']} hediye etti!",
-      isGift: true,
-    );
   }
 
+  // --- Aşağıdaki UI Blokları (BottomSheet, AppBar vb.) Orijinali İle Birebir Aynı Bırakılmıştır ---
   void _showGiftPanel() {
     showModalBottomSheet(
       context: context,
@@ -535,11 +521,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // ==========================================
-  // MEDYA MENÜSÜ KONTROLLERİ (SEVİYE 2)
-  // ==========================================
   void _showMediaOptions() {
-    // ⚠️ SEVİYE 2 KONTROLÜ
     if (_currentRelationshipLevel < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -551,7 +533,6 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       return;
     }
-
     showModalBottomSheet(
       context: context,
       backgroundColor: context.card,
@@ -585,7 +566,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // ⚠️ SESLİ MESAJ KONTROLÜ (SEVİYE 3)
   void _handleVoiceMessage() {
     if (_currentRelationshipLevel < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -596,7 +576,6 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       return;
     }
-    // Burada ses kayıt kodu çalışacak
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("🎙️ Ses kaydediliyor..."),

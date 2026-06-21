@@ -8,7 +8,7 @@ import '../../widgets/custom_widgets.dart';
 import '../coin_shop_screen.dart';
 import 'edit_profile_screen.dart';
 import '../gift_history_screen.dart';
-import '../agency_screen.dart';
+import '../ajans/agency_screen.dart';
 import 'settings_screen.dart';
 import 'follow_list_screen.dart';
 
@@ -24,14 +24,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _followingCount = 0;
   Map<String, dynamic>? userData;
   bool isLoading = true;
-  
+
   Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _loadProfileData();
-    
+
     _refreshTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (mounted) {
         _loadProfileData();
@@ -110,7 +110,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.accent)));
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: AppTheme.accent)),
+      );
     }
 
     // Veritabanı değerleri
@@ -118,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String bakiye = userData?['birinci_coin_bakiye']?.toString() ?? "0";
     String bio = userData?['biyografi'] ?? "Merhaba, FiFi Live'dayım!";
     int xp = int.tryParse(userData?['xp_puani']?.toString() ?? '0') ?? 0;
-    int seviye = (xp / 100).floor() + 1; 
+    int seviye = (xp / 100).floor() + 1;
 
     return Scaffold(
       body: MainBackground(
@@ -263,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               builder: (_) => const CoinShopScreen(),
                             ),
                           );
-                          _loadProfileData(); 
+                          _loadProfileData();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.accent,
@@ -305,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   iconColor: AppTheme.success,
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const AgencyScreen()),
+                    MaterialPageRoute(builder: (_) => const AgencyMainScreen()),
                   ),
                 ),
                 MenuActionTile(
