@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:nivi/screens/accountScreen/user_profile_screen.dart';
-import 'package:nivi/services/sql_servis.dart';
 import '../core/app_colors.dart';
 
 // ─── GLASS CONTAINER ───
@@ -612,88 +611,5 @@ class MainBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(color: context.bg, child: child);
-  }
-}
-
-class AuraAvatar extends StatelessWidget {
-  final String imageUrl;
-  final String fallbackText;
-  final int mesajSerisi;
-  final double radius;
-
-  const AuraAvatar({
-    super.key,
-    required this.imageUrl,
-    required this.fallbackText,
-    required this.mesajSerisi,
-    this.radius = 40.0,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, int>>(
-      future: SqlServis.getAuraLimits(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return CircleAvatar(
-            radius: radius,
-            backgroundColor: Colors.grey[800],
-            backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
-            child: imageUrl.isEmpty
-                ? Text(
-                    fallbackText.isNotEmpty ? fallbackText[0].toUpperCase() : '?',
-                    style: TextStyle(fontSize: radius / 1.5, color: Colors.white, fontWeight: FontWeight.bold),
-                  )
-                : null,
-          );
-        }
-
-        var limits = snapshot.data!;
-        Gradient? auraGradient;
-        List<BoxShadow>? auraShadow;
-        double borderWidth = 3.0;
-
-        if (mesajSerisi >= limits['galaxy']!) {
-          auraGradient = const SweepGradient(
-            colors: [Colors.deepPurple, Colors.blueAccent, Colors.pinkAccent, Colors.purple, Colors.deepPurple],
-          );
-          auraShadow = [
-            BoxShadow(color: Colors.purpleAccent.withOpacity(0.6), blurRadius: 15, spreadRadius: 3),
-            BoxShadow(color: Colors.blueAccent.withOpacity(0.6), blurRadius: 15, spreadRadius: 3),
-          ];
-          borderWidth = 4.0;
-        } else if (mesajSerisi >= limits['neon']!) {
-          auraGradient = const LinearGradient(colors: [Colors.cyanAccent, Colors.greenAccent]);
-          auraShadow = [BoxShadow(color: Colors.cyanAccent.withOpacity(0.8), blurRadius: 10, spreadRadius: 2)];
-        } else if (mesajSerisi >= limits['gold']!) {
-          auraGradient = const LinearGradient(colors: [Color(0xFFFFDF00), Color(0xFFD4AF37)]);
-          auraShadow = [BoxShadow(color: Color(0xFFFFDF00).withOpacity(0.5), blurRadius: 8, spreadRadius: 1)];
-        } else if (mesajSerisi >= limits['silver']!) {
-          auraGradient = const LinearGradient(colors: [Color(0xFFE0E0E0), Color(0xFF9E9E9E)]);
-        } else {
-          auraGradient = const LinearGradient(colors: [Color(0xFFCD7F32), Color(0xFF8B4513)]);
-        }
-
-        return Container(
-          padding: EdgeInsets.all(borderWidth),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: auraGradient,
-            boxShadow: auraShadow,
-          ),
-          child: CircleAvatar(
-            radius: radius,
-            backgroundColor: Colors.grey[800],
-            backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
-            child: imageUrl.isEmpty
-                ? Text(
-                    fallbackText.isNotEmpty ? fallbackText[0].toUpperCase() : '?',
-                    style: TextStyle(fontSize: radius / 1.5, color: Colors.white, fontWeight: FontWeight.bold),
-                  )
-                : null,
-          ),
-        );
-      },
-    );
   }
 }

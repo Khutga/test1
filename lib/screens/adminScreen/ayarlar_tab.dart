@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:nivi/screens/adminScreen/admin_widgets.dart';
-import '../../core/app_colors.dart';
-import '../../services/sql_servis.dart';
-import '../../widgets/custom_widgets.dart';
+import '../../../core/app_colors.dart';
+import '../../../services/sql_servis.dart';
+import '../../../widgets/custom_widgets.dart';
 
 class AyarlarTab extends StatefulWidget {
   const AyarlarTab({super.key});
@@ -27,29 +27,7 @@ class _AyarlarTabState extends State<AyarlarTab> {
     if (res.basarili) _ayarlar = res.veri;
     setState(() => _isLoading = false);
   }
-  Widget _ayarAlani(String etiket, String ayarAdi, String mevcutDeger) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        initialValue: mevcutDeger,
-        decoration: InputDecoration(labelText: etiket),
-        onFieldSubmitted: (val) async {
-          await SqlServis.guncelle(
-            tablo: 'sistem_ayarlari',
-            veriler: {'ayar_degeri': val},
-            sartlar: {'ayar_adi': ayarAdi}
-          );
-          
-          SqlServis.auraOnbellekTemizle(); 
-          
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Ayar güncellendi!")));
-            setState(() {});
-          }
-        },
-      ),
-    );
-  }
+
   void _duzenleDialog(Map<String, dynamic> ayar) {
     final degerC = TextEditingController(
       text: ayar['ayar_degeri']?.toString() ?? '',
