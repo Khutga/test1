@@ -1,6 +1,7 @@
 import 'dart:async'; // Timer için eklendi
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:nivi/screens/achivements_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../services/sql_servis.dart';
@@ -308,6 +309,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const AgencyMainScreen()),
+                  ),
+                ),
+                MenuActionTile(
+                  icon: LucideIcons.trophy,
+                  label: "Başarımlar",
+                  iconColor: Colors.orange,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AchievementsScreen(),
+                    ),
                   ),
                 ),
                 MenuActionTile(

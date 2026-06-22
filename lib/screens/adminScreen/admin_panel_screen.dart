@@ -6,6 +6,7 @@ import 'package:nivi/screens/adminScreen/kullanicilar_tab.dart';
 import 'package:nivi/screens/adminScreen/ajanslar_tab.dart';
 import 'package:nivi/screens/adminScreen/iliskiler_tab.dart';
 import 'package:nivi/screens/adminScreen/ayarlar_tab.dart';
+import 'package:nivi/screens/adminScreen/barasimlar_tab.dart';
 import '../../core/app_colors.dart';
 import '../../widgets/custom_widgets.dart';
 
@@ -24,7 +25,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
   }
 
   @override
@@ -70,6 +71,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
             Tab(text: "👥 Kullanıcılar"),
             Tab(text: "🏢 Ajanslar"),
             Tab(text: "❤️ İlişkiler"),
+            Tab(text: "🏆 Başarımlar"),
             Tab(text: "⚙️ Ayarlar"),
           ],
         ),
@@ -83,6 +85,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
             KullanicilarTab(),
             AjanslarTab(),
             IliskilerTab(),
+            BasarimlarTab(),
             AyarlarTab(),
           ],
         ),

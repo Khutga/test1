@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 class Tablolar {
   static const String hesaplar = "hesaplar";
   static const String atilanHediyeler = "atilanHediyeler";
+  static const String basarimlar = "basarimlar";
+  static const String kullaniciBasarimlari = "kullanici_basarimlari";
 }
 
 /// API'den dönen yanıtları standart ve tip güvenli hale getiren model.
