@@ -9,9 +9,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '/widgets/custom_widgets.dart';
-import '/core/app_colors.dart';
-import '/services/sql_servis.dart';
+import '../../widgets/custom_widgets.dart';
+import '../../core/app_colors.dart';
+import '../../services/sql_servis.dart';
 import '../../services/katalog_servis.dart';
 
 // --- YARDIMCI SINIFLAR ---

@@ -52,6 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _kullaniciAdimiBul() async {
     final prefs = await SharedPreferences.getInstance();
     final int userId = prefs.getInt('kullanici_id') ?? 1;
+    
+    await SqlServis.gunlukGirisKontrol(userId);
 
     final res = await SqlServis.cek(tablo: 'hesaplar', sartlar: {'id': userId});
 

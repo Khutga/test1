@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:nivi/screens/adminScreen/admin_widgets.dart';
-import '../../../core/app_colors.dart';
-import '../../../services/sql_servis.dart';
-import '../../../widgets/custom_widgets.dart';
+import '../../core/app_colors.dart';
+import '../../services/sql_servis.dart';
+import '../../widgets/custom_widgets.dart';
 
 class HediyelerTab extends StatefulWidget {
   const HediyelerTab({super.key});

@@ -8,8 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '/widgets/custom_widgets.dart';
-import '/core/app_colors.dart';
+import '../../widgets/custom_widgets.dart';
+import '../../core/app_colors.dart';
 
 // --- YARDIMCI SINIFLAR ---
 class ChatMessage {

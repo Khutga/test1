@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../../../core/app_colors.dart';
-import '../../../services/sql_servis.dart';
+import '../../core/app_colors.dart';
+import '../../services/sql_servis.dart';
 
 class BasarimlarTab extends StatefulWidget {
   const BasarimlarTab({super.key});

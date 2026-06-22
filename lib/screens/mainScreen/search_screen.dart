@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart'; 
-import '/core/app_colors.dart';
-import '/services/sql_servis.dart';
-import '/services/shared_stream_data.dart'; // 🔥 Ortak Havuz
-import '/widgets/custom_widgets.dart';
+import '../../core/app_colors.dart';
+import '../../services/sql_servis.dart';
+import '../../services/shared_stream_data.dart'; // 🔥 Ortak Havuz
+import '../../widgets/custom_widgets.dart';
 import '../liveScreen/audience_live_page.dart';
 
 class SearchScreen extends StatefulWidget {
