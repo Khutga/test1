@@ -41,7 +41,6 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,10 +55,6 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
                 fontWeight: FontWeight.w800,
                 color: context.textPrimary,
               ),
-            ),
-            Text(
-              "Bakiye: $_userCoins Coin",
-              style: TextStyle(fontSize: 9, color: context.textSecondary),
             ),
           ],
         ),
@@ -76,7 +71,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
               mainAxisSpacing: 16,
               childAspectRatio: 0.85,
             ),
-            itemCount: KatalogServis.coinPaketleri.value.length, 
+            itemCount: KatalogServis.coinPaketleri.value.length,
             itemBuilder: (context, index) {
               final dbPack = KatalogServis.coinPaketleri.value[index];
               final pack = {

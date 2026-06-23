@@ -7,6 +7,8 @@ class Tablolar {
   static const String atilanHediyeler = "atilanHediyeler";
   static const String basarimlar = "basarimlar";
   static const String kullaniciBasarimlari = "kullanici_basarimlari";
+  static const String rozetler = "rozetler";
+  static const String kullaniciRozetleri = "kullanici_rozetleri";
 }
 
 /// API'den dönen yanıtları standart ve tip güvenli hale getiren model.
@@ -190,4 +192,57 @@ class SqlServis {
       geriDondur: "*" 
     );
   }
-}
+  
+
+  static Future<void> otomatikRozetleriKontrolEt(int kullaniciId) async {
+    
+    var rozetRes = await cek(tablo: Tablolar.rozetler, sartlar: {'otomatik_verilecek_mi': '1'});
+    if (!rozetRes.basarili || rozetRes.veri.isEmpty) return;
+
+    var userRes = await cek(tablo: 'hesaplar', sartlar: {'id': kullaniciId.toString()});
+    if (!userRes.basarili || userRes.veri.isEmpty) return;
+    var user = userRes.veri.first;
+    
+    String olusturulmaStr = user['olusturulma_tarihi']?.toString() ?? '';
+    if (olusturulmaStr.isEmpty) return;
+    DateTime olusturulmaTarihi = DateTime.tryParse(olusturulmaStr) ?? DateTime.now();
+    int hesapYasiGun = DateTime.now().difference(olusturulmaTarihi).inDays;
+
+    var kbRes = await cek(tablo: Tablolar.kullaniciRozetleri, sartlar: {'kullanici_id': kullaniciId.toString()});
+    List<String> sahipOlunanRozetIdleri = [];
+    if (kbRes.basarili && kbRes.veri.isNotEmpty) {
+      sahipOlunanRozetIdleri = kbRes.veri.map((e) => e['rozet_id'].toString()).toList();
+    }
+
+    int toplamEklenecekOdul = 0;
+
+    for (var rozet in rozetRes.veri) {
+      String rId = rozet['id'].toString();
+      int gerekenGun = int.tryParse(rozet['gereken_gun_sayisi']?.toString() ?? '0') ?? 0;
+      int odul = int.tryParse(rozet['odul_coin']?.toString() ?? '0') ?? 0;
+
+      if (hesapYasiGun >= gerekenGun && !sahipOlunanRozetIdleri.contains(rId)) {
+        await ekle(
+          tablo: Tablolar.kullaniciRozetleri,
+          veriler: {
+            'kullanici_id': kullaniciId.toString(),
+            'rozet_id': rId,
+          }
+        );
+        toplamEklenecekOdul += odul;
+      }
+    }
+
+    if (toplamEklenecekOdul > 0) {
+      double mevcutParaDouble = double.tryParse(user['birinci_coin_bakiye']?.toString() ?? '0') ?? 0;
+      int yeniBakiye = mevcutParaDouble.toInt() + toplamEklenecekOdul;
+      
+      await guncelle(
+        tablo: 'hesaplar',
+        veriler: {'birinci_coin_bakiye': yeniBakiye.toString()},
+        sartlar: {'id': kullaniciId.toString()}
+      );
+    }
+  }
+  
+  }

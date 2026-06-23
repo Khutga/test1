@@ -2,6 +2,7 @@ import 'dart:async'; // Timer için eklendi
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:nivi/screens/achivements_screen.dart';
+import 'package:nivi/screens/leaderboard_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
 import '../../services/sql_servis.dart';
@@ -119,6 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Veritabanı değerleri
     String isim = userData?['kullanici_adi'] ?? "Misafir";
     String bakiye = userData?['birinci_coin_bakiye']?.toString() ?? "0";
+    String bakiye2 = userData?['ikinci_coin_bakiye']?.toString() ?? "0";
     String bio = userData?['biyografi'] ?? "Merhaba, FiFi Live'dayım!";
     int xp = int.tryParse(userData?['xp_puani']?.toString() ?? '0') ?? 0;
     int seviye = (xp / 100).floor() + 1;
@@ -166,7 +168,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 16),
+                UserBadgesRow(
+                  userId: int.tryParse(userData?['id']?.toString() ?? '0') ?? 0,
+                ),
+                const SizedBox(height: 16),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -229,8 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 32),
-
+                const SizedBox(height: 5),
                 GlassContainer(
                   padding: const EdgeInsets.all(20),
                   child: Row(
@@ -240,7 +247,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Bakiye",
+                            "Birinci Coin Bakiye",
                             style: TextStyle(
                               fontSize: 12,
                               color: context.textSecondary,
@@ -289,7 +296,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+
+                const SizedBox(height: 10),
+                GlassContainer(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "İkinci Coin Bakiye",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: context.textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "$bakiye2 Coin",
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.accentGold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const CoinShopScreen(),
+                            ),
+                          );
+                          _loadProfileData();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.accent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                        ),
+                        child: const Text(
+                          "Yükle",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
 
                 MenuActionTile(
                   icon: LucideIcons.gift,
@@ -319,6 +386,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const AchievementsScreen(),
+                    ),
+                  ),
+                ),
+                MenuActionTile(
+                  icon: LucideIcons.medal,
+                  label: "Liderlik Tablosu",
+                  iconColor: Colors.orange,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LeaderboardScreen(),
                     ),
                   ),
                 ),

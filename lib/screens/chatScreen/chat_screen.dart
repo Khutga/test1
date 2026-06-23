@@ -16,7 +16,8 @@ import '../../services/katalog_servis.dart';
 
 class ChatScreen extends StatefulWidget {
   final Map<String, dynamic> chatData;
-  const ChatScreen({super.key, required this.chatData});
+  final bool gizliMod;
+  const ChatScreen({super.key, required this.chatData, this.gizliMod = false});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -43,10 +44,11 @@ class _ChatScreenState extends State<ChatScreen> {
   final String phpUploadUrl =
       'http://codefellas.com.tr/apps/nivi/api/upload.php';
   final String phpApiKey = 'GizliAnahtar_Codefellas_2026!';
-
+  late bool _suAnGizli;
   @override
   void initState() {
     super.initState();
+    _suAnGizli = widget.gizliMod;
     _initData();
   }
 
@@ -229,6 +231,7 @@ class _ChatScreenState extends State<ChatScreen> {
       hediyeFiyati: hediyeFiyati,
       hediyeAdi: gift['name'],
       hediyeEmoji: gift['icon'],
+      gizliMi: widget.gizliMod ? 1 : 0,
     );
 
     if (sonuc['basarili'] != true) {
@@ -366,10 +369,76 @@ class _ChatScreenState extends State<ChatScreen> {
         'medya_tipi': mediaType,
         'is_gift': isGift ? 1 : 0,
         'okundu_mu': 0,
+        'gizli_mi': widget.gizliMod ? 1 : 0,
       },
     );
   }
 
+  Future<void> _maskeyiCikar() async {
+    // Önce kullanıcıya emin misin diye soralım
+    bool? onay = await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Maskeyi Çıkar"),
+        content: const Text("Kimliğini açığa çıkarmak istediğine emin misin? Karşı taraf senin kim olduğunu görecek ve bu sohbet normal sohbete dönüşecek!"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("İptal")),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+            onPressed: () => Navigator.pop(ctx, true), 
+            child: const Text("Açığa Çıkar", style: TextStyle(color: Colors.white))
+          ),
+        ],
+      ),
+    );
+
+    if (onay != true) return;
+
+    int alanId = int.tryParse(widget.chatData['id'].toString()) ?? 0;
+
+    // 1. O kişiye attığın tüm GİZLİ mesajları açığa çıkar
+    await SqlServis.guncelle(
+      tablo: 'mesajlar',
+      veriler: {'gizli_mi': 0},
+      sartlar: {'gonderen_id': _kendiId, 'alan_id': alanId, 'gizli_mi': 1}
+    );
+
+    // 2. O kişiye attığın tüm GİZLİ hediyeleri açığa çıkar
+    await SqlServis.guncelle(
+      tablo: 'hediye_gecmisi',
+      veriler: {'gizli_mi': 0},
+      sartlar: {'gonderen_id': _kendiId, 'alan_id': alanId, 'gizli_mi': 1}
+    );
+
+    // 🔥 YENİ: KENDİNİ AÇIĞA ÇIKARMA MESAJI (Coin kesilmemesi için direkt DB'ye yazıyoruz)
+    String acigaCikmaMesaji = "🎭 $_kendiIsmim kimliğini açığa çıkardı!";
+    
+    await SqlServis.ekle(
+      tablo: 'mesajlar',
+      veriler: {
+        'gonderen_id': _kendiId,
+        'alan_id': alanId,
+        'mesaj': acigaCikmaMesaji,
+        'medya_url': '',
+        'medya_tipi': 'yok',
+        'is_gift': 0,
+        'okundu_mu': 0,
+        'gizli_mi': 0, // Artık gizli değil, o yüzden 0
+      },
+    );
+
+    // 3. UI'ı anında normale (Açık mod) çevir ve mesajları yeniden çek
+    setState(() {
+      _suAnGizli = false; 
+    });
+    
+    // Mesajları yeniden çekiyoruz (scrollToBottom: true sayesinde en alttaki yeni mesaja kayacak)
+    _fetchMessages(scrollToBottom: true); 
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("✨ Artık gizli değilsin!"), backgroundColor: Colors.purple),
+    );
+  }
   // Yardımcı Fonksiyon: Hediye sonrası XP ve Seviye işlemleri için kodu temiz tutar
   Future<void> _xpVeSeviyeHesapla(int alanId, int kazanilanXP) async {
     int kucukId = _kendiId < alanId ? _kendiId : alanId;
@@ -635,6 +704,14 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         actions: [
+          if (_suAnGizli)
+            IconButton(
+              icon: const Icon(LucideIcons.eye, color: Colors.purple), // Göz ikonu
+              tooltip: "Kimliğimi Açıkla",
+              onPressed: _maskeyiCikar,
+            ),
+
+            if (!_suAnGizli) ...[
           // ⚠️ SEVİYE 4 KONTROLÜ (Sesli Arama)
           IconButton(
             icon: const Icon(
@@ -712,7 +789,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
-        ],
+        ]],
       ),
       body: MainBackground(
         child: SafeArea(

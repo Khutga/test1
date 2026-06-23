@@ -93,21 +93,28 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
-  void _sendMessage() {
-    if (_targetUser == null) return;
+  void _sendMessage({bool gizliMi = false}) { 
+  if (_targetUser == null) return;
 
-    Map<String, dynamic> fakeChatData = {
-      "id": int.parse(_targetUser!['id'].toString()),
-      "name": _targetUser!['isim'],
-      "msg": "",
-      "time": "Şimdi",
-      "unread": 0,
-    };
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => ChatScreen(chatData: fakeChatData)),
-    );
-  }
+  Map<String, dynamic> fakeChatData = {
+    "id": int.parse(_targetUser!['id'].toString()),
+    "name": _targetUser!['isim'],
+    "msg": "",
+    "time": "Şimdi",
+    "unread": 0,
+    "gizli_mi": gizliMi
+  };
+  
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ChatScreen(
+        chatData: fakeChatData,
+        gizliMod: gizliMi, 
+      ),
+    ),
+  );
+}
 
   Widget _buildStatItem(BuildContext context, String value, String label) {
     return Column(
@@ -312,6 +319,31 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             backgroundColor: AppTheme.success,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _sendMessage(gizliMi: true),
+                          icon: const Icon(
+                            LucideIcons.searchAlert,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          label: const Text(
+                            "Anonim Mesaj ",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            backgroundColor: AppTheme.accentLight,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),

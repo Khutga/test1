@@ -30,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // 🔥 YENİ: Okunmamış duyuru kontrolü için gerekli değişkenler
   bool _hasUnreadAnnouncements = false;
   int _latestAnnouncementId = 0;
+  
 
   @override
   void initState() {
@@ -52,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _kullaniciAdimiBul() async {
     final prefs = await SharedPreferences.getInstance();
     final int userId = prefs.getInt('kullanici_id') ?? 1;
+
+    await SqlServis.otomatikRozetleriKontrolEt(userId);
 
     final res = await SqlServis.cek(tablo: 'hesaplar', sartlar: {'id': userId});
 

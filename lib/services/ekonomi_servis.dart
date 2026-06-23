@@ -9,7 +9,8 @@ class EkonomiServis {
     required int alanId,
     required int hediyeFiyati,
     String hediyeAdi = "",
-    String hediyeEmoji = "",
+    String hediyeEmoji = "", required int gizliMi,
+    String kaynak = 'chat',
   }) async {
     // 1. Gönderenin bakiyesini kontrol et
     final gonderenRes = await SqlServis.cek(
@@ -180,6 +181,9 @@ class EkonomiServis {
         'admin_kesintisi': adminKesintisi,
         'alici_net_kazanc': netKazanc,
         'islem_turu': islemTuru,
+        'gizli_mi': gizliMi,  
+        'kaynak': kaynak    
+
       },
     );
 

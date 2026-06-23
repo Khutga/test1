@@ -7,6 +7,8 @@ import 'package:nivi/screens/adminScreen/ajanslar_tab.dart';
 import 'package:nivi/screens/adminScreen/iliskiler_tab.dart';
 import 'package:nivi/screens/adminScreen/ayarlar_tab.dart';
 import 'package:nivi/screens/adminScreen/barasimlar_tab.dart';
+import 'package:nivi/screens/adminScreen/rozetler_tab.dart';
+import 'package:nivi/screens/adminScreen/yarislar_tab.dart';
 import '../../core/app_colors.dart';
 import '../../widgets/custom_widgets.dart';
 
@@ -25,7 +27,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: 9, vsync: this);
   }
 
   @override
@@ -66,13 +68,15 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
           indicatorColor: AppTheme.accent,
           labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
           tabs: const [
-            Tab(text: "💰 Coin Paketleri"),
-            Tab(text: "🎁 Hediyeler"),
-            Tab(text: "👥 Kullanıcılar"),
-            Tab(text: "🏢 Ajanslar"),
-            Tab(text: "❤️ İlişkiler"),
-            Tab(text: "🏆 Başarımlar"),
-            Tab(text: "⚙️ Ayarlar"),
+            Tab(text: "Coin Paketleri"),
+            Tab(text: "Hediyeler"),
+            Tab(text: "Kullanıcılar"),
+            Tab(text: "Ajanslar"),
+            Tab(text: "İlişkiler"),
+            Tab(text: "Başarımlar"),
+            Tab(text: "Rozetler"),
+            Tab(text: "Yarışlar"),
+            Tab(text: "Ayarlar"),
           ],
         ),
       ),
@@ -86,7 +90,10 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
             AjanslarTab(),
             IliskilerTab(),
             BasarimlarTab(),
+            RozetlerTab(),
+            YarislarTab(),
             AyarlarTab(),
+
           ],
         ),
       ),

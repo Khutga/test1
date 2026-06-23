@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:nivi/screens/accountScreen/user_profile_screen.dart';
+import 'package:nivi/services/sql_servis.dart';
 import '../core/app_colors.dart';
 
 // ─── GLASS CONTAINER ───
@@ -171,7 +172,9 @@ class CustomTextField extends StatelessWidget {
         TextField(
           controller: controller,
           // 🔥 Eğer keyboardType verildiyse onu kullan, verilmediyse eski isNumber mantığına bak
-          keyboardType: keyboardType ?? (isNumber ? TextInputType.number : TextInputType.text),
+          keyboardType:
+              keyboardType ??
+              (isNumber ? TextInputType.number : TextInputType.text),
           maxLines: maxLines,
           style: TextStyle(fontSize: 14, color: context.textPrimary),
           decoration: InputDecoration(
@@ -501,7 +504,7 @@ class LiveStreamCard extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (_) => UserProfileScreen(
                               hedefKullaniciAdi: yayinciIsmi,
-                            ), 
+                            ),
                           ),
                         );
                       },
@@ -611,5 +614,266 @@ class MainBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(color: context.bg, child: child);
+  }
+}
+
+class UserBadgesRow extends StatefulWidget {
+  final int userId;
+  const UserBadgesRow({super.key, required this.userId});
+
+  @override
+  State<UserBadgesRow> createState() => _UserBadgesRowState();
+}
+
+class _UserBadgesRowState extends State<UserBadgesRow> {
+  List<Map<String, dynamic>> rozetler = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _rozetleriGetir();
+  }
+
+  Future<void> _rozetleriGetir() async {
+    var userRozetRes = await SqlServis.cek(
+      tablo: Tablolar.kullaniciRozetleri,
+      sartlar: {'kullanici_id': widget.userId.toString()},
+    );
+
+    if (userRozetRes.basarili && userRozetRes.veri.isNotEmpty) {
+      List<Map<String, dynamic>> geciciRozetler = [];
+      for (var item in userRozetRes.veri) {
+        var rozetRes = await SqlServis.cek(
+          tablo: Tablolar.rozetler,
+          sartlar: {'id': item['rozet_id'].toString()},
+        );
+        if (rozetRes.basarili && rozetRes.veri.isNotEmpty) {
+          geciciRozetler.add(rozetRes.veri.first);
+        }
+      }
+      if (mounted) setState(() => rozetler = geciciRozetler);
+    }
+  }
+
+  // --- NEW: Custom Engaging Dialog ---
+  void _showBadgeDetails(
+    BuildContext context,
+    Map<String, dynamic> r,
+    Color rColor,
+  ) {
+    final int gunSayisi =
+        int.tryParse(r['gereken_gun_sayisi']?.toString() ?? '0') ?? 0;
+    final int odulCoin = int.tryParse(r['odul_coin']?.toString() ?? '0') ?? 0;
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: rColor.withOpacity(0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Glowing Icon
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: rColor.withOpacity(0.15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: rColor.withOpacity(0.4),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Icon(LucideIcons.award, color: rColor, size: 48),
+              ),
+              const SizedBox(height: 16),
+
+              // Title
+              Text(
+                r['baslik']?.toString() ?? '',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Description (Aciklama)
+              Text(
+                r['aciklama']?.toString() ?? '',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey.shade600,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Gamification Stats (Days & Reward)
+              if (gunSayisi > 0 || odulCoin > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      if (gunSayisi > 0)
+                        Column(
+                          children: [
+                            const Icon(
+                              LucideIcons.calendar,
+                              size: 20,
+                              color: Colors.blue,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "$gunSayisi Gün",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (gunSayisi > 0 && odulCoin > 0)
+                        Container(
+                          height: 30,
+                          width: 1,
+                          color: Colors.grey.withOpacity(0.3),
+                        ),
+                      if (odulCoin > 0)
+                        Column(
+                          children: [
+                            const Icon(
+                              LucideIcons.coins,
+                              size: 20,
+                              color: Colors.amber,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "+$odulCoin Coin",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+
+              const SizedBox(height: 24),
+
+              // Close Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: rColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    "Harika!",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (rozetler.isEmpty) return const SizedBox.shrink();
+
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: rozetler.map((r) {
+        Color rColor = Colors.amber;
+        try {
+          rColor = Color(
+            int.parse(r['renk_hex'].toString().replaceAll('#', '0xff')),
+          );
+        } catch (_) {}
+
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => _showBadgeDetails(context, r, rColor),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                // Added a nice gradient
+                gradient: LinearGradient(
+                  colors: [rColor.withOpacity(0.2), rColor.withOpacity(0.05)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                border: Border.all(color: rColor.withOpacity(0.5), width: 1.5),
+                borderRadius: BorderRadius.circular(20),
+                // Added a soft shadow
+                boxShadow: [
+                  BoxShadow(
+                    color: rColor.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(LucideIcons.award, color: rColor, size: 18),
+                  const SizedBox(width: 6),
+                  Text(
+                    r['baslik']?.toString() ?? '',
+                    style: TextStyle(
+                      color: Color.lerp(rColor, Colors.black, 0.5),
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
   }
 }

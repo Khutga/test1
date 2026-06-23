@@ -199,9 +199,18 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
                         itemCount: _gifts.length,
                         itemBuilder: (_, index) {
                           final item = _gifts[index];
-                          String gosterilecekIsim = _activeTab == 'received'
-                              ? item['gonderen_isim'] ?? 'Bilinmiyor'
-                              : item['alan_isim'] ?? 'Bilinmiyor';
+                          bool isGizli = item['gizli_mi'].toString() == '1';
+
+                          String gosterilecekIsim;
+                          if (_activeTab == 'received') {
+                            gosterilecekIsim = isGizli
+                                ? "Gizli Hayran"
+                                : (item['gonderen_isim'] ?? 'Bilinmiyor');
+                          } else {
+                            gosterilecekIsim = isGizli
+                                ? "${item['alan_isim'] ?? 'Bilinmiyor'} (Gizli)"
+                                : (item['alan_isim'] ?? 'Bilinmiyor');
+                          }
 
                           String formattedDate = _formatDate(
                             item['tarih']?.toString(),
@@ -231,7 +240,9 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen> {
                                       Text(
                                         "${_activeTab == 'received' ? 'Gönderen:' : 'Alıcı:'} $gosterilecekIsim",
                                         style: TextStyle(
-                                          color: context.textSecondary,
+                                          color: isGizli
+                                              ? Colors.purpleAccent
+                                              : context.textSecondary,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
                                         ),

@@ -387,6 +387,7 @@ class _PremiumLiveStreamPageState extends State<PremiumLiveStreamPage>
         'receiver': _selectedGiftTarget, // Hediye seçili kişiye gider
         'icon': emoji,
         'points': points,
+        'kaynak': 'live'
       });
 
       try {

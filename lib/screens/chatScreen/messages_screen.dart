@@ -138,59 +138,81 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
       if (partnerMsgs.isEmpty) continue;
 
-      // Tarihe göre sırala (Eskiden yeniye)
-      partnerMsgs.sort(
-        (a, b) => a['olusturulma_tarihi'].compareTo(b['olusturulma_tarihi']),
-      );
+      //  MESAJLARI İKİYE BÖLÜYORUZ: NORMAL VE GİZLİ
+      var gizliMsgs = partnerMsgs
+          .where((m) => m['gizli_mi'].toString() == '1')
+          .toList();
+      var normalMsgs = partnerMsgs
+          .where((m) => m['gizli_mi'].toString() != '1')
+          .toList();
 
-      // En son mesaj
-      var lastMsg = partnerMsgs.last;
+      // Sohbet satırı oluşturan yardımcı fonksiyon
+      void sohbetEkle(List<dynamic> mesajListesi, bool gizliSohbetMi) {
+        if (mesajListesi.isEmpty) return;
 
-      // Okunmamış mesaj sayısı (Bize gelen ve okundu_mu == 0 olanlar)
-      int unreadCount = partnerMsgs
-          .where(
-            (m) =>
-                m['gonderen_id'].toString() == pId.toString() &&
-                m['okundu_mu'].toString() == "0",
-          )
-          .length;
+        mesajListesi.sort(
+          (a, b) => a['olusturulma_tarihi'].compareTo(b['olusturulma_tarihi']),
+        );
+        var lastMsg = mesajListesi.last;
+        int unreadCount = mesajListesi
+            .where(
+              (m) =>
+                  m['gonderen_id'].toString() == pId.toString() &&
+                  m['okundu_mu'].toString() == "0",
+            )
+            .length;
 
-      // Mesaj metnini ayarla (Hediye mi, Medya mı, Metin mi?)
-      String msgText = lastMsg['mesaj'] ?? '';
-      if (lastMsg['is_gift'].toString() == "1") {
-        msgText = "🎁 Hediye gönderdi";
-      } else if (lastMsg['medya_url'] != null &&
-          lastMsg['medya_url'].toString().isNotEmpty) {
-        msgText = lastMsg['medya_tipi'] == 'resim'
-            ? "📷 Fotoğraf gönderdi"
-            : "🎥 Video gönderdi";
+        String msgText = lastMsg['mesaj'] ?? '';
+        if (lastMsg['is_gift'].toString() == "1") {
+          msgText = "🎁 Hediye gönderdi";
+        } else if (lastMsg['medya_url'] != null &&
+            lastMsg['medya_url'].toString().isNotEmpty) {
+          msgText = lastMsg['medya_tipi'] == 'resim'
+              ? "📷 Fotoğraf gönderdi"
+              : "🎥 Video gönderdi";
+        }
+
+        String timeStr = "Şimdi";
+        try {
+          DateTime dt = DateTime.parse(lastMsg['olusturulma_tarihi']);
+          timeStr =
+              "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+        } catch (e) {}
+
+        //  İSİM BELİRLEME MANTIĞI: Bize geldiyse "Gizli Hayran", biz attıysak "Kişi (Gizli)"
+        String gorunenIsim = _userCache[pId] ?? 'Bilinmiyor';
+        if (gizliSohbetMi) {
+          bool bizMiBaslattik =
+              mesajListesi.first['gonderen_id'].toString() ==
+              _kendiId.toString();
+          gorunenIsim = bizMiBaslattik
+              ? "$gorunenIsim (Gizli)"
+              : "Gizli Hayran";
+        }
+
+        int gercekSeviye = relationshipLevels[pId] ?? 1;
+        int dinamikUyum = min(99, 60 + (gercekSeviye * 4));
+
+        tempChatList.add({
+          'id': pId,
+          'name': gorunenIsim,
+          'is_gizli': gizliSohbetMi, // UI İÇİN GİZLİLİK BAYRAĞI
+          'msg': msgText,
+          'time': timeStr,
+          'unread': unreadCount,
+          'soulMatch': gizliSohbetMi
+              ? null
+              : dinamikUyum, // Gizli fanda seviye gizlenir
+          'coupleLevel': gizliSohbetMi ? null : gercekSeviye,
+          'raw_date': lastMsg['olusturulma_tarihi'],
+        });
       }
 
-      // Saati formatla
-      String timeStr = "Şimdi";
-      try {
-        DateTime dt = DateTime.parse(lastMsg['olusturulma_tarihi']);
-        timeStr =
-            "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
-      } catch (e) {}
-
-      // 🔥 GERÇEK SEVİYEYİ VE DİNAMİK UYUMU ÇEK
-      int gercekSeviye = relationshipLevels[pId] ?? 1;
-      int dinamikUyum = min(
-        99,
-        60 + (gercekSeviye * 4),
-      ); // Seviye arttıkça uyum artar (Maks %99)
-
-      tempChatList.add({
-        'id': pId,
-        'name': _userCache[pId],
-        'msg': msgText,
-        'time': timeStr,
-        'unread': unreadCount,
-        'soulMatch': dinamikUyum, // Dinamik uyum yüzdesi
-        'coupleLevel': gercekSeviye, // GERÇEK VERİTABANI SEVİYESİ
-        'raw_date': lastMsg['olusturulma_tarihi'],
-      });
+      sohbetEkle(normalMsgs, false); // Normal sohbeti listeye ekle
+      sohbetEkle(
+        gizliMsgs,
+        true,
+      ); // Varsa gizli sohbeti AYRI BİR SATIR olarak listeye ekle
     }
 
     // 5. Listeyi son mesaj tarihine göre (Yeniden eskiye) sırala
@@ -314,13 +336,17 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         separatorBuilder: (_, __) => const SizedBox(height: 6),
                         itemBuilder: (context, index) {
                           final msg = _chatList[index];
+                          final bool isGizli = msg['is_gizli'] == true;
                           return GlassContainer(
                             padding: const EdgeInsets.all(12),
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ChatScreen(chatData: msg),
+                                  builder: (_) => ChatScreen(
+                                    chatData: msg,
+                                    gizliMod: isGizli,
+                                  ),
                                 ),
                               ).then((_) {
                                 _fetchChats();
@@ -331,28 +357,42 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                 // Avatar + online dot
                                 Stack(
                                   children: [
-                                    GlowAvatar(
-                                      initial: msg['name'].toString().isNotEmpty
-                                          ? msg['name'][0]
-                                          : '?',
-                                      radius: 25,
-                                    ),
-                                    Positioned(
-                                      bottom: 0,
-                                      right: 0,
-                                      child: Container(
-                                        width: 15,
-                                        height: 15,
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.success,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: context.card,
-                                            width: 2,
+                                    if (isGizli)
+                                      CircleAvatar(
+                                        radius: 25,
+                                        backgroundColor: Colors.purple
+                                            .withOpacity(0.2),
+                                        child: const Icon(
+                                          LucideIcons.venetianMask,
+                                          color: Colors.purple,
+                                        ),
+                                      )
+                                    else
+                                      GlowAvatar(
+                                        initial:
+                                            msg['name'].toString().isNotEmpty
+                                            ? msg['name'][0]
+                                            : '?',
+                                        radius: 25,
+                                      ),
+
+                                    if (!isGizli) // Gizli hayranın online olduğu görünmesin
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                          width: 15,
+                                          height: 15,
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.success,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: context.card,
+                                              width: 2,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
                                   ],
                                 ),
                                 const SizedBox(width: 10),
