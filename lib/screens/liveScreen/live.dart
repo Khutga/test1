@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:livekit_client/livekit_client.dart' hide ConnectionState;
 import 'package:http/http.dart' as http;
-import 'package:nivi/screens/accountScreen/user_profile_screen.dart';
+import 'package:nivi/screens/accountScreen/profilGoster/user_profile_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 

@@ -4,12 +4,13 @@ class EkonomiServis {
   // =========================================================================
   // 1. HEDİYE GÖNDERME İŞLEMİ
   // =========================================================================
-  static Future<Map<String, dynamic>> hediyeIslemiYap({
+ static Future<Map<String, dynamic>> hediyeIslemiYap({
     required int gonderenId,
     required int alanId,
     required int hediyeFiyati,
     String hediyeAdi = "",
-    String hediyeEmoji = "", required int gizliMi,
+    String hediyeEmoji = "", 
+    required int gizliMi,
     String kaynak = 'chat',
   }) async {
     // 1. Gönderenin bakiyesini kontrol et
@@ -183,13 +184,21 @@ class EkonomiServis {
         'islem_turu': islemTuru,
         'gizli_mi': gizliMi,  
         'kaynak': kaynak    
-
       },
     );
+
+    //  XP SİSTEMİ ENTEGRASYONU BAŞLANGICI
+    // Gönderen kişiye harcadığı coin kadar (örneğin 500 coin = 500 miktar) hediye_gonder XP'si ekle
+    await SqlServis.xpEkle(gonderenId, 'hediye_gonder', hediyeFiyati);
+
+    // Alan kişiye kazandığı/aldığı coin kadar hediye_al XP'si ekle
+    await SqlServis.xpEkle(alanId, 'hediye_al', hediyeFiyati);
+    //  XP SİSTEMİ ENTEGRASYONU BİTİŞİ 
 
     return {'basarili': true, 'mesaj': 'Hediye başarıyla gönderildi.'};
   }
 
+  
   // =========================================================================
   // 2. NORMAL MESAJ GÖNDERME İŞLEMİ
   // =========================================================================

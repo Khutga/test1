@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_colors.dart';
+import '../../widgets/aransWidget.dart';
 import '../../widgets/custom_widgets.dart';
 import '../../services/sql_servis.dart';
 // 🔥 YENİ: Ortak veri havuzumuzu ekledik
@@ -30,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
   // 🔥 YENİ: Okunmamış duyuru kontrolü için gerekli değişkenler
   bool _hasUnreadAnnouncements = false;
   int _latestAnnouncementId = 0;
-  
 
   @override
   void initState() {
@@ -90,9 +90,19 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Set<int> ajansliIdler = {}; // Ajanslı kullanıcı ID'lerini tutacak küme
   // MySQL'e tekrar tekrar gitmek yerine, ORTAK HAVUZ'daki veriyi alıp sıralayan fonksiyon
   Future<void> _verileriFiltrele() async {
     if (!mounted) return;
+    // Hikayeleri çekerken ajanslıları işaretleyin:
+    final ajansRes = await SqlServis.cek(
+      tablo: 'ajans_uyeleri',
+      sartlar: {'onay_durumu': 'Onaylandi'},
+    );
+    ajansliIdler = ajansRes.veri
+        .map((u) => int.parse(u['kullanici_id'].toString()))
+        .toSet();
+    print("Ajanslı ID'ler: ${ajansliIdler.toString()}");
 
     // Veriyi havuzdan kopyala
     List<Map<String, dynamic>> hamVeri = List<Map<String, dynamic>>.from(
@@ -330,6 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   itemCount: _aktifYayinlar.length,
                                   itemBuilder: (context, index) {
                                     final stream = _aktifYayinlar[index];
+
                                     final yayinciIsmi =
                                         stream['yayin_sahibi_isim'] ??
                                         'Bilinmiyor';
@@ -351,25 +362,40 @@ class _HomeScreenState extends State<HomeScreen> {
                                         },
                                         child: Column(
                                           children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(2),
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: AppTheme.danger,
-                                                  width: 2,
+                                            Flexible(
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  2,
                                                 ),
-                                              ),
-                                              child: CircleAvatar(
-                                                radius: 30,
-                                                backgroundColor: AppTheme.accent
-                                                    .withOpacity(0.3),
-                                                child: Text(
-                                                  yayinciIsmi[0].toUpperCase(),
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w700,
-                                                    fontSize: 18,
-                                                    color: Colors.white,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                    color: AppTheme.danger,
+                                                    width: 2,
+                                                  ),
+                                                ),
+                                                child: AjansBadgeWrapper(
+                                                  isAjans: ajansliIdler
+                                                      .toString()
+                                                      .contains(
+                                                        stream['yayin_sahibi_id']
+                                                            .toString(),
+                                                      ),
+                                                  child: CircleAvatar(
+                                                    radius: 30,
+                                                    backgroundColor: AppTheme
+                                                        .accent
+                                                        .withOpacity(0.3),
+                                                    child: Text(
+                                                      yayinciIsmi[0]
+                                                          .toUpperCase(),
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        fontSize: 18,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
                                               ),
@@ -381,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   : yayinciIsmi,
                                               style: const TextStyle(
                                                 fontSize: 10,
-                                                color: Colors.white70,
+                                                color: AppTheme.accent,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -408,18 +434,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                 itemCount: _aktifYayinlar.length,
                                 itemBuilder: (context, index) {
                                   final stream = _aktifYayinlar[index];
-                                  return LiveStreamCard(
-                                    stream: stream,
-                                    onTap: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => AudienceLivePage(
-                                          roomName: stream['oda_adi'],
-                                          username:
-                                              _myUsername, // 🔥 GERÇEK KULLANICI ADI
-                                          hostName:
-                                              stream['yayin_sahibi_isim'] ??
-                                              'Bilinmiyor',
+                                  return AjansBadgeWrapper(
+                                    isAjans: ajansliIdler.toString().contains(
+                                      stream['yayin_sahibi_id'].toString(),
+                                    ),
+                                    child: LiveStreamCard(
+                                      stream: stream,
+                                      onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => AudienceLivePage(
+                                            roomName: stream['oda_adi'],
+                                            username:
+                                                _myUsername, // 🔥 GERÇEK KULLANICI ADI
+                                            hostName:
+                                                stream['yayin_sahibi_isim'] ??
+                                                'Bilinmiyor',
+                                          ),
                                         ),
                                       ),
                                     ),

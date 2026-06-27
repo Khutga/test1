@@ -26,7 +26,7 @@ class _MainNavigatorState extends State<MainNavigator> {
   String? _kullaniciCinsiyet;
   bool _bilgilerYukleniyor = true;
 
-  // 🔥 YENİ: Okunmayan mesaj sayısını tutan değişken ve zamanlayıcı
+  // Okunmayan mesaj sayısını tutan değişken ve zamanlayıcı
   int _okunmayanMesajSayisi = 0;
   Timer? _mesajSayacTimer;
 
@@ -36,7 +36,6 @@ class _MainNavigatorState extends State<MainNavigator> {
   void initState() {
     super.initState();
     _screens = [
-      // 1 rakamı İkinci Sekme (SearchScreen) anlamına gelir.
       HomeScreen(onSearchTap: () => onTabTapped(1)),
       const SearchScreen(),
       const Center(child: Text("Yayın Katmanı")),
@@ -48,7 +47,6 @@ class _MainNavigatorState extends State<MainNavigator> {
     KatalogServis.yukle();
     _kullaniciBilgileriniCek();
 
-    // 🔥 Okunmayan mesajları ilk açılışta çek ve her 3 saniyede bir arka planda kontrol et
     _okunmayanMesajlariCek();
     _mesajSayacTimer = Timer.periodic(
       const Duration(seconds: 3),
@@ -59,10 +57,11 @@ class _MainNavigatorState extends State<MainNavigator> {
   @override
   void dispose() {
     SharedStreamData.stopPolling();
-    _mesajSayacTimer?.cancel(); // 🔥 Sayfadan çıkınca sayacı durdur
+    _mesajSayacTimer?.cancel();
     super.dispose();
   }
 
+  // 🔥 GÜNCELLENDİ: Bilgileri çekerken son giriş tarihini de kontrol ediyoruz
   Future<void> _kullaniciBilgileriniCek() async {
     final prefs = await SharedPreferences.getInstance();
     final int userId = prefs.getInt('kullanici_id') ?? 1;
@@ -72,30 +71,93 @@ class _MainNavigatorState extends State<MainNavigator> {
       sartlar: {'id': userId},
     );
     if (response.basarili && response.veri.isNotEmpty && mounted) {
+      final userVeri = response.veri.first;
       setState(() {
-        _kullaniciCinsiyet = response.veri.first['cinsiyet'];
+        _kullaniciCinsiyet = userVeri['cinsiyet'];
         _bilgilerYukleniyor = false;
       });
+
+      //  KULLANICI UYGULAMAYA GİRDİ: GÜNLÜK XP VE SON GİRİŞ GÜNCELLEMESİ YAP
+      _gunlukGirisKontrolVeGuncelle(userId, userVeri['son_giris_tarihi']);
     } else {
       if (mounted) setState(() => _bilgilerYukleniyor = false);
     }
   }
 
-  // 🔥 YENİ: Veritabanından okunmamış mesajları sayan fonksiyon
+  //  YENİ: Veritabanındaki tarihe bakıp XP verir ve tarihi günceller
+  Future<void> _gunlukGirisKontrolVeGuncelle(
+    int userId,
+    dynamic sonGirisTarihi,
+  ) async {
+    DateTime now = DateTime.now();
+    // SQL için uygun tarih formatı: 2026-06-24 14:30:00
+    String formattedNow =
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+
+    bool xpVerilecek = false;
+
+    if (sonGirisTarihi != null && sonGirisTarihi.toString().isNotEmpty) {
+      try {
+        DateTime lastLogin = DateTime.parse(sonGirisTarihi.toString());
+        // Eğer giriş yapılan YIL, AY veya GÜN bugünle aynı değilse yeni gün demektir!
+        if (lastLogin.year != now.year ||
+            lastLogin.month != now.month ||
+            lastLogin.day != now.day) {
+          xpVerilecek = true;
+        }
+      } catch (e) {
+        xpVerilecek = true; // Parse hatası olursa mağdur olmasın diye ver
+      }
+    } else {
+      xpVerilecek =
+          true; // Adamın daha önce hiç giriş tarihi yoksa (yeni hesapsa)
+    }
+
+    if (xpVerilecek) {
+      // 🔥 XP Ekle (Günlük Giriş) - Miktar 1 (PHP içindeki çarpana çarpılacak)
+      await SqlServis.xpEkle(userId, 'gunluk_giris', 1);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                Text("🎁 ", style: TextStyle(fontSize: 20)),
+                Text(
+                  "Günlük Giriş Ödülü: XP Kazandın!",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppTheme.success,
+            duration: Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+
+    //  SON GİRİŞ TARİHİNİ GÜNCELLE (Bunu her girişte yapar ki "Çevrimiçi" görünsün)
+    await SqlServis.guncelle(
+      tablo: 'hesaplar',
+      veriler: {'son_giris_tarihi': formattedNow},
+      sartlar: {'id': userId},
+    );
+  }
+
   Future<void> _okunmayanMesajlariCek() async {
     final prefs = await SharedPreferences.getInstance();
     final int userId = prefs.getInt('kullanici_id') ?? 1;
 
     final response = await SqlServis.cek(
       tablo: 'mesajlar',
-      sartlar: {
-        'alan_id': userId,
-        'okundu_mu': 0, // Sadece okunmamış olanları getir
-      },
+      sartlar: {'alan_id': userId, 'okundu_mu': 0},
     );
 
     if (response.basarili && mounted) {
-      // Çekilen satır sayısı okunmamış mesaj sayısına eşittir
       if (_okunmayanMesajSayisi != response.veri.length) {
         setState(() {
           _okunmayanMesajSayisi = response.veri.length;
@@ -108,9 +170,6 @@ class _MainNavigatorState extends State<MainNavigator> {
     setState(() => _currentIndex = index);
   }
 
-  // ==========================================
-  // YAYIN AYARLARI (ETİKET SEÇİMİ) PANELİ
-  // ==========================================
   void _showGoLiveBottomSheet() {
     if (_kullaniciCinsiyet == 'Erkek') {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -199,7 +258,6 @@ class _MainNavigatorState extends State<MainNavigator> {
                         ),
                         const SizedBox(height: 20),
 
-                        // HAZIR ETİKETLER
                         Wrap(
                           spacing: 10,
                           runSpacing: 10,
@@ -259,7 +317,6 @@ class _MainNavigatorState extends State<MainNavigator> {
 
                         const SizedBox(height: 16),
 
-                        // KENDİ ETİKETİNİ YAZ
                         GestureDetector(
                           onTap: () => setModalState(() => isCustomTag = true),
                           child: Container(
@@ -310,7 +367,6 @@ class _MainNavigatorState extends State<MainNavigator> {
 
                         const SizedBox(height: 30),
 
-                        // YAYINI BAŞLAT BUTONU
                         SizedBox(
                           width: double.infinity,
                           height: 54,
@@ -324,17 +380,12 @@ class _MainNavigatorState extends State<MainNavigator> {
                               shadowColor: AppTheme.danger.withOpacity(0.5),
                             ),
                             onPressed: () async {
-                              // Etiketi belirle
                               final finalTag =
                                   isCustomTag &&
                                       customTagController.text.trim().isNotEmpty
                                   ? customTagController.text.trim()
                                   : selectedTag;
-
-                              // Menüyü Kapat
                               Navigator.pop(ctx);
-
-                              // Verileri Çek ve Yayına Geç
                               await _startLiveWithTag(finalTag);
                             },
                             child: const Row(
@@ -366,7 +417,6 @@ class _MainNavigatorState extends State<MainNavigator> {
     );
   }
 
-  // Verileri toplayıp Host sayfasına gönderen arka plan metodu
   Future<void> _startLiveWithTag(String tag) async {
     final prefs = await SharedPreferences.getInstance();
     final int userId = prefs.getInt('kullanici_id') ?? 1;
@@ -403,8 +453,8 @@ class _MainNavigatorState extends State<MainNavigator> {
       extendBody: true,
       body: IndexedStack(index: _currentIndex, children: _screens),
 
-     floatingActionButton: _kullaniciCinsiyet == 'Erkek'
-          ? null 
+      floatingActionButton: _kullaniciCinsiyet == 'Erkek'
+          ? null
           : SizedBox(
               height: 52,
               width: 52,
@@ -413,7 +463,11 @@ class _MainNavigatorState extends State<MainNavigator> {
                 backgroundColor: AppTheme.accent,
                 elevation: 4,
                 shape: const CircleBorder(),
-                child: const Icon(LucideIcons.video, color: Colors.white, size: 22),
+                child: const Icon(
+                  LucideIcons.video,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -445,14 +499,13 @@ class _MainNavigatorState extends State<MainNavigator> {
                       label: "Keşfet",
                       index: 1,
                     ),
-                    if (_kullaniciCinsiyet != 'Erkek') 
+                    if (_kullaniciCinsiyet != 'Erkek')
                       const SizedBox(width: 40),
                     _buildNavItem(
                       icon: LucideIcons.messageCircle,
                       label: "Mesajlar",
                       index: 3,
-                      badge:
-                          _okunmayanMesajSayisi, 
+                      badge: _okunmayanMesajSayisi,
                     ),
                     _buildNavItem(
                       icon: LucideIcons.user,
@@ -520,7 +573,6 @@ class _MainNavigatorState extends State<MainNavigator> {
                   ),
                   child: Center(
                     child: Text(
-                      // Sayı 9'dan büyükse 9+ göster ki tasarım dışına taşmasın
                       badge > 9 ? "9+" : badge.toString(),
                       style: const TextStyle(
                         fontSize: 10,

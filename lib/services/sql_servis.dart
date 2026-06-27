@@ -112,11 +112,13 @@ class SqlServis {
   static Future<ApiResponse> cek({
     required String tablo,
     Map<String, dynamic>? sartlar,
+    String? islem, // 🔥 Yeni: Dışarıdan özel işlem tipi belirtebilmek için isteğe bağlı parametre
   }) async {
-    String islemTipi = (sartlar == null || sartlar.isEmpty) ? 'cek' : 'ozel_cek';
+    // Eğer dışarıdan özel bir işlem (örn: 'arama_cek') gönderilmediyse eski mantık çalışır
+    String islemTipi = islem ?? ((sartlar == null || sartlar.isEmpty) ? 'cek' : 'ozel_cek');
+    
     return await _istekGonder(islem: islemTipi, tablo: tablo, sartlar: sartlar);
   }
-
   // =========================================================================
   // AUTH (GİRİŞ / KAYIT) İŞLEMLERİ
   // =========================================================================
@@ -243,6 +245,28 @@ class SqlServis {
         sartlar: {'id': kullaniciId.toString()}
       );
     }
+  }
+
+  // 🔥 XP EKLEME SERVİSİ
+  static Future<bool> xpEkle(int kullaniciId, String islemTipi, int miktar) async {
+    try {
+      final response = await http.post(
+        Uri.parse("http://codefellas.com.tr/apps/nivi/api/xp_islem.php"), // Kendi API yoluna göre kontrol et
+        body: {
+          'kullanici_id': kullaniciId.toString(),
+          'islem_tipi': islemTipi, // Örn: 'mesaj', 'hediye_gonder', 'yayin_dakika'
+          'miktar': miktar.toString(),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['durum'] == 'basarili';
+      }
+    } catch (e) {
+      print("XP Ekleme Hatası: $e");
+    }
+    return false;
   }
   
   }

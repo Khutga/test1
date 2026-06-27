@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:nivi/screens/accountScreen/user_profile_screen.dart';
+import 'package:nivi/screens/accountScreen/profilGoster/user_profile_screen.dart';
 // Kendi tema ve widget yollarını import et
 // import '../../core/app_colors.dart';
 

@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:nivi/screens/accountScreen/user_profile_screen.dart';
+import 'package:nivi/screens/accountScreen/profilGoster/user_profile_screen.dart';
 import 'package:nivi/services/sql_servis.dart';
 import '../core/app_colors.dart';
 

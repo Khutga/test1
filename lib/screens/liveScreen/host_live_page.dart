@@ -5,8 +5,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:http/http.dart' as http;
+import 'package:nivi/services/sql_servis.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/custom_widgets.dart';
 import '../../core/app_colors.dart';
@@ -56,6 +58,8 @@ class _HostLivePageState extends State<HostLivePage> {
   bool _isLoading = true;
   int _viewerCount = 0;
   String _activeRoomName = "";
+
+  DateTime? _yayinBaslamaZamani;
 
   final List<ChatMessage> _chatMessages = [];
   final TextEditingController _chatController = TextEditingController();
@@ -295,6 +299,8 @@ class _HostLivePageState extends State<HostLivePage> {
   // LIVEKIT BAĞLANTISI
   // ==========================================
   Future<void> _connectToLiveKit(String targetRoom) async {
+    final prefs = await SharedPreferences.getInstance();
+    final int? kayitliId = prefs.getInt('kullanici_id');
     setState(() => _isLoading = true);
     try {
       await [Permission.camera, Permission.microphone].request();
@@ -305,6 +311,7 @@ class _HostLivePageState extends State<HostLivePage> {
         body: jsonEncode({
           'room': targetRoom,
           'username': widget.username,
+          'user_id': kayitliId?.toString(),
           'is_host': true,
           'etiket': widget.etiket,
         }),
@@ -408,6 +415,7 @@ class _HostLivePageState extends State<HostLivePage> {
           _updateViewerCount();
         });
         _addSystemMessage("Yayın başarıyla başlatıldı.");
+        _yayinBaslamaZamani = DateTime.now(); // YAYIN BAŞLAMA SAATİNİ KAYDET
       }
     } catch (e) {
       _addSystemMessage("Bağlantı Hatası!");
@@ -677,6 +685,23 @@ class _HostLivePageState extends State<HostLivePage> {
       body: jsonEncode({'room': widget.roomName}),
     );
     if (_isPkActive) await _sqlSil('aktif_pk', {'oda_adi': _activeRoomName});
+
+    //  YAYIN KAPATINCA XP KAZANMA SİSTEMİ
+    if (_yayinBaslamaZamani != null) {
+      int gecenDakika = DateTime.now()
+          .difference(_yayinBaslamaZamani!)
+          .inMinutes;
+
+      // Adam en az 1 dakika yayında kaldıysa XP ver
+      if (gecenDakika > 0) {
+        final prefs = await SharedPreferences.getInstance();
+        int kendiId = prefs.getInt('kullanici_id') ?? 1;
+
+        await SqlServis.xpEkle(kendiId, 'yayin_dakika', gecenDakika);
+        debugPrint("Yayın bitti. $gecenDakika dakika için XP verildi!");
+      }
+    }
+
     return true;
   }
 

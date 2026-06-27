@@ -372,6 +372,11 @@ class _ChatScreenState extends State<ChatScreen> {
         'gizli_mi': widget.gizliMod ? 1 : 0,
       },
     );
+
+    if (!isGift && textOverride.isEmpty) {
+      // Hediye mesajı veya sistem mesajı değilse (adam kendi eliyle yazdıysa) XP ver
+      SqlServis.xpEkle(_kendiId, 'mesaj', 1);
+    }
   }
 
   Future<void> _maskeyiCikar() async {
@@ -380,13 +385,21 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text("Maskeyi Çıkar"),
-        content: const Text("Kimliğini açığa çıkarmak istediğine emin misin? Karşı taraf senin kim olduğunu görecek ve bu sohbet normal sohbete dönüşecek!"),
+        content: const Text(
+          "Kimliğini açığa çıkarmak istediğine emin misin? Karşı taraf senin kim olduğunu görecek ve bu sohbet normal sohbete dönüşecek!",
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("İptal")),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text("İptal"),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
-            onPressed: () => Navigator.pop(ctx, true), 
-            child: const Text("Açığa Çıkar", style: TextStyle(color: Colors.white))
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              "Açığa Çıkar",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -400,19 +413,19 @@ class _ChatScreenState extends State<ChatScreen> {
     await SqlServis.guncelle(
       tablo: 'mesajlar',
       veriler: {'gizli_mi': 0},
-      sartlar: {'gonderen_id': _kendiId, 'alan_id': alanId, 'gizli_mi': 1}
+      sartlar: {'gonderen_id': _kendiId, 'alan_id': alanId, 'gizli_mi': 1},
     );
 
     // 2. O kişiye attığın tüm GİZLİ hediyeleri açığa çıkar
     await SqlServis.guncelle(
       tablo: 'hediye_gecmisi',
       veriler: {'gizli_mi': 0},
-      sartlar: {'gonderen_id': _kendiId, 'alan_id': alanId, 'gizli_mi': 1}
+      sartlar: {'gonderen_id': _kendiId, 'alan_id': alanId, 'gizli_mi': 1},
     );
 
     // 🔥 YENİ: KENDİNİ AÇIĞA ÇIKARMA MESAJI (Coin kesilmemesi için direkt DB'ye yazıyoruz)
     String acigaCikmaMesaji = "🎭 $_kendiIsmim kimliğini açığa çıkardı!";
-    
+
     await SqlServis.ekle(
       tablo: 'mesajlar',
       veriler: {
@@ -429,16 +442,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // 3. UI'ı anında normale (Açık mod) çevir ve mesajları yeniden çek
     setState(() {
-      _suAnGizli = false; 
+      _suAnGizli = false;
     });
-    
+
     // Mesajları yeniden çekiyoruz (scrollToBottom: true sayesinde en alttaki yeni mesaja kayacak)
-    _fetchMessages(scrollToBottom: true); 
-    
+    _fetchMessages(scrollToBottom: true);
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("✨ Artık gizli değilsin!"), backgroundColor: Colors.purple),
+      const SnackBar(
+        content: Text("✨ Artık gizli değilsin!"),
+        backgroundColor: Colors.purple,
+      ),
     );
   }
+
   // Yardımcı Fonksiyon: Hediye sonrası XP ve Seviye işlemleri için kodu temiz tutar
   Future<void> _xpVeSeviyeHesapla(int alanId, int kazanilanXP) async {
     int kucukId = _kendiId < alanId ? _kendiId : alanId;
@@ -706,90 +723,94 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           if (_suAnGizli)
             IconButton(
-              icon: const Icon(LucideIcons.eye, color: Colors.purple), // Göz ikonu
+              icon: const Icon(
+                LucideIcons.eye,
+                color: Colors.purple,
+              ), // Göz ikonu
               tooltip: "Kimliğimi Açıkla",
               onPressed: _maskeyiCikar,
             ),
 
-            if (!_suAnGizli) ...[
-          // ⚠️ SEVİYE 4 KONTROLÜ (Sesli Arama)
-          IconButton(
-            icon: const Icon(
-              LucideIcons.phone,
-              color: AppTheme.accent,
-              size: 18,
-            ),
-            onPressed: () {
-              if (_currentRelationshipLevel < 4) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "🔒 Sesli arama yapmak için Seviye 4 olmalısınız!",
+          if (!_suAnGizli) ...[
+            // ⚠️ SEVİYE 4 KONTROLÜ (Sesli Arama)
+            IconButton(
+              icon: const Icon(
+                LucideIcons.phone,
+                color: AppTheme.accent,
+                size: 18,
+              ),
+              onPressed: () {
+                if (_currentRelationshipLevel < 4) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "🔒 Sesli arama yapmak için Seviye 4 olmalısınız!",
+                      ),
+                      backgroundColor: AppTheme.danger,
                     ),
-                    backgroundColor: AppTheme.danger,
+                  );
+                  return;
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ChatCallScreen(
+                      chatData: widget.chatData,
+                      username: _kendiIsmim,
+                      isVideoCall: false,
+                      currentRelationshipLevel: _currentRelationshipLevel,
+                    ),
                   ),
                 );
-                return;
-              }
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ChatCallScreen(
-                    chatData: widget.chatData,
-                    username: _kendiIsmim,
-                    isVideoCall: false,
-                    currentRelationshipLevel: _currentRelationshipLevel,
-                  ),
-                ),
-              );
-            },
-          ),
-          // ⚠️ SEVİYE 5 KONTROLÜ (Görüntülü Arama)
-          IconButton(
-            icon: const Icon(
-              LucideIcons.video,
-              color: AppTheme.accentGold,
-              size: 18,
+              },
             ),
-            onPressed: () {
-              if (_currentRelationshipLevel < 5) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "🔒 Görüntülü arama yapmak için Seviye 5 olmalısınız!",
+            // ⚠️ SEVİYE 5 KONTROLÜ (Görüntülü Arama)
+            IconButton(
+              icon: const Icon(
+                LucideIcons.video,
+                color: AppTheme.accentGold,
+                size: 18,
+              ),
+              onPressed: () {
+                if (_currentRelationshipLevel < 5) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "🔒 Görüntülü arama yapmak için Seviye 5 olmalısınız!",
+                      ),
+                      backgroundColor: AppTheme.danger,
                     ),
-                    backgroundColor: AppTheme.danger,
+                  );
+                  return;
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ChatCallScreen(
+                      chatData: widget.chatData,
+                      username: _kendiIsmim,
+                      isVideoCall: true,
+                      currentRelationshipLevel: _currentRelationshipLevel,
+                    ),
                   ),
                 );
-                return;
-              }
-              Navigator.push(
+              },
+            ),
+            IconButton(
+              icon: const Icon(
+                LucideIcons.heart,
+                color: AppTheme.danger,
+                size: 18,
+              ),
+              onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => ChatCallScreen(
-                    chatData: widget.chatData,
-                    username: _kendiIsmim,
-                    isVideoCall: true,
-                    currentRelationshipLevel: _currentRelationshipLevel,
-                  ),
+                  builder: (_) => RelationshipScreen(chatData: widget.chatData),
                 ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(
-              LucideIcons.heart,
-              color: AppTheme.danger,
-              size: 18,
-            ),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => RelationshipScreen(chatData: widget.chatData),
               ),
             ),
-          ),
-        ]],
+          ],
+        ],
       ),
       body: MainBackground(
         child: SafeArea(
